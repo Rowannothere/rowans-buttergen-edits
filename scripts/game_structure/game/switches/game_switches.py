@@ -79,6 +79,10 @@ class Switch(StrEnum):
     # the group the MC is attempting to switch to
     change_group = auto()
 
+    last_used_POI = auto()
+    selected_tile = auto()
+    edit_map_info = auto()
+
 
 _switches: Dict[str, Union[str, int, bool, list, dict, None]] = {
     "cat": "",
@@ -137,6 +141,11 @@ _switches: Dict[str, Union[str, int, bool, list, dict, None]] = {
     "accomplices": [],
     "change_group": None,
     "ceremony_accessory": False,
+    "last_used_POI": "",
+    "selected_tile": "",
+    "edit_map_info": {
+        "owner": "1"
+    }
 }
 """If you are somehow accessing this from outside game_switches.py, something has gone terribly wrong."""
 

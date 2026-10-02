@@ -4,6 +4,7 @@ from typing import List
 import unittest
 from pathlib import Path
 from random import choice, shuffle, randint, Random
+from unittest.mock import Mock, patch
 from uuid import uuid4
 
 from scripts import events
@@ -21,7 +22,13 @@ from scripts.events_module.patrol.patrol import Patrol
 from scripts.events_module.short.short_event_generation import (
     filter_events,
 )
+from scripts.events_module.event_information import EventInformation
 from scripts.game_structure import game
+from scripts.game_structure.game.switches import (
+    Switch,
+    switch_get_value,
+    switch_set_value,
+)
 from scripts.game_structure.game.save_load import read_clans
 from scripts.housekeeping.datadir import get_save_dir
 from scripts.cat_relations.inheritance import Inheritance
@@ -122,3 +129,55 @@ class TestEvents(unittest.TestCase):
         )
 
         self.assertEqual(random_cat, new_random_cat)
+
+    def test_legacy_war_save_migrates_to_war_objects(self):
+        other_clan = game.clan.all_other_clans[0]
+        game.clan._saved_war_data = {
+            str(game.clan.group_ID): {
+                str(other_clan.group_ID): {"at_war": True, "duration": 3}
+            }
+        }
+
+        game.clan.load_war()
+
+        self.assertEqual(len(game.clan.war), 1)
+        self.assertEqual(game.clan.war[0].duration, 3)
+        self.assertIs(game.clan.war[0].get_opponent_object(game.clan), other_clan)
+        game.clan.war = []
+
+    def test_event_tile_survives_event_serialization(self):
+        tile = game.clan.territory_tiles[0]
+        event = EventInformation("A map event.", ["other_clans"], event_tile=tile.tile_string)
+
+        restored = EventInformation.from_dict(event.to_dict(), Cat)
+
+        self.assertEqual(restored.event_tile, tile.tile_string)
+
+    def test_map_poi_tiles_have_display_names(self):
+        for poi_category in ("gathering", "moonplace"):
+            tile = next(
+                tile for tile in game.clan.territory_tiles if tile.poi == poi_category
+            )
+            self.assertIn("<b>", tile.name_string())
+
+    def test_load_clan_uses_the_loaded_clan_for_territory_and_war(self):
+        loader = Clan()
+        loaded_clan = Mock()
+        loaded_clan.save_id = "loaded"
+        previous_clan = game.clan
+        previous_clan_list = switch_get_value(Switch.clan_list)
+        loader.load_clan_json = lambda: setattr(game, "clan", loaded_clan)
+        loader.add_guide_influence = lambda: None
+        switch_set_value(Switch.clan_list, ["loaded"])
+
+        try:
+            with patch("scripts.clan.os.path.exists", return_value=True), patch(
+                "scripts.clan.get_version", return_value=None
+            ), patch("scripts.clan.load_clan_settings"):
+                loader.load_clan()
+
+            loaded_clan.load_territory_json.assert_called_once_with()
+            loaded_clan.load_war.assert_called_once_with()
+        finally:
+            game.clan = previous_clan
+            switch_set_value(Switch.clan_list, previous_clan_list)

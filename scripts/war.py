@@ -41,20 +41,22 @@ class War():
         """
         Return True if the specifed Clan(s) are a part of this war.
         """
+        clan_id = getattr(clan, "group_ID", clan)
         if not other_clan:
-            if clan.group_ID == self.offense:
+            if clan_id == self.offense:
                 return True
-            if clan.group_ID == self.defense:
+            if clan_id == self.defense:
                 return True
         else:
+            other_clan_id = getattr(other_clan, "group_ID", other_clan)
             if (
-                clan.group_ID == self.offense and
-                other_clan.group_ID == self.defense
+                clan_id == self.offense and
+                other_clan_id == self.defense
             ):
                 return True
             if (
-                clan.group_ID == self.defense and
-                other_clan.group_ID == self.offense
+                clan_id == self.defense and
+                other_clan_id == self.offense
             ):
                 return True
         return False
@@ -63,7 +65,8 @@ class War():
         """
         Returns the string ID of the specified Clan's current opponent.
         """
-        if clan.group_ID == self.offense:
+        clan_id = getattr(clan, "group_ID", clan)
+        if clan_id == self.offense:
             return self.defense
         return self.offense
     

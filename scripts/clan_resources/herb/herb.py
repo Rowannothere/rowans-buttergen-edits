@@ -26,10 +26,15 @@ class Herb:
             count=2,
         )
 
-    def get_rarity(self, biome, season) -> int:
+    def get_rarity(self, biome, season, territory_tiles=None, clan=None) -> int:
         """
         returns rarity of the herb within clan's current biome and season
         """
         rarity_dict = self._herb_dict.get("rarity", {})
-
-        return rarity_dict.get(biome.casefold(), {}).get(season.casefold(), 0)
+        rarity = rarity_dict.get(biome.casefold(), {}).get(season.casefold(), 0)
+        if rarity and territory_tiles:
+            for tile in territory_tiles:
+                if tile.herb == self.name and tile.owner == clan:
+                    rarity = max(1, rarity - tile.strength)
+                    break
+        return rarity

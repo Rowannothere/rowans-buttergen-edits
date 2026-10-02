@@ -70,13 +70,15 @@ class ClanScreen(Screens):
                 else:
                     self.label_toggle.check()
                 self.update_buttons_and_text()
-            if event.ui_element == self.camp_labels["med_den_label"]:
+            elif event.ui_element == self.camp_labels["med_den_label"]:
                 self.change_screen(GameScreen.MED_DEN)
-            if event.ui_element == self.camp_labels["clearing_label"]:
+            elif event.ui_element == self.camp_labels["clearing_label"]:
                 self.change_screen(GameScreen.MEDIATION)
-            if event.ui_element == self.camp_labels["warrior_den_label"]:
+            elif event.ui_element == self.camp_labels["warrior_den_label"]:
                 self.change_screen(GameScreen.WARRIOR_DEN)
-            if event.ui_element == self.camp_labels["leader_den_label"]:
+            elif event.ui_element == self.camp_labels["map_label"]:
+                self.change_screen(GameScreen.MAP_SCREEN)
+            elif event.ui_element == self.camp_labels["leader_den_label"]:
                 self.change_screen(GameScreen.LEADER_DEN)
             else:
                 self.menu_button_pressed(event)
@@ -268,6 +270,14 @@ class ClanScreen(Screens):
                 "bottom": "bottom",
                 "bottom_target": self.show_den_labels,
             },
+        )
+
+        self.camp_labels["map_label"] = UISurfaceImageButton(
+            ui_scale(pygame.Rect((205, 641), (120, 34))),
+            "screens.map.map_button",
+            get_button_dict(ButtonStyles.ROUNDED_RECT, (120, 34)),
+            object_id=ObjectID(class_id="@buttonstyles_rounded_rect", object_id=None),
+            manager=MANAGER,
         )
 
         self.show_den_labels_text = pygame_gui.elements.UILabel(

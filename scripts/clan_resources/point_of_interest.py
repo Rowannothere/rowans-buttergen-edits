@@ -88,6 +88,23 @@ def get_random_poi_by_tag(tag, clan=None):
     tagged = _poi_by_tags.get("shared", {}).get(tag, [])+_poi_by_tags.get(clan if clan else "shared", {}).get(tag, [])
     return choice(tagged if tagged else ["MISSING_POI"])
 
+def get_all_pois_by_tag(tag, clan=None):
+    """Return all POI names that match a tag."""
+    if clan is not None:
+        tag_groups = (
+            _poi_by_tags.get("shared", {}),
+            _poi_by_tags.get(clan, {}),
+        )
+    else:
+        tag_groups = _poi_by_tags.values()
+    return list(
+        dict.fromkeys(
+            poi
+            for tags in tag_groups
+            for poi in tags.get(tag, [])
+        )
+    )
+
 
 def get_random_poi_by_category(category: Literal["gathering", "moonplace", "terrain"], clan=None):
     try:

@@ -8,7 +8,7 @@ TODO: Docs
 from scripts.game_structure import game
 import random
 from scripts.clan_resources.point_of_interest import (
-get_poi_save_dict,
+get_pois_by_category,
 get_all_pois_by_tag
 )
 from scripts.config import get_config
@@ -321,7 +321,10 @@ def _generate_terrain_info(territory_dict, border_tiles=[], all_tiles=[]):
     ocean_number = biome_water_features[game.clan.biome][2]
 
     lake_starting_tiles = []
-    all_pois = get_poi_save_dict()
+    all_pois = {
+        category: get_pois_by_category(category)
+        for category in ("gathering", "moonplace", "terrain")
+    }
     for feature in all_pois["terrain"]:
         if feature in river_pois:
             create_river = True
@@ -733,12 +736,18 @@ def __place_pois(territory_dict):
     if top_corner in free_tiles:
         free_tiles.remove(top_corner)
 
-    clan_poi_dict = get_poi_save_dict()
-    for category in clan_poi_dict:
+    poi_names = {
+        category: get_pois_by_category(category)
+        for category in ("gathering", "moonplace", "terrain")
+    }
+    for category in poi_names:
         if category == "gathering":
             # done earlier!
             continue
         elif category == "moonplace":
+            moonplaces = poi_names[category]
+            if not moonplaces:
+                continue
             moonplace_tiles = []
             for tile in free_tiles:
                 # try to find a spot in unclaimed territory first
@@ -753,7 +762,7 @@ def __place_pois(territory_dict):
                     if tile.split("-")[0] in (0, MAP_SIZE - 1):
                         moonplace_tiles.append(tile)
             for tile in moonplace_tiles.copy():
-                if clan_poi_dict[category][0] != "moon_pool":
+                if moonplaces[0] != "moon_pool":
                     if "terrain" in territory_dict[tile] and territory_dict[tile]["terrain"] in (
                         "river", "lake", "ocean", "thunderpath", "silverpath"
                     ):
@@ -771,7 +780,7 @@ def __place_pois(territory_dict):
             free_tiles.remove(chosen_tile)
         else:
             # terrain features
-            for feature in clan_poi_dict[category]:
+            for feature in poi_names[category]:
                 feature_tiles = []
                 if feature in get_all_pois_by_tag("Twolegs:present"):
                     for tile in free_tiles:

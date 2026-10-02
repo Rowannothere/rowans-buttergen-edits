@@ -23,7 +23,7 @@ from scripts.game_structure.game.switches import (
     switch_set_value,
 )
 from scripts.clan_resources.point_of_interest import (
-    get_poi_save_dict
+    get_pois_by_category
 )
 
 class EditMapOptions(GameWindow):
@@ -105,12 +105,7 @@ class EditMapOptions(GameWindow):
             self.create_option_checkboxes("owner", game.clan.all_other_clans + [game.clan] + [None])
         elif self.page == 1:
             subtitle = "Points of Interest"
-            option_list = []
-            for poi_type in get_poi_save_dict():
-                if poi_type == "terrain":
-                    option_list.extend(get_poi_save_dict()[poi_type])
-                else:
-                    option_list.append(poi_type)
+            option_list = ["gathering", "moonplace"] + get_pois_by_category("terrain")
             self.create_option_checkboxes("poi", option_list)
         elif self.page == 2:
             subtitle = "Terrain"
