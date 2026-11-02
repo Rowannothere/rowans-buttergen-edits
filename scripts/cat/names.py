@@ -1,0 +1,715 @@
+"""
+Module that handles the name generation for all cats.
+"""
+import copy
+import os
+import random
+
+import i18n
+import ujson
+
+from scripts.config import get_config
+from scripts.cat import custom_names
+from scripts.cat.enums import CatRank, CatAge, CatSocial
+from scripts.game_structure.localization import load_lang_resource
+from scripts.housekeeping.datadir import get_save_dir
+from scripts.game_structure.game.switches import switch_get_value, Switch
+from .alt_namer import Namer
+from scripts.game_structure import game
+from scripts.clan_package.settings.clan_settings import get_clan_setting
+
+
+class Name:
+    """
+    Stores & handles name generation.
+    """
+
+    current_save_dir = None
+    currently_loaded_clan = None
+    currently_loaded_lang = None
+    names_dict = {}
+    # the game's lists for this language and save, before the Names window's changes
+    default_names = {}
+    current_clan = None
+    custom = {}
+    mod_prefixes = {}
+    mod_suffixes = {}
+    prefix_history = []
+
+    def __init__(
+        self,
+        cat=None,
+        prefix=None,
+        suffix=None,
+        honour=None,
+        biome=None,
+        specsuffix_hidden=False,
+        load_existing_name=False,
+    ):
+        self.load_localized_names()
+        self.prefix = prefix
+        self.suffix = suffix
+        self.specsuffix_hidden = specsuffix_hidden
+        no_suffixes = get_clan_setting("no suffixes") and get_clan_setting("modded names")
+
+        try:
+            self.cat = cat
+            self.status = cat.status
+            self.moons = cat.moons
+            self.phenotype = cat.phenotype
+            self.chimpheno = cat.chimerapheno if cat.chimerapheno else None
+            self.skills = cat.skills if cat.skills else None
+            self.personality = cat.personality if cat.personality else None
+            self.biome = biome
+            self.honour = honour
+        except AttributeError:
+            self.status = None
+            self.moons = None
+            self.phenotype = None
+            self.chimpheno = None
+            self.skills = None
+            self.personality = None
+            self.biome = None
+            self.honour = None
+
+        name_fixpref = False
+        # Set prefix
+        if prefix is None:
+            self.give_prefix(cat, biome, no_suffix=True if (suffix == "" or no_suffixes) else False)
+            # needed for random dice when we're changing the Prefix
+            name_fixpref = True
+
+        # Set suffix
+        if self.suffix is None:
+            if no_suffixes and not load_existing_name:
+                self.suffix = ""
+                self.specsuffix_hidden = True
+            else:
+                self.give_suffix(self.skills, self.personality, biome, honour)
+                if name_fixpref and self.prefix is None:
+                    # needed for random dice when we're changing the Prefix
+                    name_fixpref = False
+    
+    @classmethod
+    def load_clan_names(cls, clan):
+        if not os.path.exists(get_save_dir() + f"/{clan}" + "/names"):
+            return
+        if os.path.exists(get_save_dir() + f"/{clan}" + "/names" + "/alt_prefixes.json"):
+            with open(get_save_dir() + f"/{clan}" + "/names" + "/alt_prefixes.json") as read_file:
+                cls.mod_prefixes = ujson.loads(read_file.read())
+        if os.path.exists(get_save_dir() + f"/{clan}" + "/names" + '/alt_suffixes.json'):
+            with open(get_save_dir() + f"/{clan}" + "/names" + '/alt_suffixes.json') as read_file:
+                cls.mod_suffixes = ujson.loads(read_file.read())
+        if os.path.exists(get_save_dir() + f"/{clan}" + "/names" + '/names.json'):
+            with open(get_save_dir() + f"/{clan}" + "/names" + '/names.json') as read_file:
+                cls.names_dict = ujson.loads(read_file.read())
+
+    @classmethod
+    def _usable_name(cls, prefix, suffix, cat):
+        if prefix is None or suffix is None:
+            return True
+
+        name = prefix + suffix
+
+        # Prevent triple letter names from joining prefix and suffix from occurring (ex. Beeeye)
+        # Prevent crash on empty prefix or suffix (e.g. empty-suffix loner names)
+        if not prefix or not suffix:
+            triple_letter = False
+        else:
+            possible_three_letter = (
+                (prefix[-2:] if len(prefix) > 2 else prefix) + suffix[0],
+                prefix[-1] + suffix[:2],
+            )
+            triple_letter = all(
+                i == possible_three_letter[0][0] for i in possible_three_letter[0]
+            ) or all(i == possible_three_letter[1][0] for i in possible_three_letter[1])
+
+        # Prevent double animal names (ex. Spiderfalcon)
+        double_animal = (
+            prefix in cls.names_dict["animal_prefixes"]
+            and suffix in cls.names_dict["animal_suffixes"]
+        )
+
+        # Prevent double names (ex. Iceice)
+        # Prevent suffixes containing the prefix (ex. Butterflyfly)
+        double_name = (prefix.lower() in suffix.lower() and str(prefix) != "") or (
+            suffix.lower() in prefix.lower() and str(suffix) != ""
+        )
+
+        scarlessscar = (cat and hasattr(cat, "pelt") and not cat.pelt.scars and suffix == "scar")
+
+        return not (
+            # Prevent the inappropriate names
+            name.lower() in cls.names_dict["inappropriate_names"]
+            or triple_letter
+            or double_animal
+            or double_name
+            or scarlessscar
+        )
+
+    @classmethod
+    def load_localized_names(cls):
+        """
+        Loads the correct names for the given language. Includes override for always using English names, in case localization wants to be ignored
+        :return: None
+        """
+
+        # allowing the user to override the localized language names if desired
+        if always_english := get_config("cat_name_controls.always_use_english"):
+            lang = "en"
+        else:
+            lang = i18n.config.get("locale")
+
+        current_clan = None
+        try:
+            if switch_get_value(Switch.clan_save_id) != "":
+                current_clan = switch_get_value(Switch.clan_save_id)
+            else:
+                current_clan = switch_get_value(Switch.clan_list)[0]
+        except:
+            current_clan = None
+
+        if cls.current_save_dir == get_save_dir() and cls.currently_loaded_lang == lang and cls.currently_loaded_clan == current_clan:
+            # nothing to do here, all good
+            return
+
+        names_dict = load_lang_resource("names.json")
+        try:
+            cls.mod_prefixes = load_lang_resource("alt_prefixes.json")
+            cls.mod_suffixes = load_lang_resource("alt_suffixes.json")
+        except:
+            pass
+
+        save_dir = get_save_dir()
+
+        # here onwards is copied wholesale from the original Name class
+
+        if os.path.exists(save_dir + "/prefixlist.txt"):
+            with open(
+                str(save_dir + "/prefixlist.txt"), "r", encoding="utf-8"
+            ) as read_file:
+                name_list = read_file.read()
+                if_names = len(name_list)
+            if if_names > 0:
+                new_names = name_list.split("\n")
+                for new_name in new_names:
+                    if new_name != "":
+                        if new_name.startswith("-"):
+                            while new_name[1:] in names_dict["normal_prefixes"]:
+                                names_dict["normal_prefixes"].remove(new_name[1:])
+                        else:
+                            names_dict["normal_prefixes"].append(new_name)
+
+        if os.path.exists(save_dir + "/suffixlist.txt"):
+            with open(
+                str(save_dir + "/suffixlist.txt"), "r", encoding="utf-8"
+            ) as read_file:
+                name_list = read_file.read()
+                if_names = len(name_list)
+            if if_names > 0:
+                new_names = name_list.split("\n")
+                for new_name in new_names:
+                    if new_name != "":
+                        if new_name.startswith("-"):
+                            while new_name[1:] in names_dict["normal_suffixes"]:
+                                names_dict["normal_suffixes"].remove(new_name[1:])
+                        else:
+                            names_dict["normal_suffixes"].append(new_name)
+
+        if os.path.exists(save_dir + "/specialsuffixes.txt"):
+            with open(
+                str(save_dir + "/specialsuffixes.txt", "r"), encoding="utf-8"
+            ) as read_file:
+                name_list = read_file.read()
+                if_names = len(name_list)
+            if len(name_list) > 0:
+                new_names = name_list.split("\n")
+                for new_name in new_names:
+                    if new_name != "":
+                        if new_name.startswith("-"):
+                            del names_dict["special_suffixes"][new_name[1:]]
+                        elif ":" in new_name:
+                            _tmp = new_name.split(":")
+                            names_dict["special_suffixes"][_tmp[0]] = _tmp[1]
+
+        cls.names_dict = names_dict
+        cls.current_save_dir = save_dir
+        cls.currently_loaded_lang = lang
+
+        cls.load_clan_names(current_clan)
+        cls.currently_loaded_clan = current_clan
+
+        # LG: the Names window's changes, for all saves and then for this save
+        cls.default_names = copy.deepcopy(cls.names_dict)
+        cls.current_clan = current_clan
+        cls.apply_custom_names()
+
+    @classmethod
+    def apply_custom_names(cls):
+        cls.names_dict = custom_names.combined(cls.default_names, cls.current_clan)
+        cls.custom = custom_names.merged_info(cls.current_clan)
+
+    def __str__(self):
+        return self.__repr__()
+    def filter(self, all, used):
+        return [x for x in all if x not in used]
+
+    def change_prefix(self, moons, biome, change):
+        self.moons = moons
+
+        colour_changed = False
+
+        self.phenotype.SpriteInfo(moons)
+
+        if (self.phenotype.colour in ['white', 'albino'] or 
+            self.phenotype.basecolour == 'white' or
+            (self.phenotype.white[1] in ['ws', 'wt'] and self.phenotype.whitegrade == 5) or
+            (self.phenotype.is_cryptic(all_rev=True) and self.phenotype.brindledbi) or 
+            (self.phenotype.dilute[0] == 'd' and self.phenotype.pinkdilute[0] == 'dp' and 
+                (('dove' in self.phenotype.colour and self.phenotype.fur_shade < 2) or 
+                ('platinum' in self.phenotype.colour and self.phenotype.fur_shade < 3) or
+                ('dove' not in self.phenotype.colour and 'platinum' not in self.phenotype.colour))) or
+            ('silver' in self.phenotype.silvergold and ('shaded' in self.phenotype.tabby or 'chinchilla' in self.phenotype.tabby))
+            ):
+            colour_changed = False
+        elif change == "kit-apprentice" and self.phenotype.pointgene[0] in ['cb', 'cs']:
+            colour_changed = True
+        elif change == "kit-apprentice" and (self.phenotype.fevercoat or self.phenotype.bleach[0] == 'lb'):
+            colour_changed = True
+        elif change == "kit-apprentice" and self.phenotype.karp[0] == 'K':
+            colour_changed = True
+        elif self.phenotype.ext[0] == 'ec' and change == "kit-apprentice":
+            colour_changed = True
+        elif self.phenotype.ext[0] == 'er' and (self.moons > 23 and change == "apprentice-warrior"):
+            colour_changed = True
+        elif self.phenotype.ext[0] == 'ea' and ((change == "apprentice-warrior" and self.phenotype.agouti[0] != 'a') or (self.moons > 35 and change == "apprentice-warrior")):
+            colour_changed = True
+        elif change in ["apprentice-warrior", "warrior-elder"] and self.phenotype.vitiligo:
+            colour_changed = True
+        elif self.prefix in self.mod_prefixes['general']['small'] and self.phenotype.height_label in ['goliath', 'giant', 'large', 'above average', 'average']:
+            colour_changed = True
+        elif self.prefix in self.mod_prefixes['general']['big'] and self.phenotype.height_label in ['teacup', 'tiny', 'small', 'below average', 'average']:
+            colour_changed = True
+            
+        name_control_info = get_config("cat_name_controls.prefix_change_chance")
+        chance = name_control_info[change]
+        if colour_changed:
+            chance /= name_control_info["pelt_change_modifier"]
+
+        if random.random() < (1/chance):
+            self.give_prefix(self.cat, biome)
+
+    def find_outsider_name(self, social: CatSocial):
+        if social == CatSocial.CLANCAT:
+            return
+
+        # if it ain't a clancat, give it a non-clancat name
+        name_categories = [
+            "silly_names",
+            "human_names",
+            "loner_names",
+            "normal_prefixes",
+        ]
+        # defaults in case of error
+        weights = [1, 1, 1, 1]
+        # give kittypets a kittypet name
+        weights = get_config("cat_name_controls")[str(social)]
+
+        selected_category = random.choices(name_categories, weights, k=1)[0]
+        name = random.choice(self.names_dict[selected_category])
+        self.cat.change_name(new_prefix=name, new_suffix="")
+
+    # Generate possible prefix
+    def give_prefix(self, cat, biome, no_suffix=False):
+        """Sometimes one of your own prefixes (Names window), and never one you took out"""
+        self.load_localized_names()
+        mine = custom_names.pick(Name.custom, "normal_prefixes")
+        if mine:
+            self.prefix = mine
+            return
+        self.give_game_prefix(cat, biome, no_suffix)
+        if custom_names.is_removed(Name.custom, "normal_prefixes", self.prefix):
+            self.prefix = random.choice(self.names_dict["normal_prefixes"])
+
+    def give_game_prefix(self, cat, biome, no_suffix=False):
+        self.load_localized_names()
+        name_control_info = get_config("cat_name_controls")
+        if get_clan_setting("modded names") and get_clan_setting('outsider names') and random.random() < 0.5:
+            selected_category = random.choices(["silly_names", "human_names", "loner_names", "normal_prefixes"], name_control_info["clancat"], k=1)[0]
+            self.prefix = random.choice(self.names_dict[selected_category])
+            return
+        if not self.phenotype:
+            self.prefix = random.choice(self.names_dict["normal_prefixes"])
+            return
+
+        try:
+            used_prefixes = [c.name.prefix for c in cat.all_cats.values() if c.status.group_ID == cat.status.group_ID and c.name]
+        except:
+            used_prefixes = []
+
+        namer = Namer(used_prefixes, self.mod_prefixes, self.moons, self.phenotype, self.chimpheno)
+        tries = 0
+        if get_clan_setting("modded names") and get_clan_setting('new prefixes'):
+            while True:
+                tries += 1
+                self.prefix = namer.start()
+                if no_suffix:
+                    if self.prefix == "Striped":
+                        self.prefix = "Stripe"
+                    elif self.prefix == "Spotted":
+                        self.prefix = "Spot"
+                if self.prefix and self._usable_name(self.prefix, self.suffix, self.cat) or tries > 20:
+                    return
+            
+
+        named_after_appearance = not random.getrandbits(
+            2
+        )  # Chance for True is '1/4'
+
+        named_after_biome_ = not random.getrandbits(3)  # chance for True is 1/8
+
+        colour_mappings = {
+            "black" : ["BLACK"],
+            "blue" : ["GREY", "DARKGREY", "DAWN"],
+            "chocolate" : ["BROWN", "GOLDEN-BROWN", "DARKBROWN", "CHOCOLATE", "RUST"],
+            "lilac": ["PALEGREY", "SILVER", "LILAC", "MALLOW", "SOOT"],
+            "cinnamon" : ["SIENNA", "DARKGINGER", "GOLDEN-BROWN"],
+            "fawn" : ["LIGHTBROWN", "BLOSSOM"],
+            "ginger" : ["GINGER", "DARKGINGER"],
+            "cream" : ["CREAM", "PALEGINGER", "HONEY"],
+            "white" : ["WHITE"],
+            "silver shaded" : ["WHITE"]
+        }
+        
+        params = namer.parse_chimera() if self.chimpheno else namer.get_categories(self.phenotype)
+
+        colours = colour_mappings[params[0]]
+        if params[2]['type'] == 'silver' and params[0] not in ['ginger', 'cream']:
+            colours.append('PALEGREY')
+            colours.append('SILVER')
+        if params[2]['type'] == 'dark' and params[0] == "black":
+            colours.append('GHOST')
+        if params[2]['type'] == 'golden' and params[0] not in ['ginger', 'cream']:
+            colours.append('GOLDEN')
+            if params[0] in ["black", "chocolate"]:
+                colours.append("SUNSHINE")  # LG: was colour, crashed naming golden black/chocolate cats
+        if self.phenotype.ruftype == 'rufoused' and params[0] == 'ginger':
+            colours.append('DARKGINGER')
+        if self.phenotype.ruftype == 'low' and params[0] == 'ginger':
+            colours.append('PALEGINGER')
+        if params[2]['pattern'] != '' and params[2]['type'] == 'regular' and params[0] == "black":
+            colours.append('BROWN')
+            colours.append('DARKBROWN')
+        colours = [c for c in colours if c in self.names_dict["colour_prefixes"]]
+
+        # Add possible prefix categories to list.
+        possible_prefix_categories = []
+        possible_prefix_categories.append(self.names_dict["colour_prefixes"][random.choice(colours)])
+        if biome is not None and biome in self.names_dict["biome_prefixes"]:
+            possible_prefix_categories.append(self.names_dict["biome_prefixes"][biome])
+
+        # Choose appearance-based prefix if possible and named_after_appearance because True.
+        if (
+            named_after_appearance
+            and possible_prefix_categories
+            and not named_after_biome_
+            or named_after_biome_
+            and possible_prefix_categories
+        ):
+            prefix_category = random.choice(possible_prefix_categories)
+            self.prefix = random.choice(prefix_category)
+        else:
+            self.prefix = random.choice(self.names_dict["normal_prefixes"])
+
+        # This thing prevents any prefix duplications from happening.
+        # Try statement stops this form running when initializing.
+        while True:
+            named_after_appearance = not random.getrandbits(
+                2
+            )  # Chance for True is '1/4'
+
+            named_after_biome = not random.getrandbits(3)  # chance for True is 1/8
+            # Choose appearance-based prefix if possible and named_after_appearance because True.
+            if (
+                named_after_appearance
+                and possible_prefix_categories
+                and not named_after_biome
+                or named_after_biome
+                and possible_prefix_categories
+            ):
+                prefix_category = random.choice(possible_prefix_categories)
+                self.prefix = random.choice(prefix_category)
+            else:
+                self.prefix = random.choice(self.names_dict["normal_prefixes"])
+
+            # prevent prefix duplications from happening
+            if self.prefix in self.prefix_history or not self._usable_name(
+                self.prefix, self.suffix, self.cat
+            ):
+                continue
+            else:
+                self.prefix_history.append(self.prefix)
+                # Set the maximin length to 8 just to be sure
+                if len(self.prefix_history) > 8:
+                    # removing at zero so the oldest gets removed
+                    self.prefix_history.pop(0)
+                return
+
+    # Generate possible suffix
+    def give_suffix(self, skills, personality, biome, honour=None):
+        """Sometimes one of your own suffixes (Names window), and never one you took out"""
+        self.load_localized_names()
+        if not (game.clan and get_clan_setting('modded names') and get_clan_setting('no suffixes')):
+            mine = custom_names.pick(Name.custom, "normal_suffixes")
+            if mine:
+                self.suffix = mine
+                return
+        self.give_game_suffix(skills, personality, biome, honour)
+        if self.suffix and custom_names.is_removed(Name.custom, "normal_suffixes", self.suffix):
+            self.suffix = random.choice(self.names_dict["normal_suffixes"])
+
+    def give_game_suffix(self, skills, personality, biome, honour=None):
+        self.load_localized_names()
+        if game.clan and get_clan_setting('modded names') and get_clan_setting('no suffixes'):
+            self.suffix = ""
+            self.specsuffix_hidden = True
+            return
+        had_suffix = True if self.suffix else False
+        if self.mod_suffixes and get_clan_setting('modded names') and get_clan_setting('new suffixes'):
+            options = []
+            suffix_settings = get_config("cat_name_controls.alt_suffixes")
+            if skills:
+                if skills.primary:
+                    for i in range(suffix_settings["primary_skill"]):
+                        options.append(self.mod_suffixes['skill'].get(skills.primary.path.name, []))
+
+                if skills.secondary:
+                    for i in range(suffix_settings["secondary_skill"]):
+                        options.append(self.mod_suffixes['skill'].get(skills.secondary.path.name, []))
+            
+            if personality:
+                for i in range(suffix_settings["trait"]):
+                    try:
+                        options.append(self.mod_suffixes['trait'][personality.trait]['general'])
+                    except:
+                        options.append(self.mod_suffixes['trait'].get(personality.trait, []))
+            if honour:
+                for i in range(suffix_settings["trait_honour"]):
+                    try:
+                        options.append(self.mod_suffixes['trait'][personality.trait].get(honour, []))
+                    except:
+                        options.append(self.mod_suffixes['honour'].get(honour, []))
+                for i in range(suffix_settings["general_honour"]):
+                    options.append(self.mod_suffixes['honour'].get(honour, []))
+
+            for i in range(suffix_settings["special"]):
+                options.append(self.mod_suffixes['other']['special'])
+
+            appearance = self.mod_suffixes['other']['common'].copy()
+
+            if self.phenotype:
+                if self.phenotype.length == 'longhaired':
+                    appearance += self.mod_suffixes['other']['appearance'].get('longhair', [])
+                if self.phenotype.tabby != "" and (self.phenotype.white[1] not in ['ws', 'wt'] or self.phenotype.whitegrade < 4):
+                    if self.phenotype.ticked[0] == 'Ta' and (not self.phenotype.breakthrough or self.phenotype.mack[0] != 'mc'):
+                        appearance += self.mod_suffixes['other']['appearance'].get('ticked', [])
+                    if 'spotted' in self.phenotype.tabby or 'servaline' in self.phenotype.tabby:
+                        appearance += self.mod_suffixes['other']['appearance'].get('spotted', [])
+                    if ('blotched' in self.phenotype.tabby or 'marbled' in self.phenotype.tabby) and "sheeted" not in self.phenotype.tabby:
+                        appearance += self.mod_suffixes['other']['appearance'].get('swirled', [])
+                    if 'mackerel' in self.phenotype.tabby or 'braided' in self.phenotype.tabby or 'pinstripe' in self.phenotype.tabby:
+                        appearance += self.mod_suffixes['other']['appearance'].get('striped', [])
+                    if 'rosette' in self.phenotype.tabby:
+                        appearance += self.mod_suffixes['other']['appearance'].get('patchy', [])
+                if (self.phenotype.tortie and (self.phenotype.white[1] not in ['ws', 'wt'] or self.phenotype.whitegrade < 4)) or\
+                    (self.phenotype.white[1] in ['ws', 'wt'] and self.phenotype.whitegrade < 4) or\
+                    (self.phenotype.white[0] in ['ws', 'wt'] and self.phenotype.white[1] not in ['ws', 'wt'] and self.phenotype.whitegrade > 2):
+                    appearance += self.mod_suffixes['other']['appearance'].get('patchy', [])
+                    if (self.phenotype.tortiepattern and self.phenotype.tortiepattern["0"][0].replace('rev', '') in self.phenotype.def_tortie_low_patterns):
+                        appearance += self.mod_suffixes['other']['appearance'].get('spotted', [])
+                    if ((self.phenotype.white[1] in ['ws', 'wt'] and self.phenotype.whitegrade < 4) or\
+                    (self.phenotype.white[0] in ['ws', 'wt'] and self.phenotype.white[1] not in ['ws', 'wt'] and self.phenotype.whitegrade > 2)):
+                        appearance += self.mod_suffixes['other']['appearance'].get('white_patchy', [])
+                if (self.phenotype.point and (self.phenotype.white[1] not in ['ws', 'wt'] or self.phenotype.whitegrade < 4)):
+                    appearance += self.mod_suffixes['other']['appearance'].get('pointed', [])
+                if 'curl' in self.phenotype.eartype or 'curl' in self.phenotype.tailtype or 'rexed' in self.phenotype.furtype:
+                    appearance += self.mod_suffixes['other']['appearance'].get('curled', [])
+            
+                size = suffix_settings["common"]
+                if self.cat.moons < 11 or (self.cat.status.rank.is_any_medicine_rank() and self.cat.moons < 15):
+                    size = suffix_settings["common_early"]
+                for i in range(size):
+                    options.append(appearance)
+            self.suffix = ""
+
+            tries = 0
+            while True:
+                tries += 1
+                if tries > 20:
+                    break
+                try:
+                    self.suffix = random.choice(random.choice(options))
+                except:
+                    while [] in options:
+                        options.remove([])
+                    continue
+                
+                if self._usable_name(self.prefix, self.suffix, self.cat):
+                    break
+
+        else:
+            """Generate possible suffix."""
+            pelt = []
+
+            colour_mappings = {
+                "black": ["BLACK"],
+                "blue": ["GREY", "DARKGREY", "DAWN"],
+                "chocolate": ["BROWN", "GOLDEN-BROWN", "DARKBROWN", "CHOCOLATE", "RUST"],
+                "lilac": ["PALEGREY", "SILVER", "LILAC", "MALLOW", "SOOT"],
+                "cinnamon": ["SIENNA", "DARKGINGER", "GOLDEN-BROWN"],
+                "fawn": ["LIGHTBROWN", "BLOSSOM"],
+                "ginger": ["GINGER", "DARKGINGER"],
+                "cream": ["CREAM", "PALEGINGER", "HONEY"],
+                "white": ["WHITE"],
+                "silver shaded": ["WHITE"]
+            }
+
+            namer = Namer([], [], self.moons, self.phenotype, self.chimpheno)
+            params = namer.parse_chimera() if self.chimpheno else namer.get_categories(self.phenotype)
+
+            colours = colour_mappings[params[0]]
+            if params[2]['type'] == 'silver' and params[0] not in ['ginger', 'cream']:
+                colours.append('PALEGREY')
+                colours.append('SILVER')
+            if params[2]['type'] == 'dark' and params[0] == "black":
+                colours.append('GHOST')
+            if params[2]['type'] == 'golden' and params[0] not in ['ginger', 'cream']:
+                colours.append('GOLDEN')
+                if params[0] in ["black", "chocolate"]:
+                    colours.append("SUNSHINE")  # LG: was colour, crashed naming golden black/chocolate cats
+            if self.phenotype.ruftype == 'rufoused' and params[0] == 'ginger':
+                colours.append('DARKGINGER')
+            if self.phenotype.ruftype == 'low' and params[0] == 'ginger':
+                colours.append('PALEGINGER')
+            if params[2]['pattern'] != '' and params[2]['type'] == 'regular' and params[0] == "black":
+                colours.append('BROWN')
+                colours.append('DARKBROWN')
+            colours = [c for c in colours if c in self.names_dict["colour_suffixes"]]
+            if self.phenotype:
+                if (self.phenotype.white[1] not in ['ws', 'wt'] or self.phenotype.whitegrade < 4):
+                    if self.phenotype.tabby != "":
+                        if self.phenotype.ticked[0] == 'Ta' and (not self.phenotype.breakthrough or self.phenotype.mack[0] != 'mc'):
+                            if self.phenotype.ticktype == "agouti":
+                                pelt.append("Agouti")
+                            else:
+                                pelt.append("Ticked")
+                        if 'spotted' in self.phenotype.tabby or 'servaline' in self.phenotype.tabby:
+                            pelt.append("Spotted")
+                        if ('blotched' in self.phenotype.tabby or 'marbled' in self.phenotype.tabby) and "sheeted" not in self.phenotype.tabby:
+                            pelt.append("Classic")
+                        if 'mackerel' in self.phenotype.tabby or 'braided' in self.phenotype.tabby or 'pinstripe' in self.phenotype.tabby:
+                            pelt.append("Mackerel")
+                        if 'rosette' in self.phenotype.tabby:
+                            pelt.append("Rosetted")
+                        if 'charcoal' in self.phenotype.tabtype:
+                            pelt.append("Masked")
+                    if self.phenotype.tortie:
+                        if self.phenotype.white[1] in ['ws', 'wt'] or self.phenotype.whitegrade > 4:
+                            pelt.append("Calico")
+                        else:
+                            pelt.append("Tortie")
+                    if 'smoke' in self.phenotype.silvergold:
+                        pelt.append("Smoke")
+                if (self.phenotype.white[1] in ['ws', 'wt'] and self.phenotype.whitegrade < 4) or\
+                    (self.phenotype.white[0] in ['ws', 'wt'] and self.phenotype.white[1] not in ['ws', 'wt'] and self.phenotype.whitegrade > 2):
+                    pelt.append("TwoColour")
+
+            tries = 0
+            while True:
+                tries += 1
+                if tries > 20:
+                    break
+                named_after_pelt = not random.getrandbits(3)  # Chance for True is '1/8'.
+                named_after_colour = not random.getrandbits(3)
+                named_after_biome = not random.getrandbits(3)  # 1/8
+                # Pelt name only gets used if there's an associated suffix.
+                if named_after_pelt and len(pelt) > 0:
+                    self.suffix = random.choice(self.names_dict["pelt_suffixes"][random.choice(pelt)])
+                if named_after_colour and len(colours) > 0:
+                    self.suffix = random.choice(self.names_dict["colour_suffixes"][random.choice(colours)])
+                elif named_after_biome:
+                    if biome in self.names_dict["biome_suffixes"]:
+                        self.suffix = random.choice(
+                            self.names_dict["biome_suffixes"][biome]
+                        )
+                    else:
+                        self.suffix = random.choice(self.names_dict["normal_suffixes"])
+                else:
+                    self.suffix = random.choice(self.names_dict["normal_suffixes"])
+                
+                if self._usable_name(self.prefix, self.suffix, self.cat):
+                    break
+        
+        if get_clan_setting("modded names"):
+            if get_clan_setting("ancient names"):
+                self.suffix = " " + self.suffix.title().strip()
+            if not had_suffix and get_clan_setting("no special suffixes"):
+                self.specsuffix_hidden = True
+
+    def get_specsuffix_name(self, rank: CatRank = CatRank.LEADER):
+        """
+        Return the cat's name with the appropriate special suffix. If no specsuffix is given for that rank, returns
+        default prefix + suffix. If specsuffix_hidden is true, return default prefix + suffix.
+        :param rank: CatRank matching
+        :return: Cat's name string
+        """
+        self.load_localized_names()
+
+        if rank in self.names_dict["special_suffixes"] and not self.specsuffix_hidden:
+            return self.prefix + self.names_dict["special_suffixes"][rank]
+
+        return self.prefix + self.suffix
+
+    def __repr__(self):
+        # Handles predefined suffixes (such as newborns being kit),
+        # then suffixes based on ages (fixes #2004, just trust me)
+        self.load_localized_names()
+
+        # Handles suffix assignment with outside cats
+        if (
+            self.cat.status.is_lost()
+            and not self.cat.status.is_former_clancat
+            and self.suffix
+        ):
+            # these are cats who were born to a parent who'd been lost frm their clan, and who's parent decided to keep with traditional naming
+            age_to_rank = {
+                CatAge.NEWBORN: CatRank.NEWBORN,
+                CatAge.KITTEN: CatRank.KITTEN,
+                CatAge.ADOLESCENT: CatRank.APPRENTICE,
+            }
+            if self.cat.age in age_to_rank:
+                rank = age_to_rank[self.cat.age]
+                return self.prefix + self.names_dict["special_suffixes"][rank]
+            else:
+                return self.prefix + self.suffix
+
+        if self.cat.status.is_former_clancat:
+            old_rank = self.cat.status.find_prior_clan_rank()
+
+            if (
+                old_rank in self.names_dict["special_suffixes"]
+                and not self.specsuffix_hidden
+            ):
+                return self.prefix + self.names_dict["special_suffixes"][old_rank]
+
+        if (
+            self.cat.status.rank in self.names_dict["special_suffixes"]
+            and not self.specsuffix_hidden
+        ):
+            return (
+                self.prefix + self.names_dict["special_suffixes"][self.cat.status.rank]
+            )
+        return self.prefix + self.suffix
+
+
+Name.load_localized_names()

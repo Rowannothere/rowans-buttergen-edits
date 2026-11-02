@@ -1,0 +1,20 @@
+<strong>Buttergen v0.3</strong>
+
+New:
+- Buttergen now runs on the newest development versions of Genemod, LifeGen and ClanGen
+- Physical traits passed down as genes, from Inheritable Physical Traits by Snow
+- About 3,000 more names, from Various Names
+- 48 rare special eye colors passed down as genes, from Beetle's Eyes
+- White patch shapes can show up as tortie patches and the reverse, as inherited genes, from Mink's Torties
+- Dark white patches as a rare inherited gene, from Simple Dark Patches. Mustaches are extra likely to get them
+- More experience titles on profiles, from Trainee to Grandmaster, from More Info
+- Over 300 new personality traits, from Foxies Traits Galore
+- 7 new border and training patrols, from Theo's Patrols
+- More biting relationship moments between cats, from Meaner ClanGen
+- Editing a relationship now has its own button on each cat's card
+
+Fixes:
+- All harnesses show the right color in every pose, and the pink, peach and violet ones show up at all
+- Moon skips no longer crash on an event that names the leader of a Clan with no leader
+- The speaker button goes back to its spot after leaving the cat maker
+- The music and ambiance keep playing when the cat maker opens from inside a Clan

@@ -1,0 +1,179 @@
+import os
+
+import pygame
+import pygame_gui
+
+from scripts.ui.elements.image_button import UIImageButton
+from scripts.ui.elements.surface_image_button import UISurfaceImageButton
+from scripts.housekeeping.datadir import get_saved_images_dir, open_data_dir
+from scripts.ui.generate_button import get_button_dict, ButtonStyles
+from scripts.ui.windows.window_base_class import GameWindow
+from scripts.ui.scale import ui_scale, ui_scale_dimensions
+from scripts.ui.icon import Icon
+from scripts.cat.sprites.display_sprites import calculate_size
+
+
+class SaveAsImageWindow(GameWindow):
+    def __init__(self, image_to_save, cat, file_name):
+        super().__init__(
+            ui_scale(pygame.Rect((200, 175), (400, 250))),
+        )
+
+        self.image_to_save = image_to_save
+        self.cat = cat
+        self.file_name = file_name
+        self.scale_factor = 1
+
+        self.save_as_image = UISurfaceImageButton(
+            ui_scale(pygame.Rect((0, 90), (135, 30))),
+            "screens.sprite_inspect.save_image",
+            get_button_dict(ButtonStyles.SQUOVAL, (135, 30)),
+            object_id="@buttonstyles_squoval",
+            sound_id="save",
+            container=self,
+            anchors={"centerx": "centerx"},
+        )
+
+        self.open_data_directory_button = UISurfaceImageButton(
+            ui_scale(pygame.Rect((0, 175), (178, 30))),
+            "buttons.open_data_directory",
+            get_button_dict(ButtonStyles.SQUOVAL, (178, 30)),
+            object_id="@buttonstyles_squoval",
+            container=self,
+            starting_height=2,
+            tool_tip_text="buttons.open_data_directory_tooltip",
+            anchors={"centerx": "centerx"},
+        )
+
+        self.small_size_button = UISurfaceImageButton(
+            ui_scale(pygame.Rect((5, 50), (97, 30))),
+            "windows.small_image_button",
+            get_button_dict(ButtonStyles.PROFILE_LEFT, (97, 30)),
+            object_id="@buttonstyles_profile_left",
+            container=self,
+            starting_height=2,
+        )
+        self.small_size_button.disable()
+
+        self.medium_size_button = UISurfaceImageButton(
+            ui_scale(pygame.Rect((0, 0), (97, 30))),
+            "windows.medium_image_button",
+            get_button_dict(ButtonStyles.PROFILE_MIDDLE, (97, 30)),
+            object_id="@buttonstyles_profile_middle",
+            container=self,
+            anchors={
+                "left_target": self.small_size_button,
+                "centery": "centery",
+                "centery_target": self.small_size_button,
+            },
+            starting_height=2,
+        )
+
+        self.scaled_size_button = UISurfaceImageButton(
+            ui_scale(pygame.Rect((0, 0), (97, 30))),
+            "windows.scaled_image_button",
+            get_button_dict(ButtonStyles.PROFILE_MIDDLE, (178, 30)),
+            object_id="@buttonstyles_profile_middle",
+            container=self,
+            anchors={
+                "left_target": self.medium_size_button,
+                "centery": "centery",
+                "centery_target": self.medium_size_button,
+            },
+            starting_height=2,
+        )
+
+        self.large_size_button = UISurfaceImageButton(
+            ui_scale(pygame.Rect((0, 0), (97, 30))),
+            "windows.large_image_button",
+            get_button_dict(ButtonStyles.PROFILE_RIGHT, (97, 30)),
+            object_id="@buttonstyles_profile_middle",
+            container=self,
+            anchors={
+                "left_target": self.scaled_size_button,
+                "centery": "centery",
+                "centery_target": self.scaled_size_button,
+            },
+            starting_height=2,
+        )
+
+        self.confirm_text = pygame_gui.elements.UITextBox(
+            "",
+            ui_scale(pygame.Rect((5, 125), (390, 45))),
+            object_id="#text_box_26_horizcenter_vertcenter_spacing_95",
+            container=self,
+            starting_height=2,
+        )
+
+    def save_image(self):
+        file_name = self.file_name
+        file_number = ""
+        i = 0
+        while True:
+            if os.path.isfile(
+                f"{get_saved_images_dir()}/{file_name + file_number}.png"
+            ):
+                i += 1
+                file_number = f"_{i}"
+            else:
+                break
+
+        if self.scale_factor == "scaled":
+            cat_size = calculate_size(self.cat)
+            if isinstance(cat_size, str):
+                mapper = {
+                    "big": 11.5,
+                    "average": 9.5,
+                    "small": 7.5,
+                    "runt": 5.5
+                }
+                cat_size = mapper[cat_size]
+            else:
+                if self.cat.phenotype.munch[0] == "Mk":
+                    cat_size *= 1.5
+
+            scale = int((cat_size-9.5)*5)
+            scaled_image = pygame.transform.scale(self.image_to_save, ui_scale_dimensions((150+scale, 150+scale)))
+        else:
+            scaled_image = pygame.transform.scale_by(self.image_to_save, self.scale_factor)
+        pygame.image.save(
+            scaled_image, f"{get_saved_images_dir()}/{file_name + file_number}.png"
+        )
+        return f"{file_name + file_number}.png"
+
+    def process_event(self, event) -> bool:
+        if event.type == pygame_gui.UI_BUTTON_START_PRESS:
+            if event.ui_element == self.open_data_directory_button:
+                open_data_dir()
+                return True
+            elif event.ui_element == self.save_as_image:
+                file_name = self.save_image()
+                self.confirm_text.set_text(
+                    "windows.confirm_saved_image", text_kwargs={"file_name": file_name}
+                )
+            elif event.ui_element == self.small_size_button:
+                self.scale_factor = 1
+                self.small_size_button.disable()
+                self.medium_size_button.enable()
+                self.scaled_size_button.enable()
+                self.large_size_button.enable()
+            elif event.ui_element == self.medium_size_button:
+                self.scale_factor = 4
+                self.small_size_button.enable()
+                self.medium_size_button.disable()
+                self.scaled_size_button.enable()
+                self.large_size_button.enable()
+            elif event.ui_element == self.scaled_size_button:
+                self.scale_factor = "scaled"
+                self.small_size_button.enable()
+                self.medium_size_button.enable()
+                self.scaled_size_button.disable()
+                self.large_size_button.enable()
+            elif event.ui_element == self.large_size_button:
+                self.scale_factor = 6
+                self.small_size_button.enable()
+                self.medium_size_button.enable()
+                self.scaled_size_button.enable()
+                self.large_size_button.disable()
+
+        return super().process_event(event)

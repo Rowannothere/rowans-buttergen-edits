@@ -1,0 +1,224 @@
+# WARNING: This file is NOT where your settings are stored.
+# This file is used only to display the settings in the game.
+# The files you may be looking for are "settings.json" in your saves folder,
+# or "clan_settings.json" in your clan's save folder.
+
+# FORMAT:
+# [group]:
+#   setting_name = default_value
+
+[game]
+    [game.general]
+        "dark mode" = false
+        "flip camp mode" = false
+        "fullscreen scaling" = false
+        "no sprite antialiasing" = false
+        "custom cursor" = false
+        shaders = false
+        tints = false
+        black_pupils = false
+        accurate_porting = true
+        cat_editor = false
+        "filter genes" = true
+        "ageup dead" = false
+        "youthful dead" = false
+        gore = false
+        discord = false
+        show_changelog = true
+        special_dates = true
+        "random relation" = true
+        "they them default" = false
+        lifegen_sprite_changes = true
+        red_bg = true
+        "ban problem genes" = false
+        "new prefixes" = true
+        "new suffixes" = true
+        "ancient names" = false
+        "no suffixes" = false
+        "no special suffixes" = false
+        "outsider names" = false
+
+    [game.other]
+        language = [
+            "en", "es", "de"
+        ]
+        text_size = [
+            0, 1, 2
+        ]
+        fullscreen = [
+            false, true
+        ]
+        music_volume = [
+            50
+        ]
+        ambiance_volume = [
+            50
+        ]
+        sound_volume = [
+            50
+        ]
+        audio_mute = [
+            false, true
+        ]
+        dialogue_typing_sound = [
+            true, false
+        ]
+
+[clan]
+    [clan.general]
+        autosave = false
+        disasters = false
+        modded_kits = false
+        tnr_mode = false
+        sprite_scaling = true
+        showheight = false
+        metric_toggle = false
+        adult_height_toggle = false
+        showxp = false
+        fading = true
+        save_faded_copy = false
+        thought_tooltips = true
+        backgrounds = true
+        freshkill = true
+        "all accessories" = false
+        "modded names" = true
+        "new prefixes" = true
+        "dynamic prefixes" = false
+        "new suffixes" = true
+        "ancient names" = false
+        "no suffixes" = false
+        "no special suffixes" = false
+        "outsider names" = false
+    
+    [clan.role]
+        deputy = false
+        rel_deputy = true
+        12_moon_graduation = false
+        assign_mentors = true
+        retirement = false
+        leader_retirement = false
+        healer_retirement = false
+        mediator_retirement = false
+        become_mediator = false
+        become_med = false
+        become_queen = false
+        become_healer = false
+        "random med cat" = true
+        patrol_lock_meds = false
+        allow_mediator_patrols = false
+        allow_queen_patrols = true
+    
+    [clan.relation]
+        affair = false
+        "unmated parentage" = false
+        "same sex birth" = false
+        "same sex adoption" = false
+        "single parentage" = false
+        "halfclan single" = false
+        "outsiders single" = false
+        surrogates = true
+        "only inclan surrogates" = false
+        "only clan surrogates" = false
+        "only outside surrogates" = false
+        multisire = false
+        "romantic with former mentor" = true
+        "first cousin mates" = false
+        no_litters = false
+    
+    [clan.freshkill_tactics]
+        low_rank = true
+        high_rank = false
+        youngest_first = false
+        oldest_first = false
+        hungriest_first = false
+        experience_first = false
+
+        hunter_first = false
+        sick_injured_first = false
+
+        ration_prey = false
+        auto_feed = true
+    
+    [clan.clan_focus]
+        business_as_usual = true
+        hunting = false
+        herb_gathering = false
+        threaten_outsiders = false
+        seek_outsiders = false
+        rest_and_recover = false
+        sabotage_other_clans = false
+        aid_other_clans = false
+        raid_other_clans = false
+        hoarding = false
+    
+    [clan.other]
+        "show_dead_relation" = [
+            false, true
+        ]
+        "show_neutral_relation" = [
+            false, true
+        ]
+        "show_outside_relation" = [
+            false, true
+        ]
+        "show_family_only" = [
+            false, true
+        ]
+        "show_romance_only" = [
+            false, true
+        ]
+        "show_positive" = [
+            true, false
+        ]
+        "show_negative" = [
+            true, false
+        ]
+        "den labels" = [
+            true, false
+        ]
+        "show fav" = [
+            false, true
+        ]
+        "show only you" = [
+            false, true
+        ]
+        "search genotypes" = [
+            false, true
+        ]
+
+    # Certain clan settings can be nested, so there's a new "nests" key.
+    # FORMAT:
+    # [clan.nests]
+    #   [clan.nests."section_name"."setting_name"]
+    #       required_setting_name = required_value
+    [clan.nests]
+        [clan.nests.general.metric_toggle]
+            showheight = true
+        [clan.nests.general.adult_height_toggle]
+            showheight = true
+        [clan.nests.general."new prefixes"]
+            "modded names" = true
+        [clan.nests.general."dynamic prefixes"]
+            "modded names" = true
+        [clan.nests.general."new suffixes"]
+            "modded names" = true
+        [clan.nests.general."ancient names"]
+            "modded names" = true
+        [clan.nests.general."no suffixes"]
+            "modded names" = true
+        [clan.nests.general."no special suffixes"]
+            "modded names" = true
+        [clan.nests.general."outsider names"]
+            "modded names" = true
+        [clan.nests.relation."same sex adoption"]
+            "same sex birth" = false
+        [clan.nests.relation."halfclan single"]
+            "single parentage" = true
+        [clan.nests.relation."outsiders single"]
+            "single parentage" = true
+        [clan.nests.relation."only inclan surrogates"]
+            surrogates = true
+        [clan.nests.relation."only clan surrogates"]
+            surrogates = true
+        [clan.nests.relation."only outside surrogates"]
+            surrogates = true

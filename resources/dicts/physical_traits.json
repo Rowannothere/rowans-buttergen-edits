@@ -1,0 +1,259 @@
+{
+  "_about": "Physical traits as genes, from Inheritable Physical Traits by Snow. Inherit is dominant, recessive or acquired. Traits in one group can't show together, the first listed wins. Rare ones show up less on cats with no known parents.",
+  "traits": {
+    "TEETHSABRE": {
+      "text": "saber teeth",
+      "label": "Saber teeth",
+      "category": "teeth",
+      "inherit": "recessive",
+      "group": "fangs",
+      "rare": true
+    },
+    "TEETHUPPER": {
+      "text": "long upper fangs",
+      "label": "Long fangs",
+      "category": "teeth",
+      "inherit": "dominant",
+      "group": "fangs"
+    },
+    "TEETHUNDERBITE": {
+      "text": "an underbite",
+      "label": "Underbite",
+      "category": "teeth",
+      "inherit": "dominant",
+      "group": "bite"
+    },
+    "EARPANTHER": {
+      "text": "rounded ears",
+      "label": "Round ears",
+      "category": "ears",
+      "inherit": "recessive",
+      "group": "ears"
+    },
+    "EARTALL": {
+      "text": "tall ears",
+      "label": "Tall ears",
+      "category": "ears",
+      "inherit": "dominant",
+      "group": "ears"
+    },
+    "EARBIG": {
+      "text": "big ears",
+      "label": "Big ears",
+      "category": "ears",
+      "inherit": "dominant",
+      "group": "ears"
+    },
+    "EARSMALL": {
+      "text": "small ears",
+      "label": "Small ears",
+      "category": "ears",
+      "inherit": "dominant",
+      "group": "ears"
+    },
+    "EARTUFTS": {
+      "text": "ear tufts",
+      "label": "Ear tufts",
+      "category": "ears",
+      "inherit": "dominant",
+      "group": "earfur"
+    },
+    "HEADMOHAWK": {
+      "text": "a mohawk",
+      "label": "Mohawk",
+      "category": "head",
+      "inherit": "recessive",
+      "group": "headfur",
+      "rare": true
+    },
+    "HEADEMO": {
+      "text": "emo-style head fur",
+      "label": "Emo fringe",
+      "category": "head",
+      "inherit": "recessive",
+      "group": "headfur",
+      "rare": true
+    },
+    "HEADFORELOCK": {
+      "text": "a forelock",
+      "label": "Forelock",
+      "category": "head",
+      "inherit": "recessive",
+      "group": "headfur"
+    },
+    "HEADCOWLICK": {
+      "text": "a cowlick",
+      "label": "Cowlick",
+      "category": "head",
+      "inherit": "dominant",
+      "group": "headfur"
+    },
+    "HEADTUFT": {
+      "text": "tufted head fur",
+      "label": "Head tuft",
+      "category": "head",
+      "inherit": "dominant",
+      "group": "headfur"
+    },
+    "CHEEKCURL": {
+      "text": "curled cheek fur",
+      "label": "Curled cheeks",
+      "category": "head",
+      "inherit": "recessive",
+      "group": "cheekfur"
+    },
+    "CHEEKFLUFF": {
+      "text": "fluffy cheeks",
+      "label": "Fluffy cheeks",
+      "category": "head",
+      "inherit": "recessive",
+      "group": "cheekfur"
+    },
+    "CHEEKLONG": {
+      "text": "long cheek fur",
+      "label": "Long cheeks",
+      "category": "head",
+      "inherit": "dominant",
+      "group": "cheekfur"
+    },
+    "CHEEKPOINTED": {
+      "text": "pointed cheek fur",
+      "label": "Pointy cheeks",
+      "category": "head",
+      "inherit": "dominant",
+      "group": "cheekfur"
+    },
+    "MANEHORSE": {
+      "text": "a horse-like mane",
+      "label": "Horse mane",
+      "category": "fur",
+      "inherit": "recessive",
+      "group": "mane",
+      "rare": true
+    },
+    "MANESILKY": {
+      "text": "a silky mane",
+      "label": "Silky mane",
+      "category": "fur",
+      "inherit": "recessive",
+      "group": "mane",
+      "rare": true
+    },
+    "MANEFLUFFY": {
+      "text": "a fluffy mane",
+      "label": "Fluffy mane",
+      "category": "fur",
+      "inherit": "dominant",
+      "group": "mane"
+    },
+    "MANERUFF": {
+      "text": "a ruff",
+      "label": "Ruff",
+      "category": "fur",
+      "inherit": "dominant",
+      "group": "mane"
+    },
+    "FURKINK": {
+      "text": "kinked fur",
+      "label": "Kinked fur",
+      "category": "fur",
+      "inherit": "recessive",
+      "group": "fur"
+    },
+    "BACKRIDGE": {
+      "text": "a fur ridge on their back",
+      "label": "Back ridge",
+      "category": "fur",
+      "inherit": "recessive",
+      "group": "backfur",
+      "rare": true
+    },
+    "BACKFLUFF": {
+      "text": "a fluffy back",
+      "label": "Fluffy back",
+      "category": "fur",
+      "inherit": "dominant",
+      "group": "backfur"
+    },
+    "SHOULDERTUFT": {
+      "text": "tufted shoulders",
+      "label": "Shoulder tuft",
+      "category": "fur",
+      "inherit": "recessive"
+    },
+    "LEGTUFT": {
+      "text": "tufted legs",
+      "label": "Leg tufts",
+      "category": "fur",
+      "inherit": "recessive"
+    },
+    "MUZZLESHORT": {
+      "text": "a short muzzle",
+      "label": "Short muzzle",
+      "category": "face",
+      "inherit": "dominant",
+      "group": "muzzle"
+    },
+    "MUZZLEBROAD": {
+      "text": "a broad muzzle",
+      "label": "Broad muzzle",
+      "category": "face",
+      "inherit": "dominant",
+      "group": "muzzle"
+    },
+    "MUZZLELONG": {
+      "text": "a long muzzle",
+      "label": "Long muzzle",
+      "category": "face",
+      "inherit": "dominant",
+      "group": "muzzle"
+    },
+    "LASHESUPPER": {
+      "text": "upper lashes",
+      "label": "Upper lashes",
+      "category": "eyes",
+      "inherit": "dominant"
+    },
+    "LASHESLOWER": {
+      "text": "lower lashes",
+      "label": "Lower lashes",
+      "category": "eyes",
+      "inherit": "recessive"
+    },
+    "WHISKERSLONG": {
+      "text": "long whiskers",
+      "label": "Long whiskers",
+      "category": "face",
+      "inherit": "dominant"
+    },
+    "TAILFEATHER": {
+      "text": "a feathered tail",
+      "label": "Feathery tail",
+      "category": "tail",
+      "inherit": "recessive",
+      "group": "tail",
+      "rare": true
+    },
+    "TAILTUFT": {
+      "text": "a tufted tail",
+      "label": "Tufted tail",
+      "category": "tail",
+      "inherit": "recessive",
+      "group": "tail"
+    },
+    "TAILLONG": {
+      "text": "a long tail",
+      "label": "Long tail",
+      "category": "tail",
+      "inherit": "dominant",
+      "group": "taillength"
+    },
+    "CLAWSLONG": {
+      "text": "unusually long claws",
+      "label": "Long claws",
+      "category": "legs",
+      "inherit": "dominant",
+      "group": "claws"
+    }
+  }
+}

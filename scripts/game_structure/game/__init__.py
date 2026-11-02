@@ -1,0 +1,262 @@
+from typing import Optional, TYPE_CHECKING, Any
+
+import pygame
+import ujson
+
+from scripts.events_module.event_information import EventInformation
+from scripts.housekeeping.datadir import get_save_dir
+
+from scripts.game_structure.screen_settings import toggle_fullscreen
+
+from . import save_load, settings, switches  # noqa: F401
+
+from .save_load import safe_save
+from .settings import game_setting_get
+from .switches import switch_get_value, Switch
+from ...screens.enums import GameScreen
+from ...cat.enums import CatGroup
+
+pygame.init()
+
+if TYPE_CHECKING:
+    from scripts.clan import Clan, Afterlife
+
+event_editing = False
+max_name_length = 10
+
+mediated = []  # Keep track of which couples have been mediated this moon.
+just_died = []  # keeps track of which cats died this moon via die()
+
+# LG
+told_story = []  # keeps track of who has been told a story by the elders this moon
+# ---
+
+dead_cats_to_grieve = (
+    []
+)  # keeps track of the cats who died and need a clan grieving message
+cur_events_list = []
+ceremony_events_list = []
+birth_death_events_list = []
+relation_events_list = []
+health_events_list = []
+other_clans_events_list = []
+misc_events_list = []
+herb_events_list = []
+freshkill_event_list = []
+
+# Keeping track of various last screen for various purposes
+last_screen_forupdate = GameScreen.START
+last_screen_forProfile = GameScreen.LIST
+last_list_forProfile = None
+selected_clan = None
+
+patrol_cats = {}
+updated_afterlife_cats = set()
+patrolled = []
+
+# LG
+dated_cats = []
+# ---
+
+used_group_IDs: dict = {
+    CatGroup.PLAYER_CLAN_ID: CatGroup.PLAYER_CLAN,
+    CatGroup.STARCLAN_ID: CatGroup.STARCLAN,
+    CatGroup.UNKNOWN_RESIDENCE_ID: CatGroup.UNKNOWN_RESIDENCE,
+    CatGroup.DARK_FOREST_ID: CatGroup.DARK_FOREST,
+    # LG
+    CatGroup.ROGUE_GROUP_ID: CatGroup.ROGUE_GROUP,
+    CatGroup.LONER_GROUP_ID: CatGroup.LONER_GROUP,
+    CatGroup.HOUSEHOLD_ID: CatGroup.HOUSEHOLD,
+}
+
+def reset_group_IDs():
+    global used_group_IDs
+    
+    used_group_IDs = {
+        CatGroup.PLAYER_CLAN_ID: CatGroup.PLAYER_CLAN,
+        CatGroup.STARCLAN_ID: CatGroup.STARCLAN,
+        CatGroup.UNKNOWN_RESIDENCE_ID: CatGroup.UNKNOWN_RESIDENCE,
+        CatGroup.DARK_FOREST_ID: CatGroup.DARK_FOREST,
+        # LG
+        CatGroup.ROGUE_GROUP_ID: CatGroup.ROGUE_GROUP,
+        CatGroup.LONER_GROUP_ID: CatGroup.LONER_GROUP,
+        CatGroup.HOUSEHOLD_ID: CatGroup.HOUSEHOLD,
+    }
+"""Int IDs already in use. Key is the group ID, value is the group type."""
+
+# store changing parts of the game that the user can toggle with buttons
+
+all_screens = {}
+
+debug_settings = {
+    "showcoords": False,
+    "showbounds": False,
+    "visualdebugmode": False,
+    "showfps": False,
+}
+
+# CLAN
+clan: Optional["Clan"] = None
+starclan: Optional["Afterlife"] = None
+dark_forest: Optional["Afterlife"] = None
+
+cat_class = None
+rpc = None
+
+is_close_menu_open = False
+
+
+current_screen = GameScreen.START
+clicked = False
+keyspressed = []
+switch_screens = False
+
+"""
+To give us the deprecation warnings/errors
+"""
+
+
+def __getattr__(attr):
+    import warnings
+
+    if attr == "switches":
+        # unfortunately there's no way to let this one fix itself, so we have to CTD.
+        warnings.warn(
+            "Use get_switch(), set_switch(), or helpers instead", DeprecationWarning, 2
+        )
+        raise Exception(
+            "game.switches has been deprecated; use get_switch(), set_switch(), or helpers instead. Unrecoverable."
+        )
+    elif attr == "settings":
+        warnings.warn(
+            "Use get_game_setting() and set_game_setting() or helpers instead. WILL CRASH if you try and use this anyway.",
+            DeprecationWarning,
+            2,
+        )
+        raise Exception(
+            "game.settings has been deprecated, use get_game_setting() and set_game_setting() or helpers instead. Unrecoverable."
+        )
+    else:
+        raise AttributeError(f"module '{__name__}' object has no attribute '{attr}'")
+
+
+"""
+DEPRECATED: use get_switch(), set_switch(), or helpers instead - WILL CRASH if you try and use this anyway
+"""
+switches: Any
+
+"""
+DEPRECATED: use get_game_setting() and set_game_setting() or helpers instead.
+WILL CRASH if you try and use this anyway.
+"""
+settings: Any
+
+
+def update_game():
+    global current_screen, switch_screens, clicked, keyspressed
+
+    if current_screen != switch_get_value(Switch.cur_screen):
+        current_screen = switch_get_value(Switch.cur_screen)
+        switch_screens = True
+    clicked = False
+    keyspressed = []
+
+
+def save_events():
+    """
+    Save current events list to events.json
+    """
+    events_list = []
+    for event in cur_events_list:
+        if e := event.to_dict():
+            events_list.append(e)
+    safe_save(f"{get_save_dir()}/{clan.save_id}/events.json", events_list)
+
+
+def add_faded_offspring_to_faded_cat(parent, offspring):
+    """In order to siblings to work correctly, and not to lose relation info on fading, we have to keep track of
+    both active and faded cat's faded offpsring. This will add a faded offspring to a faded parents file.
+    """
+
+    global clan
+
+    path = f"{get_save_dir()}/{clan.save_id}/faded_cats/{parent}.json"
+
+    try:
+        with open(
+            path,
+            "r",
+            encoding="utf-8",
+        ) as read_file:
+            cat_info = ujson.loads(read_file.read())
+    except:
+        print("ERROR: loading faded cat")
+        return False
+
+    cat_info.setdefault("faded_offspring", []).append(offspring)
+
+    safe_save(path, cat_info)
+
+    return True
+
+
+def load_events():
+    """
+    Load events from events.json and place into game.cur_events_list.
+    """
+
+    global clan
+
+    clanname = clan.save_id
+    events_path = f"{get_save_dir()}/{clanname}/events.json"
+    events_list = []
+    try:
+        with open(events_path, "r", encoding="utf-8") as f:
+            events_list = ujson.loads(f.read())
+        for event_dict in events_list:
+            event_obj = EventInformation.from_dict(event_dict, cat_class)
+            if event_obj:
+                if event_obj.clan and (event_obj.clan == CatGroup.PLAYER_CLAN.value or event_obj.clan == clan.prefix):
+                    event_obj.clan = CatGroup.PLAYER_CLAN_ID
+                elif event_obj.clan and len(event_obj.clan) > 2:
+                    try:
+                        event_obj.clan = str(int(event_obj.clan[-1])+4)
+                    except:
+                        event_obj.clan = next(filter(lambda c: event_obj.clan == c.prefix, clan.all_other_clans), None)
+                        event_obj.clan = event_obj.clan.group_ID if event_obj.clan else None
+                cur_events_list.append(event_obj)
+    except FileNotFoundError:
+        pass
+
+def get_free_group_ID(group_type: CatGroup) -> str:
+    """
+    Find the next free group ID, adds it to the used_group_ID dict, and then returns the ID.
+    :param group_type: The CatGroup that the new group will be considered.
+    """
+    new_ID = str(int(list(used_group_IDs.keys())[-1]) + 1)
+    used_group_IDs.update({new_ID: group_type})
+    return new_ID
+
+
+def reset_used_group_IDs():
+    for ID, group_type in used_group_IDs.copy().items():
+        if group_type not in (
+            CatGroup.PLAYER_CLAN,
+            CatGroup.STARCLAN,
+            CatGroup.DARK_FOREST,
+            CatGroup.UNKNOWN_RESIDENCE,
+            # LG
+            CatGroup.ROGUE_GROUP,
+            CatGroup.LONER_GROUP,
+            CatGroup.HOUSEHOLD,
+        ):
+            used_group_IDs.pop(ID)
+
+
+pygame.display.set_caption("Buttergen")
+
+toggle_fullscreen(
+    fullscreen=game_setting_get("fullscreen"),
+    show_confirm_dialog=False,
+    ingame_switch=False,
+)

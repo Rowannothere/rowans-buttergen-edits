@@ -1,0 +1,599 @@
+import random
+import traceback
+from copy import deepcopy
+from operator import xor
+
+import pygame
+import pygame_gui
+from pygame_gui.core import ObjectID
+
+
+from scripts.cat.cats import Cat
+from scripts.config import get_config
+from scripts.game_structure import constants
+from scripts.game_structure.game.settings import game_setting_get
+from scripts.game_structure import game
+from scripts.events_module.thoughts.generate_thoughts import get_new_thought
+
+from ..game_structure.screen_settings import MANAGER
+from ..ui.elements.sprite_button import UISpriteButton
+from ..ui.elements.surface_image_button import UISurfaceImageButton
+from ..ui.elements.checkbox import UICheckbox
+from ..ui.scale import ui_scale, ui_scale_dimensions, ui_scale_value
+from .Screens import Screens
+from .enums import GameScreen
+from ..clan_package.settings import get_clan_setting
+from ..clan_package.settings.clan_settings import switch_clan_setting
+from ..game_structure.game.switches import switch_set_value, Switch
+from ..cat.enums import CatRank, CatAge, CatGroup
+from ..ui.elements.save_button import UISaveButton
+from ..ui.generate_button import ButtonStyles, get_button_dict
+
+from scripts.lifegen_utility import assign_new_bg, get_current_camp
+
+
+class ClanScreen(Screens):
+    max_sprites_displayed = (
+        400  # we don't want 100,000 sprites rendering at once. 400 is enough.
+    )
+    cat_buttons = []
+
+    def __init__(self, name=None):
+        super().__init__(name)
+        self.cats_in_camp = []
+        self.taken_spaces = {}
+        self.camp_labels = {}
+        self.show_den_labels_text = None
+        self.show_den_labels = None
+        self.show_den_text = None
+        self.label_toggle = None
+        self.afterlife_badge = None
+        self.layout = None
+
+    def on_use(self):
+        if not get_clan_setting("backgrounds"):
+            self.set_bg(None)
+        super().on_use()
+
+    def handle_event(self, event):
+        if event.type == pygame_gui.UI_BUTTON_START_PRESS:
+            self.mute_button_pressed(event)
+            if event.ui_element == self.save_button.unsaved_state:
+                self.save_button.save_game(current_screen=self)
+            if event.ui_element in self.cat_buttons:
+                switch_set_value(Switch.cat, event.ui_element.return_cat_id())
+                self.change_screen(GameScreen.PROFILE)
+            if event.ui_element == self.label_toggle:
+                switch_clan_setting("den labels")
+                if self.label_toggle.checked:
+                    self.label_toggle.uncheck()
+                else:
+                    self.label_toggle.check()
+                self.update_buttons_and_text()
+            if event.ui_element == self.camp_labels["med_den_label"]:
+                self.change_screen(GameScreen.MED_DEN)
+            if event.ui_element == self.camp_labels["clearing_label"]:
+                self.change_screen(GameScreen.MEDIATION)
+            if event.ui_element == self.camp_labels["warrior_den_label"]:
+                self.change_screen(GameScreen.WARRIOR_DEN)
+            if event.ui_element == self.camp_labels["leader_den_label"]:
+                self.change_screen(GameScreen.LEADER_DEN)
+            else:
+                self.menu_button_pressed(event)
+        elif event.type == pygame_gui.UI_BUTTON_ON_HOVERED:
+            if event.ui_element in self.cat_buttons:
+                if get_clan_setting("thought_tooltips"):
+                    self.handle_thought_tooltip(event.ui_element)
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RIGHT:
+                self.change_screen(GameScreen.LIST)
+            elif event.key == pygame.K_LEFT:
+                self.change_screen(GameScreen.EVENTS)
+            elif event.key == pygame.K_SPACE:
+                self.save_button.save_game(current_screen=self)
+
+    def screen_switches(self):
+        super().screen_switches()
+
+        self.show_mute_buttons()
+        self.update_camp_bg()
+        switch_set_value(Switch.cat, None)
+
+        # other clans just use their camp, your own clan goes by where your cat lives
+        view_clan = game.selected_clan if game.selected_clan else game.clan
+        # LG: your cat living in another Clan: their camp is that Clan's
+        if view_clan is game.clan and game.clan.your_cat and game.clan.your_cat.status.group == CatGroup.OTHER_CLAN:
+            view_clan = game.clan.your_cat.status.fetch_clan_object(game.clan) or game.clan
+        if view_clan is not game.clan:
+            current_bg = view_clan.camp_bg
+        elif game.clan.your_cat.status.group == CatGroup.HOUSEHOLD:
+            current_bg = game.clan.household_bg
+        elif game.clan.your_cat.status.group == CatGroup.LONER_GROUP:
+            current_bg = game.clan.loner_group_bg
+        elif game.clan.your_cat.status.group == CatGroup.ROGUE_GROUP:
+            current_bg = game.clan.rogue_group_bg
+        else:
+            current_bg = game.clan.camp_bg
+
+        if view_clan.biome + current_bg in constants.LAYOUTS:
+            self.layout = constants.LAYOUTS[view_clan.biome + current_bg]
+        else:
+            self.layout = constants.LAYOUTS["default"]
+
+        if "cat_shading" not in self.layout:
+            self.layout["cat_shading"] = constants.LAYOUTS["default"]["cat_shading"]
+
+        self.choose_cat_positions()
+
+        self.set_disabled_menu_buttons(["camp_screen"])
+        # LG EDIT
+        if game.selected_clan and game.selected_clan is not game.clan:
+            self.update_heading_text(game.selected_clan.name)
+        else:
+            # LG EDIT
+            self.update_heading_text(game.clan.your_cat.status.get_group_heading_text())
+            # ---
+        # ---
+        self.show_menu_buttons()
+        Screens.menu_buttons["back_to_camp"].hide()
+
+        # Creates and places the cat sprites.
+        self.cat_buttons = []  # To contain all the buttons.
+
+        # We have to convert the positions to something pygame_gui buttons will understand
+        # This should be a temp solution. We should change the code that determines positions.
+        all_positions = list(self.taken_spaces.values())
+        used_positions = all_positions.copy()
+        layers = []
+        for x in self.cats_in_camp:
+            layers.append(2)
+            place = self.taken_spaces[x.ID]
+            layers[-1] += all_positions.count(place) - used_positions.count(place)
+            used_positions.remove(place)
+
+            try:
+                image = x.sprite.convert_alpha()
+                try:
+                    blend_layer = (
+                        self.game_bgs[self.active_bg]
+                        .subsurface(ui_scale(pygame.Rect(tuple(x.placement), (50, 50))))
+                        .convert_alpha()
+                    )
+                    blend_layer = pygame.transform.box_blur(
+                        blend_layer, self.layout["cat_shading"]["blur"]
+                    )
+                except ValueError:
+                    print("LG PRINT: ValueError:", x.placement, "is out of bounds.")
+                    x_diff = ui_scale_value(
+                        50 + (x.placement[0] if x.placement[0] < 0 else 0)
+                    )
+                    y_diff = ui_scale_value(
+                        50 + (x.placement[1] if x.placement[1] < 0 else 0)
+                    )
+                    avg_layer = self.game_bgs[self.active_bg].subsurface(
+                        ui_scale(
+                            pygame.Rect(
+                                (
+                                    x.placement[0] if x.placement[0] > 0 else 0,
+                                    x.placement[1] if x.placement[1] > 0 else 0,
+                                ),
+                                (x_diff, y_diff),
+                            )
+                        )
+                    )
+                    blend_layer = pygame.Surface(ui_scale_dimensions((50, 50)))
+                    blend_layer.fill(pygame.transform.average_color(avg_layer))
+
+                sprite = image.copy()
+                sprite.fill((255, 255, 255, 255), special_flags=pygame.BLEND_RGB_MAX)
+                sprite.blit(blend_layer, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
+                image.set_alpha(self.layout["cat_shading"]["blend_strength"])
+                sprite.blit(image, (0, 0), special_flags=pygame.BLEND_ALPHA_SDL2)
+                sprite.set_alpha(255)
+
+                self.cat_buttons.append(
+                    UISpriteButton(
+                        ui_scale(pygame.Rect(tuple(x.placement), (50, 50))),
+                        sprite,
+                        mask=x.sprite_mask,
+                        cat_id=x.ID,
+                        starting_height=layers[-1],
+                    )
+                )
+            except:
+                traceback.print_exc()
+                print(f"ERROR: placing {x.name}'s sprite on Clan page")
+
+        # Den Labels
+        # Redo the locations, so that it uses layout on the Clan page
+        self.camp_labels["warrior_den_label"] = UISurfaceImageButton(
+            ui_scale(pygame.Rect(self.layout["warrior den"], (121, 28))),
+            "screens.core.warriors_den",
+            get_button_dict(ButtonStyles.ROUNDED_RECT, (121, 28)),
+            object_id=ObjectID(class_id="@buttonstyles_rounded_rect", object_id=None),
+            starting_height=2,
+        )
+        self.camp_labels["leader_den_label"] = UISurfaceImageButton(
+            ui_scale(pygame.Rect(self.layout["leader den"], (112, 28))),
+            "screens.core.leader_den",
+            get_button_dict(ButtonStyles.ROUNDED_RECT, (112, 28)),
+            object_id=ObjectID(class_id="@buttonstyles_rounded_rect", object_id=None),
+            starting_height=2,
+        )
+        if game.selected_clan != game.clan:
+            self.camp_labels["warrior_den_label"].disable()
+            self.camp_labels["leader_den_label"].disable()
+        self.camp_labels["med_den_label"] = UISurfaceImageButton(
+            ui_scale(pygame.Rect(self.layout["medicine den"], (151, 28))),
+            "screens.core.medicine_cat_den",
+            get_button_dict(ButtonStyles.ROUNDED_RECT, (105, 28)),
+            object_id=ObjectID(class_id="@buttonstyles_rounded_rect", object_id=None),
+            starting_height=2,
+        )
+        self.camp_labels["elder_den_label"] = UISurfaceImageButton(
+            ui_scale(pygame.Rect(self.layout["elder den"], (103, 28))),
+            "screens.core.elders_den",
+            get_button_dict(ButtonStyles.ROUNDED_RECT, (103, 28)),
+            object_id=ObjectID(class_id="@buttonstyles_rounded_rect", object_id=None),
+        )
+        self.camp_labels["elder_den_label"].disable()
+        self.camp_labels["nursery_label"] = UISurfaceImageButton(
+            ui_scale(pygame.Rect(self.layout["nursery"], (80, 28))),
+            "screens.core.nursery",
+            get_button_dict(ButtonStyles.ROUNDED_RECT, (80, 28)),
+            object_id=ObjectID(class_id="@buttonstyles_rounded_rect", object_id=None),
+        )
+        self.camp_labels["nursery_label"].disable()
+
+        self.camp_labels["clearing_label"] = UISurfaceImageButton(
+            ui_scale(pygame.Rect(self.layout["clearing"], (81, 28))),
+            "screens.core.clearing",
+            get_button_dict(ButtonStyles.ROUNDED_RECT, (81, 28)),
+            object_id=ObjectID(class_id="@buttonstyles_rounded_rect", object_id=None),
+        )
+
+        self.camp_labels["app_den_label"] = UISurfaceImageButton(
+            ui_scale(pygame.Rect(self.layout["apprentice den"], (147, 28))),
+            "screens.core.apprentices_den",
+            get_button_dict(ButtonStyles.ROUNDED_RECT, (147, 28)),
+            object_id=ObjectID(class_id="@buttonstyles_rounded_rect", object_id=None),
+        )
+        self.camp_labels["app_den_label"].disable()
+
+        # Draw the toggle and text
+        self.show_den_labels = UISurfaceImageButton(
+            ui_scale(pygame.Rect((25, 641), (167, 34))),
+            "",
+            {"normal": get_button_dict(ButtonStyles.ROUNDED_RECT, (167, 34))["normal"]},
+            object_id="@buttonstyles_rounded_rect",
+            manager=MANAGER,
+        )
+        self.label_toggle = UICheckbox(
+            position=(0, 0),
+            manager=MANAGER,
+            starting_height=3,
+            check=get_clan_setting("den labels"),
+            anchors={
+                "right": "right",
+                "right_target": self.show_den_labels,
+                "bottom": "bottom",
+                "bottom_target": self.show_den_labels,
+            },
+        )
+
+        self.show_den_labels_text = pygame_gui.elements.UILabel(
+            ui_scale(pygame.Rect((60, 641), (130, 34))),
+            "screens.clan.show_dens",
+            object_id="@buttonstyles_rounded_rect",
+        )
+
+        self.show_den_labels.disable()
+
+        self.save_button = UISaveButton(
+            position=(343, 643),
+        )
+        self.save_button.reset_save()
+
+        # shows which afterlife the clan follows, dead clanmates go there by default
+        follows_sc = self.clan_follows_starclan()
+        self.afterlife_badge = UISurfaceImageButton(
+            ui_scale(pygame.Rect((583, 641), (192, 34))),
+            "Follows StarClan" if follows_sc else "Follows the Dark Forest",
+            get_button_dict(ButtonStyles.ROUNDED_RECT, (192, 34)),
+            object_id=ObjectID(class_id="@buttonstyles_rounded_rect", object_id=None),
+            tool_tip_text=(
+                "When clanmates die they go to the afterlife their Clan follows, unless it "
+                "doesn't want them. Kits always go there. You can switch by pressing "
+                "'follow' on a dead guide's profile."
+            ),
+        )
+
+        self.update_buttons_and_text()
+
+    def exit_screen(self):
+        # removes the cat sprites.
+        for button in self.cat_buttons:
+            button.kill()
+        self.cat_buttons = []
+
+        self.taken_spaces.clear()
+        self.cats_in_camp.clear()
+
+        # Kill all other elements, and destroy the reference so they aren't hanging around
+        for ele in self.camp_labels:
+            self.camp_labels[ele].kill()
+        self.camp_labels = {}
+
+        self.save_button.kill()
+        del self.save_button
+        self.label_toggle.kill()
+        del self.label_toggle
+        if self.afterlife_badge:
+            self.afterlife_badge.kill()
+            self.afterlife_badge = None
+        self.show_den_labels.kill()
+        del self.show_den_labels
+        self.show_den_labels_text.kill()
+        del self.show_den_labels_text
+
+        # reset save status
+        switch_set_value(Switch.saved_clan, False)
+        Screens.menu_buttons["back_to_camp"].show()
+
+    @staticmethod
+    def clan_follows_starclan() -> bool:
+        """your clan goes by its faith, other clans (multiclan) by where their guide is"""
+        view_clan = game.selected_clan if game.selected_clan else game.clan
+        if view_clan is not game.clan and getattr(view_clan, "instructor", None):
+            return view_clan.instructor.status.group == CatGroup.STARCLAN
+        return bool(game.clan.followingsc)
+
+    def update_camp_bg(self):
+        light_dark = "dark" if xor(game_setting_get("dark mode"), game_setting_get("flip camp mode")) else "light"
+
+        leaves = ["newleaf", "greenleaf", "leafbare", "leaffall"]
+        if game.selected_clan and game.selected_clan is not game.clan:
+            camp_bg_base_dir = "resources/images/camp_bg"
+            camp_nr = game.selected_clan.camp_bg
+        else:
+            camp_bg_base_dir, camp_nr = get_current_camp()
+
+        if not camp_nr:
+            camp_nr = "camp1"
+            assign_new_bg("camp1")
+
+        available_biome = ["Forest", "Mountainous", "Plains", "Beach"]
+        biome_clan = game.selected_clan
+        # LG: your cat living in another Clan sees that Clan's land
+        if (biome_clan is game.clan or not biome_clan) and game.clan.your_cat                 and game.clan.your_cat.status.group == CatGroup.OTHER_CLAN:
+            biome_clan = game.clan.your_cat.status.fetch_clan_object(game.clan) or game.clan
+        biome = biome_clan.biome
+        if biome not in available_biome:
+            biome = available_biome[0]
+            biome_clan.biome = biome
+        biome = biome.lower()
+
+        all_backgrounds = []
+        for leaf in leaves:
+            platform_dir = (
+                f"{camp_bg_base_dir}/{biome}/{leaf}_{camp_nr}_{light_dark}.png"
+            )
+            all_backgrounds.append(platform_dir)
+
+        self.add_bgs(
+            {
+                "Newleaf": pygame.transform.scale(
+                    pygame.image.load(all_backgrounds[0]).convert(),
+                    ui_scale_dimensions((800, 700)),
+                ),
+                "Greenleaf": pygame.transform.scale(
+                    pygame.image.load(all_backgrounds[1]).convert(),
+                    ui_scale_dimensions((800, 700)),
+                ),
+                "Leaf-bare": pygame.transform.scale(
+                    pygame.image.load(all_backgrounds[2]).convert(),
+                    ui_scale_dimensions((800, 700)),
+                ),
+                "Leaf-fall": pygame.transform.scale(
+                    pygame.image.load(all_backgrounds[3]).convert(),
+                    ui_scale_dimensions((800, 700)),
+                ),
+            },
+            {
+                "Newleaf": None,
+                "Greenleaf": None,
+                "Leaf-bare": None,
+                "Leaf-fall": None,
+            },
+        )
+
+        self.set_bg(game.clan.current_season)
+
+    def choose_nonoverlapping_positions(self, first_choices, dens, weights=None):
+        if not weights:
+            weights = [1] * len(dens)
+
+        dens = dens.copy()
+
+        chosen_index = random.choices(range(0, len(dens)), weights=weights, k=1)[0]
+        while True:
+            chosen_den = dens[chosen_index]
+            if first_choices[chosen_den]:
+                pos = random.choice(first_choices[chosen_den])
+                first_choices[chosen_den].remove(pos)
+                just_pos = pos[0].copy()
+                if pos not in first_choices[chosen_den]:
+                    # Then this is the second cat to be places here, given an offset
+
+                    # Offset based on the "tag" in pos[1]. If "y" is in the tag,
+                    # the cat will be offset down. If "x" is in the tag, the behavior depends on
+                    # the presence of the "y" tag. If "y" is not present, always shift the cat left or right
+                    # if it is present, shift the cat left or right 3/4 of the time.
+                    if "x" in pos[1] and ("y" not in pos[1] or random.getrandbits(2)):
+                        just_pos[0] += 15 * random.choice([-1, 1])
+                    if "y" in pos[1]:
+                        just_pos[1] += 15
+                return tuple(just_pos), pos[0]
+            dens.pop(chosen_index)
+            weights.pop(chosen_index)
+            if not dens:
+                break
+            # Put finding the next index after the break condition, so it won't be done unless needed
+            chosen_index = random.choices(range(0, len(dens)), weights=weights, k=1)[0]
+
+        return None, None
+
+    def choose_cat_positions(self):
+        """Determines the positions of cat on the clan screen."""
+        # These are the first choices. As positions are chosen, they are removed from the options to indicate they are
+        # taken.
+        first_choices = deepcopy(self.layout)
+
+        all_dens = [
+            "nursery place",
+            "leader place",
+            "elder place",
+            "medicine place",
+            "apprentice place",
+            "clearing place",
+            "warrior place",
+        ]
+
+        # Allow two cat in the same position.
+        for x in all_dens:
+            first_choices[x].extend(first_choices[x])
+
+        viewing_other_clan = game.selected_clan and game.selected_clan is not game.clan
+        for x in (list(Cat.all_cats) if viewing_other_clan else game.clan.clan_cats):
+            if x not in Cat.all_cats:
+                # a cat that was removed but left on the roster, don't crash over it
+                continue
+            if viewing_other_clan:
+                if Cat.all_cats[x].status.group_ID != game.selected_clan.group_ID:
+                    continue
+            elif not Cat.all_cats[x].status.alive_in_your_cat_group:
+                continue
+
+            base_pos = None
+            # Newborns are not meant to be placed. They are hiding.
+            if (
+                Cat.all_cats[x].age == CatAge.NEWBORN
+                or get_config("fun.all_cats_are_newborn")
+                or Cat.all_cats[x].moons < 0
+            ):
+                if (
+                    get_config("fun.all_cats_are_newborn")
+                    or get_config("fun.newborns_can_roam")
+                ) and Cat.all_cats[x].moons >= 0:
+                    # Free them
+                    [
+                        Cat.all_cats[x].placement,
+                        base_pos,
+                    ] = self.choose_nonoverlapping_positions(
+                        first_choices, all_dens, [1, 100, 1, 1, 1, 100, 50]
+                    )
+                else:
+                    continue
+
+            if Cat.all_cats[x].status.rank in (
+                CatRank.APPRENTICE,
+                CatRank.MEDIATOR_APPRENTICE,
+                CatRank.QUEENS_APPRENTICE,
+            ):
+                [
+                    Cat.all_cats[x].placement,
+                    base_pos,
+                ] = self.choose_nonoverlapping_positions(
+                    first_choices, all_dens, [1, 50, 1, 1, 100, 100, 1]
+                )
+            elif Cat.all_cats[x].status.rank == CatRank.DEPUTY:
+                [
+                    Cat.all_cats[x].placement,
+                    base_pos,
+                ] = self.choose_nonoverlapping_positions(
+                    first_choices, all_dens, [1, 50, 1, 1, 1, 50, 1]
+                )
+
+            elif Cat.all_cats[x].status.rank == CatRank.ELDER:
+                [
+                    Cat.all_cats[x].placement,
+                    base_pos,
+                ] = self.choose_nonoverlapping_positions(
+                    first_choices, all_dens, [1, 1, 2000, 1, 1, 1, 1]
+                )
+            elif Cat.all_cats[x].status.rank in [CatRank.KITTEN, CatRank.QUEEN, CatRank.QUEEN_APPRENTICE]:
+                [
+                    Cat.all_cats[x].placement,
+                    base_pos,
+                ] = self.choose_nonoverlapping_positions(
+                    first_choices, all_dens, [60, 8, 1, 1, 1, 1, 1]
+                )
+            elif Cat.all_cats[x].status.rank.is_any_medicine_rank():
+                [
+                    Cat.all_cats[x].placement,
+                    base_pos,
+                ] = self.choose_nonoverlapping_positions(
+                    first_choices, all_dens, [20, 20, 20, 400, 1, 1, 1]
+                )
+            elif Cat.all_cats[x].status.rank in (
+                CatRank.WARRIOR,
+                CatRank.MEDIATOR,
+                CatRank.QUEEN,
+            ):
+                [
+                    Cat.all_cats[x].placement,
+                    base_pos,
+                ] = self.choose_nonoverlapping_positions(
+                    first_choices, all_dens, [1, 1, 1, 1, 1, 60, 60]
+                )
+            elif Cat.all_cats[x].status.is_leader:
+                [
+                    Cat.all_cats[x].placement,
+                    base_pos,
+                ] = self.choose_nonoverlapping_positions(
+                    first_choices, all_dens, [1, 200, 1, 1, 1, 1, 1]
+                )
+            # LG
+            # placing outsiders if youre outside
+            else:
+                [
+                    Cat.all_cats[x].placement,
+                    base_pos,
+                ] = self.choose_nonoverlapping_positions(
+                    first_choices, all_dens, [1, 100, 1, 1, 1, 100, 50]
+                )
+            # ---
+            if not Cat.all_cats[x].placement:
+                # if a cat wasn't placed, it's because no spots remain
+                break
+
+            self.taken_spaces[Cat.all_cats[x].ID] = base_pos
+            self.cats_in_camp.append(Cat.all_cats[x])
+
+    def update_buttons_and_text(self):
+        self.save_button.update_state()
+
+        # LG: den labels only make sense in a Clan camp
+        if game.clan.your_cat.status.group.is_any_clan_group():
+            if get_clan_setting("den labels"):
+                for ele in self.camp_labels:
+                    self.camp_labels[ele].show()
+            else:
+                for ele in self.camp_labels:
+                    self.camp_labels[ele].hide()
+        else:
+            self.show_den_labels.hide()
+            self.show_den_labels_text.hide()
+            self.label_toggle.hide()
+            for ele in self.camp_labels:
+                self.camp_labels[ele].hide()
+
+    def handle_thought_tooltip(self, button):
+        cat = Cat.fetch_cat(button.cat_id)
+
+        if not cat.thought:
+            get_new_thought(cat, cat.next_thought_type)
+
+        tooltip_text = f"<b>{cat.name}</b>\n{cat.thought}"
+
+        button.set_tooltip(tooltip_text)

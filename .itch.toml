@@ -1,0 +1,11 @@
+[[actions]]
+name = "play"
+platform = "windows"
+path = "Buttergen/Buttergen.exe"
+args = ["--launched-through-itch"]
+
+[[actions]]
+name = "play"
+platform = "linux"
+path = "Buttergen/Buttergen"
+args = ["--launched-through-itch"]

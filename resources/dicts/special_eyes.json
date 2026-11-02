@@ -1,0 +1,866 @@
+{
+ "ALGAE": {
+  "text": "algae",
+  "inner": [
+   93,
+   130,
+   89
+  ],
+  "outer": [
+   209,
+   224,
+   106
+  ],
+  "pupil": [
+   50,
+   90,
+   46
+  ]
+ },
+ "AQUAMARINE": {
+  "text": "aquamarine",
+  "inner": [
+   67,
+   171,
+   107
+  ],
+  "outer": [
+   151,
+   229,
+   207
+  ],
+  "pupil": [
+   27,
+   115,
+   60
+  ]
+ },
+ "BERRY BANANA": {
+  "text": "berry banana",
+  "inner": [
+   241,
+   152,
+   130
+  ],
+  "outer": [
+   250,
+   221,
+   172
+  ],
+  "pupil": [
+   200,
+   98,
+   75
+  ]
+ },
+ "BLESSING": {
+  "text": "blessing",
+  "inner": [
+   213,
+   36,
+   83
+  ],
+  "outer": [
+   170,
+   249,
+   242
+  ],
+  "pupil": [
+   144,
+   11,
+   46
+  ]
+ },
+ "BLUE HAZEL": {
+  "text": "blue hazel",
+  "inner": [
+   132,
+   135,
+   153
+  ],
+  "outer": [
+   208,
+   182,
+   156
+  ],
+  "pupil": [
+   85,
+   89,
+   113
+  ]
+ },
+ "BROWN": {
+  "text": "brown",
+  "inner": [
+   83,
+   53,
+   34
+  ],
+  "outer": [
+   107,
+   71,
+   48
+  ],
+  "pupil": [
+   49,
+   29,
+   16
+  ]
+ },
+ "CEDAR": {
+  "text": "cedar",
+  "inner": [
+   200,
+   92,
+   46
+  ],
+  "outer": [
+   240,
+   160,
+   95
+  ],
+  "pupil": [
+   156,
+   61,
+   24
+  ]
+ },
+ "CHRISTMAS": {
+  "text": "christmas",
+  "inner": [
+   158,
+   60,
+   50
+  ],
+  "outer": [
+   171,
+   225,
+   153
+  ],
+  "pupil": [
+   99,
+   25,
+   18
+  ]
+ },
+ "CLOUDY": {
+  "text": "cloudy",
+  "inner": [
+   162,
+   161,
+   166
+  ],
+  "outer": [
+   207,
+   215,
+   225
+  ],
+  "pupil": [
+   116,
+   114,
+   122
+  ]
+ },
+ "COTTON CANDY": {
+  "text": "cotton candy",
+  "inner": [
+   252,
+   182,
+   232
+  ],
+  "outer": [
+   203,
+   255,
+   253
+  ],
+  "pupil": [
+   212,
+   122,
+   185
+  ]
+ },
+ "CRIMSON": {
+  "text": "crimson",
+  "inner": [
+   80,
+   28,
+   36
+  ],
+  "outer": [
+   115,
+   52,
+   59
+  ],
+  "pupil": [
+   47,
+   19,
+   19
+  ]
+ },
+ "CURSE": {
+  "text": "curse",
+  "inner": [
+   57,
+   76,
+   92
+  ],
+  "outer": [
+   204,
+   190,
+   255
+  ],
+  "pupil": [
+   22,
+   33,
+   43
+  ]
+ },
+ "DARK PINE": {
+  "text": "dark pine",
+  "inner": [
+   108,
+   91,
+   71
+  ],
+  "outer": [
+   149,
+   130,
+   91
+  ],
+  "pupil": [
+   70,
+   54,
+   37
+  ]
+ },
+ "DAWN SKY": {
+  "text": "dawn sky",
+  "inner": [
+   118,
+   130,
+   202
+  ],
+  "outer": [
+   251,
+   186,
+   186
+  ],
+  "pupil": [
+   64,
+   77,
+   154
+  ]
+ },
+ "DIRT": {
+  "text": "dirt",
+  "inner": [
+   76,
+   70,
+   22
+  ],
+  "outer": [
+   148,
+   91,
+   37
+  ],
+  "pupil": [
+   43,
+   38,
+   7
+  ]
+ },
+ "EARTH": {
+  "text": "earth",
+  "inner": [
+   129,
+   90,
+   73
+  ],
+  "outer": [
+   123,
+   185,
+   133
+  ],
+  "pupil": [
+   72,
+   45,
+   33
+  ]
+ },
+ "FALL": {
+  "text": "fall",
+  "inner": [
+   136,
+   76,
+   64
+  ],
+  "outer": [
+   222,
+   178,
+   120
+  ],
+  "pupil": [
+   82,
+   37,
+   29
+  ]
+ },
+ "FIREWORK": {
+  "text": "firework",
+  "inner": [
+   29,
+   93,
+   246
+  ],
+  "outer": [
+   236,
+   177,
+   255
+  ],
+  "pupil": [
+   6,
+   48,
+   146
+  ]
+ },
+ "FOREST FIRE": {
+  "text": "forest fire",
+  "inner": [
+   118,
+   162,
+   106
+  ],
+  "outer": [
+   250,
+   188,
+   122
+  ],
+  "pupil": [
+   68,
+   106,
+   57
+  ]
+ },
+ "GOLD MOON": {
+  "text": "gold moon",
+  "inner": [
+   230,
+   191,
+   83
+  ],
+  "outer": [
+   246,
+   254,
+   255
+  ],
+  "pupil": [
+   187,
+   149,
+   44
+  ]
+ },
+ "HALLOWEEN": {
+  "text": "halloween",
+  "inner": [
+   109,
+   101,
+   123
+  ],
+  "outer": [
+   232,
+   150,
+   105
+  ],
+  "pupil": [
+   70,
+   63,
+   86
+  ]
+ },
+ "LIGHT FLAME": {
+  "text": "light flame",
+  "inner": [
+   253,
+   172,
+   131
+  ],
+  "outer": [
+   254,
+   210,
+   208
+  ],
+  "pupil": [
+   225,
+   118,
+   64
+  ]
+ },
+ "LILAC": {
+  "text": "lilac",
+  "inner": [
+   140,
+   134,
+   176
+  ],
+  "outer": [
+   229,
+   200,
+   220
+  ],
+  "pupil": [
+   95,
+   89,
+   137
+  ]
+ },
+ "LIME": {
+  "text": "lime",
+  "inner": [
+   132,
+   161,
+   120
+  ],
+  "outer": [
+   183,
+   195,
+   157
+  ],
+  "pupil": [
+   65,
+   105,
+   76
+  ]
+ },
+ "LOBELIA": {
+  "text": "lobelia",
+  "inner": [
+   108,
+   117,
+   186
+  ],
+  "outer": [
+   231,
+   232,
+   251
+  ],
+  "pupil": [
+   59,
+   68,
+   132
+  ]
+ },
+ "LUCKY": {
+  "text": "lucky",
+  "inner": [
+   87,
+   138,
+   103
+  ],
+  "outer": [
+   255,
+   227,
+   139
+  ],
+  "pupil": [
+   35,
+   71,
+   46
+  ]
+ },
+ "MIDNIGHT": {
+  "text": "midnight",
+  "inner": [
+   54,
+   48,
+   60
+  ],
+  "outer": [
+   82,
+   77,
+   88
+  ],
+  "pupil": [
+   26,
+   22,
+   31
+  ]
+ },
+ "MOONSTONE": {
+  "text": "moonstone",
+  "inner": [
+   137,
+   209,
+   242
+  ],
+  "outer": [
+   239,
+   249,
+   255
+  ],
+  "pupil": [
+   84,
+   156,
+   190
+  ]
+ },
+ "OXIDIZED": {
+  "text": "oxidized",
+  "inner": [
+   163,
+   81,
+   24
+  ],
+  "outer": [
+   159,
+   224,
+   203
+  ],
+  "pupil": [
+   111,
+   49,
+   8
+  ]
+ },
+ "PALE BROWN": {
+  "text": "pale brown",
+  "inner": [
+   108,
+   69,
+   55
+  ],
+  "outer": [
+   145,
+   102,
+   96
+  ],
+  "pupil": [
+   74,
+   40,
+   33
+  ]
+ },
+ "PARADOX": {
+  "text": "paradox",
+  "inner": [
+   152,
+   78,
+   205
+  ],
+  "outer": [
+   255,
+   219,
+   137
+  ],
+  "pupil": [
+   103,
+   41,
+   149
+  ]
+ },
+ "PERIWINKLE": {
+  "text": "periwinkle",
+  "inner": [
+   182,
+   158,
+   210
+  ],
+  "outer": [
+   227,
+   206,
+   242
+  ],
+  "pupil": [
+   129,
+   100,
+   165
+  ]
+ },
+ "POND": {
+  "text": "pond",
+  "inner": [
+   120,
+   153,
+   197
+  ],
+  "outer": [
+   203,
+   248,
+   213
+  ],
+  "pupil": [
+   51,
+   88,
+   136
+  ]
+ },
+ "PUMPKIN": {
+  "text": "pumpkin",
+  "inner": [
+   138,
+   118,
+   19
+  ],
+  "outer": [
+   253,
+   149,
+   64
+  ],
+  "pupil": [
+   89,
+   74,
+   6
+  ]
+ },
+ "RAINY": {
+  "text": "rainy",
+  "inner": [
+   131,
+   160,
+   183
+  ],
+  "outer": [
+   167,
+   188,
+   204
+  ],
+  "pupil": [
+   76,
+   107,
+   131
+  ]
+ },
+ "RED": {
+  "text": "red",
+  "inner": [
+   148,
+   14,
+   0
+  ],
+  "outer": [
+   211,
+   55,
+   65
+  ],
+  "pupil": [
+   88,
+   5,
+   0
+  ]
+ },
+ "ROSE": {
+  "text": "rose",
+  "inner": [
+   241,
+   163,
+   160
+  ],
+  "outer": [
+   255,
+   213,
+   205
+  ],
+  "pupil": [
+   206,
+   97,
+   93
+  ]
+ },
+ "SEAFOAM": {
+  "text": "seafoam",
+  "inner": [
+   230,
+   250,
+   255
+  ],
+  "outer": [
+   168,
+   203,
+   237
+  ],
+  "pupil": [
+   85,
+   132,
+   177
+  ]
+ },
+ "SEASHELL": {
+  "text": "seashell",
+  "inner": [
+   215,
+   177,
+   217
+  ],
+  "outer": [
+   251,
+   214,
+   196
+  ],
+  "pupil": [
+   192,
+   139,
+   202
+  ]
+ },
+ "SNOW": {
+  "text": "snow",
+  "inner": [
+   188,
+   195,
+   200
+  ],
+  "outer": [
+   241,
+   243,
+   244
+  ],
+  "pupil": [
+   145,
+   153,
+   158
+  ]
+ },
+ "SWAMP": {
+  "text": "swamp",
+  "inner": [
+   83,
+   79,
+   89
+  ],
+  "outer": [
+   132,
+   154,
+   134
+  ],
+  "pupil": [
+   42,
+   39,
+   47
+  ]
+ },
+ "THUNDERBOLT": {
+  "text": "thunderbolt",
+  "inner": [
+   111,
+   229,
+   198
+  ],
+  "outer": [
+   250,
+   255,
+   128
+  ],
+  "pupil": [
+   58,
+   175,
+   144
+  ]
+ },
+ "TURQUOISE": {
+  "text": "turquoise",
+  "inner": [
+   41,
+   107,
+   115
+  ],
+  "outer": [
+   159,
+   179,
+   219
+  ],
+  "pupil": [
+   9,
+   58,
+   63
+  ]
+ },
+ "TWILIGHT SKY": {
+  "text": "twilight sky",
+  "inner": [
+   98,
+   66,
+   123
+  ],
+  "outer": [
+   232,
+   100,
+   140
+  ],
+  "pupil": [
+   58,
+   30,
+   80
+  ]
+ },
+ "VALENTINE": {
+  "text": "valentine",
+  "inner": [
+   255,
+   51,
+   52
+  ],
+  "outer": [
+   255,
+   187,
+   193
+  ],
+  "pupil": [
+   160,
+   14,
+   14
+  ]
+ },
+ "VIOLET": {
+  "text": "violet",
+  "inner": [
+   140,
+   85,
+   204
+  ],
+  "outer": [
+   185,
+   125,
+   231
+  ],
+  "pupil": [
+   87,
+   40,
+   145
+  ]
+ },
+ "VOLCANO": {
+  "text": "volcano",
+  "inner": [
+   136,
+   42,
+   42
+  ],
+  "outer": [
+   211,
+   73,
+   39
+  ],
+  "pupil": [
+   74,
+   12,
+   12
+  ]
+ },
+ "WORMY": {
+  "text": "wormy",
+  "inner": [
+   169,
+   132,
+   103
+  ],
+  "outer": [
+   216,
+   183,
+   141
+  ],
+  "pupil": [
+   135,
+   99,
+   71
+  ]
+ }
+}

@@ -1,0 +1,811 @@
+import logging
+import os
+from math import floor
+from random import choice, randint
+from typing import Union
+from copy import deepcopy
+from itertools import chain
+from operator import xor
+import os
+
+import ujson
+
+from scripts.cat.old_save_looks import clean_old_looks
+from scripts.cat.cats import Cat
+from scripts.cat.pelts import Pelt
+from scripts.cat.sprites.load_sprites import sprites
+from scripts.cat.save_load import get_faded_ids
+from scripts.cat.save_load import load_faded_cat_ids
+from scripts.cat_relations.inheritance2 import inheritance_db
+from scripts.game_structure import constants
+from scripts.game_structure import game
+from scripts.game_structure.game.settings import game_setting_get
+from scripts.game_structure.game.switches import (
+    switch_get_value,
+    switch_set_value,
+    Switch,
+)
+from scripts.config import get_config
+from scripts.housekeeping.game_version import SAVE_VERSION_NUMBER
+from ..cat.conditions.condition_save_load import load_conditions
+from ..cat.conditions.gain_conditions import gain_permanent_condition
+from ..cat.enums import CatGroup, CatRank
+from scripts.cat_relations.inheritance import Inheritance
+from ..cat.factories.load_cat_factory import LoadCatFactory
+from ..cat_relations.cat_handle_funcs import (
+    load_relationship_of_cat,
+)
+from ..clan_resources.point_of_interest import (
+    clear_pois,
+    generate_and_add_new_poi,
+    PoiType,
+)
+from ..housekeeping.datadir import get_save_dir
+
+logger = logging.getLogger(__name__)
+
+# LG: cat fields LifeGen saves (Cat.get_info_block) that the cat factory doesn't load
+LIFEGEN_SAVED_FIELDS = (
+    "w_done",
+    "talked_to",
+    "insulted",
+    "flirted",
+    "joined_df",
+    "revives",
+    "backstory_str",
+    "courage",
+    "compassion",
+    "intelligence",
+    "empathy",
+    "did_activity",
+    "df_mentor",
+    "df_apprentices",
+    "faith",
+    "connected_dialogue",
+    "lock_faith",
+    "df_patrols",
+    "df_join_moon",
+    "graduated_df",
+)
+
+
+def load_cats(version_info: dict):
+    load_faded_cat_ids(switch_get_value(Switch.clan_save_id))
+    try:
+        json_load(version_info)
+    except Exception:
+        Cat.all_cats.clear()
+        Cat.all_cats_list.clear()
+        raise
+
+def accurate_porting(cat, info):
+
+    maingame_white = deepcopy(Pelt.maingame_white)
+
+    additional_white = {
+        "low": {
+            "1": ["RIGHTEAR", "LEFTEAR", "ESTRELLA", "BACKSPOT", "EYEBAGS", "MASK_MIN"],
+            "2": ["EXTRA", "BLAZEMASK", "TEARS"],
+            "3": ["TOPCOVER", "WINGS", "WOODPECKER", "FADEBELLY", "ROSINA"],
+            "4": ["FADESPOTS", "MITAINE", "SKUNK", "BADGERFANG", "BULLSEYE"],
+            "5": ["SPARROW"]
+        },
+        "high": {
+            "1": [],
+            "2": [],
+            "3": [],
+            "4": [],
+            "5": ["BLACKSTAR", "LOVEBUG", "FULLWHITE"]
+        }
+    }
+    cat.phenotype.lykoi = ["Ly", "Ly"]
+    cat.phenotype.pinkdilute = ["Dp", "Dp"]
+    cat.phenotype.dilutemd = ["dm", "dm"]
+    cat.phenotype.ext = ["E", "E"]
+    cat.phenotype.corin = ["N", "N"]
+    cat.phenotype.karp = ["k", "k"]
+    cat.phenotype.bleach = ["Lb", "Lb"]
+    cat.phenotype.ghosting = ["gh", "gh"]
+    cat.phenotype.satin = ["St", "St"]
+    cat.phenotype.glitter = ["Gl", "Gl"]
+
+    cat.phenotype.curl = ["cu", "cu"]
+    cat.phenotype.fold = ["fd", "fd"]
+    cat.phenotype.fourear = ["Dup", "Dup"]
+    cat.phenotype.manx = ["ab", "ab"]
+    cat.phenotype.kab = ["Kab", "Kab"]
+    cat.phenotype.toybob = ["tb", "tb"]
+    cat.phenotype.jbob = ["Jb", "Jb"]
+    cat.phenotype.kub = ["kub", "kub"]
+    cat.phenotype.ring = ["Rt", "Rt"]
+    cat.phenotype.munch = ["mk", "mk"]
+    cat.phenotype.pax3 = ["NoDBE", "NoDBE"]
+        
+    for i in range(1, 6):
+        maingame_white["low"][str(i)] += additional_white["low"][str(i)]
+        maingame_white["high"][str(i)] += additional_white["high"][str(i)]
+
+    if cat.phenotype.length == "hairless":
+        cat.phenotype.ruhr = ["hrbd", "hrbd"]
+        cat.phenotype.sedesp = ["Hr", "Hr"]
+
+    if info["pelt_length"] == "short":
+        cat.phenotype.furLength[0] = "L"
+    else:
+        cat.phenotype.furLength = ["l", "l"]
+        cat.phenotype.longtype = info["pelt_length"]
+    
+    cat.pelt.length = info["pelt_length"]
+    cat.phenotype.pointgene[0] = "C"
+    cat.phenotype.white = ["w", "w"]
+    cat.phenotype.white_pattern = []
+
+    if info["white_patches"]:
+        cat.phenotype.white_pattern = info["white_patches"] if isinstance(info["white_patches"], list) else [info["white_patches"]]
+    
+        white_found = False
+        for i in range(1, 6):
+            if cat.phenotype.white_pattern[0] in maingame_white["low"][str(i)]:
+                if cat.phenotype.white_pattern[0] in ["SKUNK", "BADGERFANG"]:
+                    cat.phenotype.white = ["wt", "w"]
+                else:
+                    cat.phenotype.white = ["ws", "w"]
+                cat.phenotype.whitegrade = i
+                white_found = True
+                break
+        if not white_found:
+            for i in range(1, 6):
+                if cat.phenotype.white_pattern[0] in maingame_white["high"][str(i)]:
+                    cat.phenotype.white = ["ws", "ws"]
+                    cat.phenotype.whitegrade = i
+                    white_found = True
+                    break
+        if not white_found:
+            if cat.phenotype.white_pattern[0] in list(sprites.WHITE_PATCH_COMBOS["little"].keys())+list(chain(*sprites.WHITE_LITTLE_DATA["sprite_list"])):
+                cat.phenotype.white = ["ws", "w"]
+                cat.phenotype.whitegrade = randint(1, 4)
+            if cat.phenotype.white_pattern[0] in list(sprites.WHITE_PATCH_COMBOS["mid"].keys())+list(chain(*sprites.WHITE_MID_DATA["sprite_list"])):
+                cat.phenotype.white = ["ws", "w"]
+                cat.phenotype.whitegrade = randint(3, 6)
+            if cat.phenotype.white_pattern[0] in list(sprites.WHITE_PATCH_COMBOS["high"].keys())+list(chain(*sprites.WHITE_HIGH_DATA["sprite_list"])):
+                cat.phenotype.white = ["ws", "ws"]
+                cat.phenotype.whitegrade = randint(1, 4)
+            if cat.phenotype.white_pattern[0] in list(sprites.WHITE_PATCH_COMBOS["mostly"].keys())+list(chain(*sprites.WHITE_MOSTLY_DATA["sprite_list"])):
+                cat.phenotype.white = ["ws", "ws"]
+                cat.phenotype.whitegrade = randint(3, 6)
+            if cat.phenotype.white_pattern[0] in []:
+                cat.phenotype.white[0] = "wt"
+
+    if info["vitiligo"]:
+        if info["vitiligo"] == "KARPATI":
+            cat.phenotype.karp = ["K", "k"]
+        elif isinstance(cat.phenotype.white_pattern, list):
+            cat.phenotype.vitiligo = True
+            cat.phenotype.white_pattern.insert(0, info["vitiligo"])
+        else:
+            cat.phenotype.vitiligo = True
+            cat.phenotype.white_pattern = [info["vitiligo"]]
+    if info["points"]:
+        if info["points"] == "SEPIAPOINT":
+            cat.phenotype.pointgene = ["cb", "cb"]
+        elif info["points"] == "MINKPOINT":
+            cat.phenotype.pointgene = ["cb", "cs"]
+        else:
+            cat.phenotype.pointgene = ["cs", "cs"]
+            if info["points"] == "RAGDOLL":
+                cat.phenotype.white_pattern.insert(0, "TRIXIE")
+                cat.phenotype.white = ["ws", "ws"]
+                cat.phenotype.whitegrade = 3
+        
+    if info["eye_colour"] in ["DUSK"]:
+        pigmentation = "albino"
+        refraction = choice(range(3, 7))
+        cat.phenotype.lefteyetype = f"R{refraction} ; {pigmentation}"
+        cat.phenotype.righteyetype = f"R{refraction} ; {pigmentation}"
+    elif info["eye_colour"] in ["WALNUT"]:
+        pigmentation = 11
+        refraction = choice(range(1, 10))
+        cat.phenotype.lefteyetype = f"R{refraction} ; {pigmentation}"
+        cat.phenotype.righteyetype = f"R{refraction} ; {pigmentation}"
+    elif info["eye_colour"] in ["BLUE", "COBALT", "CYAN", "DARKBLUE", "HEATHERBLUE", "PALEBLUE", "SUNLITICE", "SEA", "BLUEBELL", "PERIWINKLE", "STORM"]:
+        pigmentation = "blue"
+        refraction = choice(range(5, 9))
+        if info["eye_colour"] in ["COBALT", "DARKBLUE", "HEATHERBLUE", "SEA", "BLUEBELL", "STORM"]:
+            refraction = choice(range(9, 12))
+        elif info["eye_colour"] in ["PALEBLUE", "CYAN"]:
+            refraction = choice(range(1, 5))
+        elif info["eye_colour"] in ["PERIWINKLE"]:
+            refraction = choice(range(4, 8))
+        cat.phenotype.lefteyetype = f"R{refraction} ; {pigmentation}"
+        cat.phenotype.righteyetype = f"R{refraction} ; {pigmentation}"
+    elif info["eye_colour"] in ["SAND", "MAPLE"]:
+        pigmentation = choice(range(1, 3))
+        refraction = choice(range(1, 3))
+        if info["eye_colour"] == "MAPLE":
+            pigmentation = choice(range(5, 9))
+        cat.phenotype.lefteyetype = f"R{refraction} ; P{pigmentation}"
+        cat.phenotype.righteyetype = f"R{refraction} ; P{pigmentation}"
+    elif info["eye_colour"] in ["GOLD", "YELLOW", "PALEYELLOW", "GREENYELLOW", "MUSTARD"]:
+        pigmentation = choice(range(1, 6))
+        refraction = choice(range(1, 4))
+        if info["eye_colour"] == "PALEYELLOW":
+            pigmentation = 1
+        if info["eye_colour"] == "GREENYELLOW":
+            refraction = choice(range(3, 6))
+        if info["eye_colour"] == "MUSTARD":
+            pigmentation = choice(range(4, 7))
+        cat.phenotype.lefteyetype = f"R{refraction} ; P{pigmentation}"
+        cat.phenotype.righteyetype = f"R{refraction} ; P{pigmentation}"
+    elif info["eye_colour"] in ["AMBER", "COPPER", "BRONZE", "DAWN", "EARTHY", "WILDFIRE"]:
+        pigmentation = choice(range(6, 12))
+        refraction = choice(range(1, 4))
+        if info["eye_colour"] == "AMBER":
+            pigmentation = choice(range(5, 8))
+        if info["eye_colour"] in ["COPPER", "EARTHY"]:
+            pigmentation = choice(range(7, 10))
+        if info["eye_colour"] == "BRONZE":
+            pigmentation = choice(range(9, 12))
+        if info["eye_colour"] in ["DAWN", "WILDFIRE"]:
+            pigmentation = choice(range(8, 11))
+        cat.phenotype.lefteyetype = f"R{refraction} ; P{pigmentation}"
+        cat.phenotype.righteyetype = f"R{refraction} ; P{pigmentation}"
+    elif info["eye_colour"] in ["EMERALD", "GREEN", "PALEGREEN", "SAGE", "OLIVE", "FERN", "MOSSY", "LEAF", "LIME", "SWAMP"]:
+        pigmentation = choice(range(3, 7))
+        refraction = choice(range(9, 12))
+        if info["eye_colour"] == "PALEGREEN":
+            pigmentation = choice(range(2, 4))
+        elif info["eye_colour"] in ["SAGE", "FERN", "LIME"]:
+            pigmentation = choice(range(7, 10))
+        elif info["eye_colour"] in ["OLIVE", "MOSSY"]:
+            pigmentation = choice(range(9, 11))
+        elif info["eye_colour"] in ["SWAMP"]:
+            pigmentation = choice(range(9, 12))
+        cat.phenotype.lefteyetype = f"R{refraction} ; P{pigmentation}"
+        cat.phenotype.righteyetype = f"R{refraction} ; P{pigmentation}"
+    elif info["eye_colour"] in ["HAZEL", "GRASSYGREEN", "CATTAIL", "CACTUS"]:
+        pigmentation = choice(range(5, 8))
+        refraction = choice(range(5, 8))
+        if info["eye_colour"] == "CATTAIL":
+            pigmentation = choice(range(10, 12))
+        cat.phenotype.lefteyetype = f"R{refraction} ; P{pigmentation}"
+        cat.phenotype.righteyetype = f"R{refraction} ; P{pigmentation}"
+    elif info["eye_colour"] in ["AURORA", "AQUAMARINE"]:
+        pigmentation = choice(range(1, 3))
+        refraction = choice(range(10, 12))
+        cat.phenotype.lefteyetype = f"R{refraction} ; P{pigmentation}"
+        cat.phenotype.righteyetype = f"R{refraction} ; P{pigmentation}"
+    elif info["eye_colour"] in ["FOREST", "LICHEN", "ALGAE", "PERIDOT"]:
+        pigmentation = 1
+        refraction = choice(range(5, 9))
+        if info["eye_colour"] == "LICHEN":
+            pigmentation = choice(range(1, 4))
+        cat.phenotype.lefteyetype = f"R{refraction} ; P{pigmentation}"
+        cat.phenotype.righteyetype = f"R{refraction} ; P{pigmentation}"
+
+    if info["eye_colour2"] in ["DUSK"]:
+        pigmentation = "albino"
+        refraction = choice(range(3, 7))
+        cat.phenotype.lefteyetype = f"R{refraction} ; {pigmentation}"
+    elif info["eye_colour2"] in ["WALNUT"]:
+        pigmentation = 11
+        refraction = choice(range(1, 10))
+        cat.phenotype.lefteyetype = f"R{refraction} ; {pigmentation}"
+    elif info["eye_colour2"] in ["BLUE", "COBALT", "CYAN", "DARKBLUE", "HEATHERBLUE", "PALEBLUE", "SUNLITICE", "SEA", "BLUEBELL", "PERIWINKLE", "STORM"]:
+        pigmentation = "blue"
+        refraction = choice(range(5, 9))
+        if info["eye_colour2"] in ["COBALT", "DARKBLUE", "HEATHERBLUE", "SEA", "BLUEBELL", "STORM"]:
+            refraction = choice(range(9, 12))
+        elif info["eye_colour2"] in ["PALEBLUE", "CYAN"]:
+            refraction = choice(range(1, 5))
+        elif info["eye_colour2"] in ["PERIWINKLE"]:
+            refraction = choice(range(4, 8))
+        cat.phenotype.lefteyetype = f"R{refraction} ; {pigmentation}"
+    elif info["eye_colour2"] in ["GOLD", "YELLOW", "PALEYELLOW", "GREENYELLOW", "MUSTARD"]:
+        pigmentation = choice(range(1, 6))
+        refraction = choice(range(1, 4))
+        if info["eye_colour2"] == "PALEYELLOW":
+            pigmentation = 1
+        if info["eye_colour2"] == "GREENYELLOW":
+            refraction = choice(range(3, 6))
+        if info["eye_colour2"] == "MUSTARD":
+            pigmentation = choice(range(4, 7))
+        cat.phenotype.lefteyetype = f"R{refraction} ; P{pigmentation}"
+    elif info["eye_colour2"] in ["AMBER", "COPPER", "BRONZE", "DAWN", "EARTHY"]:
+        pigmentation = choice(range(6, 12))
+        refraction = choice(range(1, 4))
+        if info["eye_colour2"] == "AMBER":
+            pigmentation = choice(range(5, 8))
+        if info["eye_colour2"] in ["COPPER", "EARTHY"]:
+            pigmentation = choice(range(7, 10))
+        if info["eye_colour2"] == "BRONZE":
+            pigmentation = choice(range(9, 12))
+        if info["eye_colour2"] == "DAWN":
+            pigmentation = choice(range(8, 11))
+        cat.phenotype.lefteyetype = f"R{refraction} ; P{pigmentation}"
+    elif info["eye_colour2"] in ["EMERALD", "GREEN", "PALEGREEN", "SAGE", "OLIVE", "FERN", "MOSSY", "LEAF", "LIME", "SWAMP"]:
+        pigmentation = choice(range(3, 7))
+        refraction = choice(range(9, 12))
+        if info["eye_colour2"] == "PALEGREEN":
+            pigmentation = choice(range(2, 4))
+        elif info["eye_colour2"] in ["SAGE", "FERN", "LIME"]:
+            pigmentation = choice(range(7, 10))
+        elif info["eye_colour2"] in ["OLIVE", "MOSSY"]:
+            pigmentation = choice(range(9, 11))
+        elif info["eye_colour2"] in ["SWAMP"]:
+            pigmentation = choice(range(9, 12))
+        cat.phenotype.lefteyetype = f"R{refraction} ; P{pigmentation}"
+    elif info["eye_colour2"] in ["HAZEL", "GRASSYGREEN", "CATTAIL", "CACTUS"]:
+        pigmentation = choice(range(5, 8))
+        refraction = choice(range(5, 8))
+        if info["eye_colour2"] == "CATTAIL":
+            pigmentation = choice(range(10, 12))
+        cat.phenotype.lefteyetype = f"R{refraction} ; P{pigmentation}"
+    elif info["eye_colour2"] in ["AURORA", "AQUAMARINE"]:
+        pigmentation = choice(range(1, 3))
+        refraction = choice(range(10, 12))
+        cat.phenotype.lefteyetype = f"R{refraction} ; P{pigmentation}"
+    elif info["eye_colour2"] in ["FOREST", "LICHEN", "ALGAE", "PERIDOT"]:
+        pigmentation = 1
+        refraction = choice(range(5, 9))
+        if info["eye_colour2"] == "LICHEN":
+            pigmentation = choice(range(1, 4))
+        cat.phenotype.lefteyetype = f"R{refraction} ; P{pigmentation}"
+
+    if "SUNLITICE" in [info["eye_colour"], info["eye_colour2"]]:
+        if not info["eye_colour2"]:
+            cat.phenotype.extraeye = "sectoral3"
+        elif info["eye_colour"] == "SUNLITICE":
+            cat.phenotype.extraeye = "sectoral2"
+        else:
+            cat.phenotype.extraeye = "sectoral1"
+        cat.phenotype.extraeyetype = f"R{choice(range(1, 4))} ; P{choice(range(1, 3))}"
+
+    red_bases = ["CREAM", "DARKGINGER", "GINGER", "PALEGINGER", "HONEY"]
+    tabby_bases = ["CREAM", "DARKGINGER", "GINGER", "PALEGINGER", "GOLDEN", "WHITE", "DAWN", "MALLOW", "SUNSHINE"]
+    cat.chimerapheno = None
+    main_colour = {"pattern": info["pelt_name"].lower(), "colour": info["pelt_color"]}
+    patch_colour = {"pattern": "", "colour": ""}
+    is_tortie = False
+
+    if info["pelt_name"].lower() in ["tortie", "calico"]:
+        if not xor(info["pelt_color"] in red_bases, info["tortie_color"] in red_bases) or (info["tortie_pattern"] != info["tortie_base"] and 
+        (info["pelt_color"] not in tabby_bases and info["tortie_base"] not in ["single", "smoke"]) and (info["tortie_color"] not in tabby_bases and info["tortie_pattern"] not in ["single", "smoke"])):
+            cat.chimerapheno = deepcopy(cat.phenotype)
+            cat.chimerapheno.chimerapattern = [info["tortie_marking"]]
+            main_colour = {"pattern": info["tortie_base"], "colour": info["pelt_color"]}
+            patch_colour = {"pattern": info["tortie_pattern"], "colour": info["tortie_color"]}
+        else:
+            if info["tortie_color"] in red_bases:
+                main_colour = {
+                    "pattern": info["tortie_base"], "colour": info["pelt_color"]}
+                patch_colour = {
+                    "pattern": info["tortie_pattern"], "colour": info["tortie_color"]}
+            else:
+                patch_colour = {
+                    "pattern": info["tortie_base"], "colour": info["pelt_color"]}
+                main_colour = {
+                    "pattern": info["tortie_pattern"], "colour": info["tortie_color"]}
+                info["tortie_marking"] = "rev" + info["tortie_marking"]
+            is_tortie = True
+    
+    cat.phenotype.agouti[0] = "A"
+
+    if main_colour["pattern"] in ["bengal", "rosette", "marbled"] or (not cat.chimerapheno and patch_colour["pattern"] in ["bengal", "rosette", "marbled"]):
+        cat.phenotype.bengal = "2222"
+    if main_colour["pattern"] in ["bengal", "masked", "marbled"] or (not cat.chimerapheno and patch_colour["pattern"] in ["bengal", "masked", "marbled"]):
+        cat.phenotype.agouti = ["Apb", "a"]
+        cat.phenotype.unders_ruf = "0000"
+        if main_colour["colour"] in ["DARKGREY", "DARKBROWN"]:
+            cat.phenotype.silver[0] = "I"
+            main_colour["colour"] = "BLACK"
+    elif (main_colour["pattern"] in ["single", "singlecolour", "twocolour", "smoke"] and main_colour["colour"] not in tabby_bases) or (main_colour["colour"] == "GHOST"):
+        cat.phenotype.agouti = ["a", "a"]
+
+    if main_colour["pattern"] in ["ticked", "agouti", "singlestripe", "freckled"] or (not cat.chimerapheno and patch_colour["pattern"] in ["ticked", "agouti", "singlestripe", "freckled"]):
+        cat.phenotype.ticked[0] = "Ta"
+        if main_colour["pattern"] != "ticked" or (not cat.chimerapheno and patch_colour["pattern"] != "ticked"):
+            cat.phenotype.tickgenes = "2222"
+        if main_colour["pattern"] == "freckled" or (not cat.chimerapheno and patch_colour["pattern"] == "freckled"):
+            cat.phenotype.ticked = ["Ta", "ta"]
+            cat.phenotype.breakthrough = True
+            cat.phenotype.mack[0] = "Mc"
+    elif main_colour["pattern"] in ["classic", "sokoke", "marbled"] or (not cat.chimerapheno and patch_colour["pattern"] in ["classic", "sokoke", "marbled"]):
+        cat.phenotype.ticked = ["ta", "ta"]
+        cat.phenotype.mack = ["mc", "mc"]
+        if main_colour["pattern"] == "sokoke" or (not cat.chimerapheno and patch_colour["pattern"] == "sokoke"):
+            cat.phenotype.sokoke = "2222"
+    elif main_colour["pattern"] in ["tabby", "mackerel", "speckled", "rosette", "masked", "bengal"] or (not cat.chimerapheno and patch_colour["pattern"] in ["tabby", "mackerel", "speckled", "rosette", "masked", "bengal"]):
+        cat.phenotype.ticked = ["ta", "ta"]
+        cat.phenotype.mack[0] = "Mc"
+        cat.phenotype.spotted = "0000"
+    if main_colour["pattern"] in ["speckled", "rosette", "bengal", "freckled"] or (not cat.chimerapheno and patch_colour["pattern"] in ["speckled", "rosette", "bengal", "freckled"]):
+        cat.phenotype.spotted = "2222"
+    if (main_colour["pattern"] in ["single", "singlecolour", "twocolour", "smoke"] and main_colour["colour"] in tabby_bases):
+        cat.phenotype.ticked[0] = "Ta"
+    
+    if cat.chimerapheno:
+        cat.chimerapheno.agouti[0] = "A"
+        if patch_colour["pattern"] in ["bengal", "rosette", "marbled"]:
+            cat.chimerapheno.bengal = "2222"
+            if patch_colour["pattern"] != "rosette":
+                cat.chimerapheno.agouti = ["Apb", "a"]
+                cat.chimerapheno.unders_ruf = "0000"
+                if patch_colour["colour"] in ["DARKGREY", "DARKBROWN"]:
+                    cat.chimerapheno.silver[0] = "I"
+                    patch_colour["colour"] = "BLACK"
+
+        if patch_colour["pattern"] in ["ticked", "agouti", "singlestripe", "freckled"]:
+            cat.chimerapheno.ticked[0] = "Ta"
+            if patch_colour["pattern"] != "ticked":
+                cat.chimerapheno.tickgenes = "2222"
+            if patch_colour["pattern"] == "freckled":
+                cat.chimerapheno.ticked = ["Ta", "ta"]
+                cat.chimerapheno.breakthrough = True
+                cat.chimerapheno.mack[0] = "Mc"
+        elif patch_colour["pattern"] in ["classic", "sokoke", "marbled"]:
+            cat.chimerapheno.ticked = ["ta", "ta"]
+            cat.chimerapheno.mack = ["mc", "mc"]
+            if patch_colour["pattern"] == "sokoke":
+                cat.chimerapheno.sokoke = "2222"
+        elif patch_colour["pattern"] in ["tabby", "mackerel", "speckled", "rosette", "masked", "bengal"]:
+            cat.chimerapheno.ticked = ["ta", "ta"]
+            cat.chimerapheno.mack[0] = "Mc"
+            cat.chimerapheno.spotted = "0000"
+        elif (patch_colour["pattern"] in ["single", "singlecolour", "twocolour", "smoke"] and patch_colour["colour"] not in tabby_bases) or (patch_colour["colour"] == "GHOST"):
+            cat.chimerapheno.agouti = ["a", "a"]
+        elif (patch_colour["pattern"] in ["single", "singlecolour", "twocolour", "smoke"] and patch_colour["colour"] in tabby_bases):
+            cat.chimerapheno.ticked[0] = "Ta"
+        if patch_colour["pattern"] in ["speckled", "rosette", "bengal", "freckled"]:
+            cat.chimerapheno.spotted = "2222"
+    
+    if not patch_colour["pattern"] and main_colour["pattern"] in ["singlecolour", "twocolour"] and main_colour["colour"] == "WHITE":
+        cat.phenotype.white[0] = "W"
+        cat.phenotype.white_pattern = "No"
+    if "FULLWHITE" in cat.phenotype.white_pattern:
+        cat.phenotype.white[0] = "W"
+        cat.phenotype.white_pattern = "No"
+    
+    if main_colour["colour"] in ["WHITE", "PALEGREY", "SILVER", "GREY", "DARKGREY", "SOOT", "CREAM", "PALEGINGER", "LIGHTBROWN", "LILAC", "BLOSSOM", "DAWN", "MALLOW", "HONEY"]:
+        cat.phenotype.dilute = ["d", "d"]
+        cat.phenotype.rufousing = 0
+    else:
+        cat.phenotype.dilute[0] = "D"
+    
+    if cat.chimerapheno:
+        if patch_colour["colour"] in ["WHITE", "PALEGREY", "SILVER", "GREY", "DARKGREY", "SOOT", "CREAM", "PALEGINGER", "LIGHTBROWN", "LILAC", "BLOSSOM", "DAWN", "MALLOW", "HONEY"]:
+            cat.chimerapheno.dilute = ["d", "d"]
+            cat.chimerapheno.rufousing = 0
+        else:
+            cat.chimerapheno.dilute[0] = "D"
+
+    if main_colour["colour"] in ["LIGHTBROWN", "GOLDEN-BROWN", "GOLDEN", "BLOSSOM"]:
+        cat.phenotype.eumelanin = ["bl", "bl"]
+    elif main_colour["colour"] in ["WHITE", "PALEGREY", "LILAC", "BROWN", "CHOCOLATE", "RUST", "SIENNA", "MALLOW", "SOOT"]:
+        cat.phenotype.eumelanin = ["b", "b"]
+    else:
+        cat.phenotype.eumelanin[0] = "B"
+
+    if cat.chimerapheno:
+        if patch_colour["colour"] in ["LIGHTBROWN", "GOLDEN-BROWN", "GOLDEN", "BLOSSOM"]:
+            cat.chimerapheno.eumelanin = ["bl", "bl"]
+        elif patch_colour["colour"] in ["WHITE", "PALEGREY", "LILAC", "BROWN", "CHOCOLATE", "RUST", "SIENNA", "MALLOW", "SOOT"]:
+            cat.chimerapheno.eumelanin = ["b", "b"]
+        else:
+            cat.chimerapheno.eumelanin[0] = "B"
+    
+    if is_tortie:
+        cat.phenotype.sexgene = ["O", "o"]
+        if cat.phenotype.sex == "tom":
+            cat.phenotype.sexgene.append("Y")
+            gain_permanent_condition(cat, 'sterile', is_congenital=True, genetic=True)
+        cat.phenotype.tortiepattern["0"] = [info["tortie_marking"]]
+    elif main_colour["colour"] in red_bases:
+        cat.phenotype.sexgene[0] = "O"
+        if cat.phenotype.sexgene[1] == "o":
+            cat.phenotype.sexgene[1] = "O"
+    elif patch_colour["colour"] not in red_bases:
+        cat.phenotype.sexgene[0] = "o"
+        if cat.phenotype.sexgene[1] == "O":
+            cat.phenotype.sexgene[1] = "o"
+
+    if cat.chimerapheno:
+        if patch_colour["colour"] in red_bases:
+            cat.chimerapheno.sexgene[0] = "O"
+            if cat.chimerapheno.sexgene[1] == "o":
+                cat.chimerapheno.sexgene[1] = "O"
+        elif main_colour["colour"] not in red_bases:
+            cat.chimerapheno.sexgene[0] = "o"
+            if cat.chimerapheno.sexgene[1] == "O":
+                cat.chimerapheno.sexgene[1] = "o"
+    
+    if main_colour["colour"] in ["WHITE", "SILVER", "GHOST", "BLOSSOM", "DAWN"] and cat.phenotype.agouti != ["Apb", "a"]:
+        cat.phenotype.silver[0] = "I"
+    else:
+        cat.phenotype.silver = ["i", "i"]
+
+    if cat.chimerapheno:
+        if patch_colour["colour"] in ["WHITE", "SILVER", "GHOST", "BLOSSOM", "DAWN"]:
+            cat.chimerapheno.silver[0] = "I"
+        else:
+            cat.chimerapheno.silver = ["i", "i"]
+    
+    if main_colour["colour"] in ["DAWN", "SUNSHINE"]:
+        cat.phenotype.corin = ["sh", "sh"]
+    else:
+        cat.phenotype.corin[0] = "N"
+
+    if cat.chimerapheno:
+        if patch_colour["colour"] in ["DAWN", "SUNSHINE"]:
+            cat.chimerapheno.corin = ["sh", "sh"]
+        else:
+            cat.chimerapheno.corin[0] = "N"
+
+    if main_colour["colour"] in ["WHITE", "GOLDEN", "LIGHTBROWN", "MALLOW"]:
+        cat.phenotype.wideband = 13
+        if main_colour["pattern"] in ["single", "singlecolour", "twocolour", "smoke"] and main_colour["colour"] == "GOLDEN":
+            cat.phenotype.wideband = 16
+    else:
+        cat.phenotype.wideband = randint(0, 11)
+
+    if cat.chimerapheno:
+        if patch_colour["colour"] in ["WHITE", "GOLDEN", "LIGHTBROWN", "MALLOW"]:
+            cat.chimerapheno.wideband = 13
+            if patch_colour["pattern"] in ["single", "singlecolour", "twocolour", "smoke"] and patch_colour["colour"] == "GOLDEN":
+                cat.chimerapheno.wideband = 16
+        else:
+            cat.chimerapheno.wideband = randint(0, 11)
+
+    if main_colour["colour"] in ["DARKGINGER", "CHOCOLATE", "HONEY", "GOLDEN"]:
+        cat.phenotype.rufousing = 8
+    if main_colour["colour"] in ["BLACK"]:
+        cat.phenotype.rufousing = 0
+        cat.phenotype.wideband = 0
+    if main_colour["colour"] in ["LILAC", "GREY"]:
+        cat.phenotype.fur_shade = choice(range(0, 5))
+    elif main_colour["colour"] in ["DARKGREY", "DARKBROWN", "GHOST", "BLOSSOM", "SIENNA", "RUST", "SOOT"]:
+        cat.phenotype.fur_shade = choice(range(5, 7))
+    elif main_colour["colour"] in ["PALEGREY", "GOLDEN"]:
+        cat.phenotype.fur_shade = choice(range(0, 3))
+    else:
+        cat.phenotype.fur_shade = choice(range(2, 5))
+
+    if main_colour["colour"] in ["BLACK", "GOLDEN", "BROWN", "SOOT"]:
+        cat.phenotype.colour_warmth = 0
+    elif main_colour["colour"] in ["LILAC", "GOLDENBROWN"]:
+        cat.phenotype.colour_warmth = 1
+    elif main_colour["colour"] in ["WHITE", "PALEGREY", "BLOSSOM", "LIGHTBROWN", "DAWN", "MALLOW"]:
+        cat.phenotype.colour_warmth = 2
+
+    if cat.chimerapheno:
+        if patch_colour["colour"] in ["DARKGINGER", "CHOCOLATE", "HONEY", "GOLDEN"]:
+            cat.chimerapheno.rufousing = 8
+        if patch_colour["colour"] in ["BLACK"]:
+            cat.chimerapheno.rufousing = 0
+            cat.chimerapheno.wideband = 0
+        if patch_colour["colour"] in ["LILAC", "GREY"]:
+            cat.chimerapheno.fur_shade = choice(range(0, 5))
+        if patch_colour["colour"] in ["DARKGREY", "DARKBROWN", "GHOST", "BLOSSOM", "SIENNA", "RUST", "SOOT"]:
+            cat.chimerapheno.fur_shade = choice(range(5, 7))
+        elif patch_colour["colour"] in ["PALEGREY", "GOLDEN"]:
+            cat.chimerapheno.fur_shade = choice(range(0, 3))
+        else:
+            cat.chimerapheno.fur_shade = choice(range(2, 5))
+
+        if patch_colour["colour"] in ["BLACK", "GOLDEN", "BROWN", "SOOT"]:
+            cat.chimerapheno.colour_warmth = 0
+        elif patch_colour["colour"] in ["LILAC", "GOLDENBROWN"]:
+            cat.chimerapheno.colour_warmth = 1
+        elif patch_colour["colour"] in ["WHITE", "PALEGREY", "BLOSSOM", "LIGHTBROWN", "DAWN", "MALLOW"]:
+            cat.chimerapheno.colour_warmth = 2
+            
+    cat.phenotype.GeneSort()
+    cat.phenotype.PolyEval()
+    cat.phenotype.EyeColourName()
+    cat.phenotype.PhenotypeOutput(cat.phenotype.white_pattern)
+    cat.phenotype.SpriteInfo(cat.moons)
+    if cat.chimerapheno:
+        cat.chimerapheno.GeneSort()
+        cat.chimerapheno.PolyEval()
+        cat.chimerapheno.EyeColourName()
+        cat.chimerapheno.PhenotypeOutput(cat.chimerapheno.white_pattern)
+        cat.chimerapheno.SpriteInfo(cat.moons)
+
+# LG
+def clear_missing_cat_links(cats):
+    """Clears links to cats that aren't in the save anymore, living, dead or faded: parents,
+    mates, mentors and apprentices. The family tree and apprentice code look these cats up and
+    crashed when one was missing."""
+    for cat in cats:
+        for field in ("parent1", "parent2", "parent3", "mentor"):
+            other_id = getattr(cat, field, None)
+            if other_id and not Cat.fetch_cat(other_id):
+                logger.warning(f"Cat #{cat.ID} had a missing {field} ({other_id}), removed it.")
+                setattr(cat, field, None)
+        for field in (
+            "adoptive_parents", "surrogate_parents", "affair_parents",
+            "mate", "former_mentor", "apprentice", "former_apprentices",
+        ):
+            other_ids = getattr(cat, field, None)
+            if other_ids:
+                kept = [i for i in other_ids if Cat.fetch_cat(i)]
+                if len(kept) != len(other_ids):
+                    logger.warning(f"Cat #{cat.ID} had missing cats in {field}, removed them.")
+                    setattr(cat, field, kept)
+
+
+def json_load(version_info: dict):
+    Cat.all_cats.clear()
+    Cat.all_cats_list.clear()
+    Inheritance.all_inheritances = {}
+    all_cats = []
+    clanname = switch_get_value(Switch.clan_list)[0]
+    clan_cats_json_path = f"{get_save_dir()}/{clanname}/clan_cats.json"
+    try:
+        with open(clan_cats_json_path, "r", encoding="utf-8") as read_file:
+            cat_data = ujson.loads(read_file.read())
+    except PermissionError as e:
+        switch_set_value(Switch.error_message, f"Can\'t open {clan_cats_json_path}!")
+        switch_set_value(Switch.traceback, e)
+        raise
+    except ujson.JSONDecodeError as e:
+        switch_set_value(Switch.error_message, f"{clan_cats_json_path} is malformed!")
+        switch_set_value(Switch.traceback, e)
+        raise
+
+    # LG: a save from before genes (LifeGen, ClanGen) gets genes as it loads: older cats first,
+    # so parents are always there for their kits
+    if any(not c.get("genotype") for c in cat_data):
+        cat_data = sorted(cat_data, key=lambda c: -(c.get("moons") or 0))
+
+    # create new cat objects
+    for i, cat_dict in enumerate(cat_data):
+        clean_old_looks(cat_dict)
+        try:
+            if "pattern" in cat_dict:
+                cat_dict["tortie_marking"] = cat_dict["pattern"]
+                del cat_dict["pattern"]
+            cat = LoadCatFactory.create_cat(**cat_dict)
+            if not cat_dict.get("genotype", False) and (game_setting_get("accurate_porting") or (not cat.parent1 and not cat.parent2)):
+                accurate_porting(cat, cat_dict)
+                cat.pelt.init_sprite()
+            if cat.favourite == True:
+                cat.favourite = 1
+            # LG: the customizer picks, so editing the cat again starts from them
+            if cat_dict.get("legacy_pelt"):
+                from scripts.cat.legacy_pelt import LegacyPelt
+
+                try:
+                    cat.legacy_pelt = LegacyPelt.from_dict(cat_dict["legacy_pelt"])
+                except TypeError:
+                    cat.legacy_pelt = None
+            # LG: the cat factory doesn't know LifeGen's own fields, so faith, the DF training,
+            # who you talked to this moon and so on were reset every time a save loaded
+            for field in LIFEGEN_SAVED_FIELDS:
+                if field in cat_dict:
+                    value = cat_dict[field]
+                    setattr(cat, field, list(value) if isinstance(value, list) else value)
+            Cat.all_cats[cat.ID] = cat
+            all_cats.append(cat)
+
+        except KeyError as e:
+            if "ID" in cat_dict:
+                key = f" ID #{cat_dict['ID']} "
+            else:
+                key = f" at index {i} "
+            switch_set_value(
+                Switch.error_message, f"Cat{key}in clan_cats.json is missing {e}!"
+            )
+            switch_set_value(Switch.traceback, e)
+            raise
+
+    # LG
+    clear_missing_cat_links(all_cats)
+
+    # replace cat ids with cat objects and add other needed variables
+    for cat in all_cats:
+        if cat.status.rank in (CatRank.LEADER, CatRank.DEPUTY, CatRank.MEDICINE_CAT):
+            if cat.status.group == CatGroup.STARCLAN:
+                game.starclan.adjust_facets_by_cat(cat)
+            elif cat.status.group == CatGroup.DARK_FOREST:
+                game.dark_forest.adjust_facets_by_cat(cat)
+
+        load_conditions(cat, version_info)
+
+        # this is here to handle paralyzed cats in old saves
+        if cat.pelt.paralyzed and "paralyzed" not in cat.permanent_conditions:
+            gain_permanent_condition(cat, "paralyzed")
+        elif "paralyzed" in cat.permanent_conditions and not cat.pelt.paralyzed:
+            cat.pelt.paralyzed = True
+
+        # load the relationships
+        try:
+            if not cat.dead:
+                load_relationship_of_cat(cat)
+            else:
+                cat.relationships = {}
+        except Exception as e:
+            logger.exception(
+                f"There was an error loading relationships for cat #{cat}."
+            )
+            switch_set_value(
+                Switch.error_message,
+                f"There was an error loading relationships for cat #{cat}.",
+            )
+            switch_set_value(Switch.traceback, e)
+            raise
+        if get_config("save_load.load_integrity_checks"):
+            save_check()
+
+    inheritance_db.clear_stored_data()
+    inheritance_db.load_inheritances(Cat, get_faded_ids)
+
+
+def save_check():
+    """Checks through loaded cats, checks and attempts to fix issues
+    NOT currently working."""
+    return
+
+
+def version_convert(version_info):
+    """Does most save-conversion that require referencing the saved version number.
+    This is a separate function, since the version info is stored in clan.json, but most conversion needs to be
+    done on the cats. Clan data is loaded in after cats, however."""
+
+    if version_info is None:
+        return
+
+    if version_info["version_name"] == SAVE_VERSION_NUMBER:
+        # Save was made on current version
+        return
+
+    if version_info["version_name"] is None:
+        version = 0
+    else:
+        version = version_info["version_name"]
+
+    if version < 1:
+        # Save was made before version number storage was implemented.
+        # (ie, save file version 0)
+        # This means the EXP must be adjusted.
+        for c in Cat.all_cats.values():
+            c.experience = c.experience * 3.2
+
+    if version < 2:
+        for c in Cat.all_cats.values():
+            for con in c.temporary_conditions + c.permanent_conditions:
+                con.moon_gained = game.clan.age - con.moon_gained
+
+    # freshkill start for older clans
+    if version < 3 and game.clan.freshkill_pile:
+        add_prey = game.clan.freshkill_pile.amount_food_needed() * 2
+        game.clan.freshkill_pile.add_freshkill(add_prey)
+
+    # death history text revision
+    if version < 4:
+        for c in Cat.all_cats.values():
+            if not c.status.is_leader:
+                continue
+            for death in c.history.died_by:
+                if death["text"] == "multi_lives":
+                    # skip these as changing them will break stuff
+                    continue
+                if death["text"].startswith("m_c lost a life"):
+                    # skip these as it duplicates the existing death text
+                    continue
+                death["text"] = (
+                    "m_c lost a life when {PRONOUN/m_c/subject} " + death["text"]
+                )
+                # check if a period is present and append one if not
+                if death["text"][-1] != ".":
+                    death["text"] += "."
+
+    # generate points of interest
+    if version < 5:
+        # remove any already loaded points of interest
+        clear_pois()
+
+        generate_and_add_new_poi(biome=game.clan.biome, category=PoiType.GATHERING)
+        generate_and_add_new_poi(biome=game.clan.biome, category=PoiType.MOONPLACE)
+
+        for i in range(3):
+            generate_and_add_new_poi(biome=game.clan.biome, category=PoiType.TERRAIN, clan="1")

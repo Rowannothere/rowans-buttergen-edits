@@ -1,0 +1,14 @@
+{
+    "en": {
+        "full_settings": "Open Game Settings",
+        "full_settings_info": "Change the overall game and audio settings",
+        "general": "general settings",
+        "general_info": "Change the general Clan-specific settings",
+        "relation": "relation settings",
+        "relation_info": "Change Clan-specific settings regarding cat relationships",
+        "role": "role settings",
+        "role_info": "Change Clan-specific settings regarding cat roles",
+        "stats": "clan stats",
+        "stats_text": "Living Clan Cats: %{living}\nCats Outside the Clan: %{cotc}\nOther Clans' Cats: %{oc_cats}\nStarClan Cats: %{starclan}\nDark Forest Cats: %{darkforest}\nUnknown Residence Cats: %{unknownresidence}\nHealers: %{medcats}\nHealer Apprentices: %{medcatapps}\nWarriors: %{warriors}\nWarrior Apprentices: %{apps}\nMediators: %{mediators}\nMediator Apprentices: %{mediatorapps}\nQueens: %{queens}\nElders: %{elders}\nKittens and Newborns: %{kits}\nFaded Cats: %{faded}"
+    }
+}
