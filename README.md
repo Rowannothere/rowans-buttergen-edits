@@ -224,7 +224,7 @@ Buttergen is built on other people's work. Thank you to all of them!
 
 ### Contributors
 
-- **Rowan** ([Rowannothere](https://github.com/Rowannothere)): secondary personality traits
+- **Rowan** ([Rowannothere](https://github.com/Rowannothere)): secondary personality traits (and choosing them in the cat maker and cat editor), and the idea and first version of skipping by weeks
 
 ### LifeGen
 Made by the **LifeGen team**: playing as your own cat.
