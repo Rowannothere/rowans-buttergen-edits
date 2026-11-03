@@ -1033,10 +1033,13 @@ class Cat:
     def describe_eyes(self):
         if is_today(SpecialDate.APRIL_FOOLS) and self.phenotype.april_fools.get("rainbow_eyes", ["NoDRE"])[0] != "NoDRE":
             return "rainbow"
-        if (self.phenotype.lefteye == self.phenotype.righteye):
-            colour = self.phenotype.lefteye.lower()
+        # BUTTERGEN: a special eye color shows its own name
+        from scripts.cat import special_eyes
+        lefteye, righteye = special_eyes.eye_names(self.phenotype)
+        if (lefteye == righteye):
+            colour = lefteye.lower()
         else:
-            colour = self.phenotype.righteye.lower() + " & " + self.phenotype.lefteye.lower()
+            colour = righteye.lower() + " & " + lefteye.lower()
 
         return colour
 
