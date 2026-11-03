@@ -1,7 +1,7 @@
 from scripts.ui import cat_list_filter
 import pygame.transform
 import pygame_gui.elements
-from random import choice, randint
+from random import choice, randint, random, uniform
 import ujson
 import re
 from scripts.events_module.event_information import EventInformation
@@ -14,6 +14,7 @@ from scripts.cat_relations.relationship import create_one_relationship
 from scripts.events_module.pregnancy.pregnancy_events import pick_carrier
 from scripts.events_module.pregnancy.handle_become_pregnant import (
     handle_zero_moon_pregnant,
+    _set_affair_visibility,
 )
 from scripts.cat.conditions.gain_conditions import gain_temporary_condition
 from scripts.game_structure.screen_settings import MANAGER
@@ -76,7 +77,7 @@ class AffairScreen(Screens):
                 self.selected_cat = event.ui_element.return_cat_object()
                 self.update_selected_cat()
             elif event.ui_element == self.confirm_mentor and self.selected_cat:
-                if self.selected_cat.status.alive_in_player_clan:
+                if not self.selected_cat.dead and self.selected_cat in self.get_valid_cats():
                     self.update_selected_cat()
                     self.change_cat(self.selected_cat)
                     # resetting selected cat so theyre not still in the box when reentering the affair screen next moon
@@ -231,16 +232,6 @@ class AffairScreen(Screens):
             )
             ceremony_txt = self.adjust_txt(choice(self.mu_txt["success"]), affair_cat)
             game.cur_events_list.insert(0, EventInformation(ceremony_txt))
-            if (
-                randint(
-                    1,
-                    constants.CONFIG["lifegen"]["gen"][
-                        "affair_success_pregnancy_chance"
-                    ],
-                )
-                == 1
-            ):
-                self.affair_pregnancy(game.clan.your_cat, affair_cat)
         else:
             ceremony_txt = self.adjust_txt(choice(self.mu_txt["fail"]), affair_cat)
             game.cur_events_list.insert(0, EventInformation(ceremony_txt))
@@ -295,54 +286,32 @@ class AffairScreen(Screens):
                         affair_relationship_chance_lb, affair_relationship_chance_ub
                     )
 
+        # caught or not, the affair still happened. if it was found out, the kits won't be a secret
+        if randint(1, constants.CONFIG["lifegen"]["gen"]["affair_success_pregnancy_chance"]) == 1:
+            self.affair_pregnancy(game.clan.your_cat, affair_cat, known=not success)
+
         self.change_screen(GameScreen.EVENTS)
 
     def is_success(self, affair_cat):
-        """Calculates affair success rate based on relationships"""
-        chance = constants.CONFIG["lifegen"]["gen"]["affair_success_chance"]
+        """True if the affair isnt found out. every affair rolls its own random chance of being
+        caught, and a mate who is close to you is a little more likely to notice"""
+        gen = constants.CONFIG["lifegen"]["gen"]
+        caught = uniform(gen["affair_caught_chance_min"], gen["affair_caught_chance_max"])
         for i in game.clan.your_cat.mate:
             mate = Cat.fetch_cat(i)
-            if mate is None or not mate.status.alive_in_player_clan:
+            if mate is None or mate.dead:
                 continue
             rel = mate.relationships.get(game.clan.your_cat.ID)
             if rel is None:
                 continue
-            if rel.romance > 50:
-                chance -= 5
-            elif rel.romance < 10:
-                chance += 5
-            if rel.comfort > 50:
-                chance -= 5
-            elif rel.comfort < 10:
-                chance += 5
-            if rel.trust > 50:
-                chance -= 5
-            elif rel.trust < 10:
-                chance += 5
-        affair_rel = affair_cat.relationships.get(game.clan.your_cat.ID)
-        if affair_rel is not None:
-            if affair_rel.like < -10:
-                chance += 10
-            if affair_rel.romance > 20:
-                chance -= 10
-            elif affair_rel.romance < 10:
-                chance += 10
-            if affair_rel.comfort > 20:
-                chance -= 10
-            elif affair_rel.comfort < 10:
-                chance += 10
-            if affair_rel.trust > 20:
-                chance -= 10
-            elif affair_rel.trust < 10:
-                chance += 10
-        if chance < 1:
-            chance = 1
-        if randint(1, 100) < randint(0, max(0, chance + randint(-10, 10))):
-            return True
-        return False
+            if rel.trust > 50 or rel.comfort > 50:
+                caught += 5
+            elif rel.trust < 10 and rel.comfort < 10:
+                caught -= 5
+        return random() * 100 >= caught
 
     @staticmethod
-    def affair_pregnancy(you, affair_cat):
+    def affair_pregnancy(you, affair_cat, known=False):
         """works out which of the two can carry the kits and makes them pregnant. genemod's pregnancy
         code wants a list of partners, passing a single cat crashed the game"""
         if get_clan_setting("same sex birth"):
@@ -359,6 +328,9 @@ class AffairScreen(Screens):
         if "pregnant" in carrier.temporary_conditions or "recovering_from_birth" in carrier.temporary_conditions:
             return
         handle_zero_moon_pregnant(carrier, [other], clan=game.clan)
+        if known:
+            # you were caught, so the kits won't be born in secret
+            _set_affair_visibility(carrier, True)
 
     def get_fail_consequence(self):
         return randint(0, 1)

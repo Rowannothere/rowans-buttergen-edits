@@ -1874,8 +1874,11 @@ dev_tools = false
   [lifegen.gen]
     affair_relationship_change_lb = 10
     affair_relationship_change_ub = 30
-    affair_success_chance = 1
-    affair_success_pregnancy_chance = 20
+    # every affair rolls its own chance (in %) of being found out, somewhere between these two
+    affair_caught_chance_min = 5
+    affair_caught_chance_max = 45
+    # 1/chance that an affair leads to kits, whether it was found out or not
+    affair_success_pregnancy_chance = 4
     murder_chance = -1
     accomplice_chance = -1
 
