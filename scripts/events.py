@@ -50,6 +50,7 @@ from scripts.cat.microservices.add_to_clan import add_dependents_to_clan, add_to
 from scripts.cat.names import Name
 from scripts.cat.save_load import save_cats, add_cat_to_fade_id
 from scripts.clan_package.settings import get_clan_setting, set_clan_setting
+from scripts.events_module import weekskip
 from scripts.game_structure.game.settings import game_setting_get
 from scripts.clan_resources.freshkill import FRESHKILL_EVENT_ACTIVE
 from scripts.events_module.event_information import EventInformation
@@ -262,11 +263,14 @@ def _one_moon_impl():
     game.dated_cats.clear()
 
     # age up the clan, set current season
-    game.clan.age += 1
+    # BUTTERGEN: with weekskip on, time only moves on the full moon (see weekskip.py)
+    full_moon = weekskip.advance()
+    if full_moon:
+        game.clan.age += 1
 
-    update_afterlife_temper()
-    pregnancy_events.increment_pregnancy_age()
-    check_war()
+        update_afterlife_temper()
+        pregnancy_events.increment_pregnancy_age()
+        check_war()
 
     if switch_get_value(Switch.change_group):
         new_group_ID = switch_get_value(Switch.change_group)
@@ -309,7 +313,7 @@ def _one_moon_impl():
     ):
         switch_set_value(Switch.attended_half_moon, False)
 
-    if game.clan.game_mode in ("expanded", "cruel_season") and game.clan.freshkill_pile:
+    if full_moon and game.clan.game_mode in ("expanded", "cruel_season") and game.clan.freshkill_pile:
         # feed the cats and update the nutrient status
         relevant_cats = list(
             filter(
@@ -319,7 +323,8 @@ def _one_moon_impl():
         )
         game.clan.freshkill_pile.time_skip(relevant_cats, game.freshkill_event_list)
         # get the moonskip freshkill
-        get_moon_freshkill()
+        with weekskip.moon_work():
+            get_moon_freshkill()
 
     # Adding in any potential lead den events that have been saved
     if get_clan_setting("lead_den_interaction"):
@@ -327,41 +332,45 @@ def _one_moon_impl():
 
     clancount = game.clan.clancount == "multiclan"
     
-    # try to cause a condition outbreak
-    attempt_outbreak(clan=game.clan)
+    if full_moon:
+        # try to cause a condition outbreak
+        attempt_outbreak(clan=game.clan)
 
-    if clancount:
-        for clan in game.clan.all_other_clans:
-            attempt_outbreak(clan=clan)
+        if clancount:
+            for clan in game.clan.all_other_clans:
+                attempt_outbreak(clan=clan)
 
     # checking if a lost cat returns on their own
     rejoin_upperbound = get_config("lost_cat.rejoin_chance")
-    if random.randint(1, rejoin_upperbound) == 1:
+    if weekskip.big_event_roll() and random.randint(1, rejoin_upperbound) == 1:
         handle_lost_cats_return(clan=game.clan)
-    
-    handle_tnr_return(clan=game.clan)
+
+    if full_moon:
+        handle_tnr_return(clan=game.clan)
 
     if clancount:
         for clan in game.clan.all_other_clans:
-            if random.randint(1, rejoin_upperbound) == 1:
+            if weekskip.big_event_roll() and random.randint(1, rejoin_upperbound) == 1:
                 handle_lost_cats_return(clan=clan)
-            handle_tnr_return(clan=clan)
+            if full_moon:
+                handle_tnr_return(clan=clan)
 
     #Kill kits as needed
     faded_kits = {}
     for clan in [game.clan] + game.clan.all_other_clans:
-        if get_clan_setting('modded_kits'):
+        if full_moon and get_clan_setting('modded_kits'):
             faded_kits[clan.prefix] = kit_deaths(Cat.all_cats_list, clan=clan)
         else:
             faded_kits[clan.prefix] = []
         if not clancount:
             break
 
-    trigger_future_events(clan=game.clan)
+    if full_moon:
+        trigger_future_events(clan=game.clan)
 
-    if clancount:
-        for clan in game.clan.all_other_clans:
-            trigger_future_events(clan=clan)
+        if clancount:
+            for clan in game.clan.all_other_clans:
+                trigger_future_events(clan=clan)
 
     # Calling of "one_moon" functions.
 
@@ -571,7 +580,8 @@ def _one_moon_impl():
         game.dead_cats_to_grieve.clear()
 
     if (
-        game.clan.game_mode in ("expanded", "cruel_season")
+        full_moon
+        and game.clan.game_mode in ("expanded", "cruel_season")
         and game.clan.freshkill_pile
     ):
         # make a notification if the Clan does not have enough prey
@@ -583,12 +593,16 @@ def _one_moon_impl():
             game.cur_events_list.insert(0, EventInformation(event_string, clan=game.clan.group_ID))
             game.freshkill_event_list.append(event_string)
 
-    handle_focus()
+    if full_moon:
+        with weekskip.moon_work():
+            handle_focus()
 
     # handle the herb supply for the moon
     mc = game.clan.your_cat
     mc_group = mc.status.group if mc else CatGroup.NONE
-    if mc and not mc_group.is_any_clan_group():
+    if not full_moon:
+        pass
+    elif mc and not mc_group.is_any_clan_group():
         # the herb supply follows the player group when they're an
         # outsider, same as the freshkill pile. Kittypets are cared for by
         # Twolegs and don't need herbs, can change possibly
@@ -596,21 +610,23 @@ def _one_moon_impl():
             group_cats = [
                 c for c in Cat.all_cats_list if c.status.alive_in_your_cat_group
             ]
-            game.clan.herb_supply.handle_moon(
-                clan_size=len(group_cats),
-                clan_cats=group_cats,
-                med_cats=[mc] if mc.status.alive_in_your_cat_group else [],
-            )
+            with weekskip.moon_work():
+                game.clan.herb_supply.handle_moon(
+                    clan_size=len(group_cats),
+                    clan_cats=group_cats,
+                    med_cats=[mc] if mc.status.alive_in_your_cat_group else [],
+                )
     else:
-        game.clan.herb_supply.handle_moon(
-            clan_size=get_living_clan_cat_count(Cat),
-            clan_cats=[c for c in Cat.all_cats_list if c.status.alive_in_player_clan],
-            med_cats=find_alive_cats_with_rank(
-                Cat,
-                ranks=[CatRank.MEDICINE_CAT, CatRank.MEDICINE_APPRENTICE],
-                working=True,
-            ),
-        )
+        with weekskip.moon_work():
+            game.clan.herb_supply.handle_moon(
+                clan_size=get_living_clan_cat_count(Cat),
+                clan_cats=[c for c in Cat.all_cats_list if c.status.alive_in_player_clan],
+                med_cats=find_alive_cats_with_rank(
+                    Cat,
+                    ranks=[CatRank.MEDICINE_CAT, CatRank.MEDICINE_APPRENTICE],
+                    working=True,
+                ),
+            )
 
     if game.clan.game_mode in ("expanded", "cruel_season"):
         med_fulfilled = medicine_cats_can_cover_clan(Cat.all_cats.values(), clan=CatGroup.PLAYER_CLAN_ID)
@@ -655,8 +671,13 @@ def _one_moon_impl():
     if clancount:
         handle_crossclan_relationships()
 
+    if not game.clan.your_cat.dead:
+        game.clan.death_told_for = None
     lifegen_events = load_lifegen_events()
-    if game.clan.your_cat.status.alive_in_your_cat_group:
+    if not full_moon:
+        # a week in the middle of a moon: just your cat's own events, ceremonies wait for the full moon
+        your_week(game.clan.your_cat)
+    elif game.clan.your_cat.status.alive_in_your_cat_group:
         if game.clan.your_cat.moons == 0:
             generate_birth_event()
         elif game.clan.your_cat.moons < 6:
@@ -717,7 +738,9 @@ def _one_moon_impl():
             gain_acc()
 
     elif game.clan.your_cat.dead and game.clan.your_cat.dead_for == 0:
-        generate_death_event()
+        if getattr(game.clan, "death_told_for", None) != game.clan.your_cat.ID:
+            generate_death_event()
+        game.clan.death_told_for = None
     elif game.clan.your_cat.dead:
         generate_lifegen_events()
 
@@ -727,8 +750,9 @@ def _one_moon_impl():
         if game.clan.age - game.clan.murdered["moon"] >= 6:
             game.clan.murdered = {}
 
-    game.clan.affair = False
-    game.clan.exile_return = False
+    if full_moon:
+        game.clan.affair = False
+        game.clan.exile_return = False
 
     generate_dialogue_focus()
     checks = [
@@ -2925,6 +2949,9 @@ def one_moon_outside_cat(cat):
     """
     exiled cat events
     """
+    if not weekskip.full_moon():
+        # BUTTERGEN: cats outside the Clans just have their moon on the full moon
+        return
     # aging the cat
     clan = next(filter(lambda c: cat.status.is_lost(c.group_ID) or cat.status.is_exiled(c.group_ID), game.clan.all_other_clans), game.clan)
     # this will also handle increasing dead_for!
@@ -3104,6 +3131,12 @@ def one_moon_cat(cat, clan):
     if cat.faded:
         return
 
+    full_moon = weekskip.full_moon()
+    if cat.dead and not full_moon:
+        # the dead only age and fade on the full moon
+        cat.assign_thought()
+        return
+
     if cat.dead:
         if cat.ID in game.just_died:
             cat.moons += 1
@@ -3114,6 +3147,10 @@ def one_moon_cat(cat, clan):
         cat.assign_thought()
         handle_fading(cat, clan)  # Deal with fading.
         cat.talked_to = False
+        return
+
+    if not full_moon:
+        week_for_cat(cat, clan)
         return
 
     if cat.status.rank == CatRank.KITTEN:
@@ -3200,7 +3237,10 @@ def one_moon_cat(cat, clan):
         ):
             cat.experience += random.randint(0, 5)
 
-        if random.getrandbits(1):
+        # BUTTERGEN: with weekskip on the full moon rolls 1 time in 4 like the other weeks
+        if not weekskip.big_event_roll():
+            pass
+        elif random.getrandbits(1):
             triggered_death = handle_injuries_or_general_death(cat, clan=clan)
             if not triggered_death:
                 handle_illnesses_or_illness_deaths(cat, clan=clan)
@@ -3243,17 +3283,81 @@ def one_moon_cat(cat, clan):
     if cat.temporary_conditions:
         return
 
-    invite_new_cats(cat, clan)
+    if weekskip.big_event_roll():
+        invite_new_cats(cat, clan)
     other_interactions(cat, clan)
-    gain_accessories(cat, clan)
+    if weekskip.big_event_roll():
+        gain_accessories(cat, clan)
     cat.assign_thought()
 
-    handle_murder(cat, clan)
+    if weekskip.big_event_roll():
+        handle_murder(cat, clan)
     # faith slowly settles back towards where this cat leans, so the clan doesn't all end up the same
     cat.faith += (cat.faith_leaning() - cat.faith) * 0.12 + random.uniform(-0.3, 0.3)
     cat.faith = round(max(-9, min(9, cat.faith)), 2)
 
     switch_set_value(Switch.skip_conditions, [])
+
+def week_for_cat(cat, clan):
+    """BUTTERGEN: a week in the middle of a moon (see weekskip.py). Nothing that counts time
+    happens, and the big event rolls only happen 1 week in 4 on average."""
+    cat.assign_thought()
+    cat.talked_to = False
+    cat.insulted = False
+    cat.flirted = False
+    cat.did_activity = False
+
+    if cat.status.rank == CatRank.NEWBORN:
+        return
+
+    if not cat.temporary_conditions and weekskip.big_event_roll():
+        if random.getrandbits(1):
+            triggered_death = handle_injuries_or_general_death(cat, clan=clan)
+            if not triggered_death:
+                handle_illnesses_or_illness_deaths(cat, clan=clan)
+        else:
+            triggered_death = handle_illnesses_or_illness_deaths(cat, clan=clan)
+            if not triggered_death:
+                handle_injuries_or_general_death(cat, clan=clan)
+        if cat.dead:
+            return
+
+    if cat.status.group.is_any_clan_group():
+        relation_events.handle_relationships(cat)
+
+    if cat.temporary_conditions:
+        return
+
+    if weekskip.big_event_roll():
+        invite_new_cats(cat, clan)
+    other_interactions(cat, clan)
+    if weekskip.big_event_roll():
+        gain_accessories(cat, clan)
+    if weekskip.big_event_roll():
+        handle_murder(cat, clan)
+
+    switch_set_value(Switch.skip_conditions, [])
+
+
+def your_week(your_cat):
+    """BUTTERGEN: your cat's events for a week in the middle of a moon"""
+    if your_cat.status.alive_in_your_cat_group:
+        if your_cat.moons < 1:
+            return
+        if your_cat.moons < 6:
+            generate_kit_events()
+        else:
+            generate_lifegen_events()
+        if weekskip.big_event_roll() and not int(random.random() * 10):
+            gain_acc()
+    elif your_cat.dead and your_cat.dead_for == 0:
+        # dying is told once, the dead count moons only on the full moon
+        if getattr(game.clan, "death_told_for", None) != your_cat.ID:
+            game.clan.death_told_for = your_cat.ID
+            generate_death_event()
+    elif your_cat.dead:
+        generate_lifegen_events()
+
 
 def handle_colour_changes(cat, clan):
     involved_cats = [cat.ID]

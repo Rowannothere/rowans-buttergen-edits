@@ -176,6 +176,9 @@ class FreshkillPile:
         """
         if apply_outsider_yield and self._is_mc_outside():
             amount = amount / self.OUTSIDER_YIELD_DIVISOR
+        # BUTTERGEN: a quarter during a week when skipping by weeks
+        from scripts.events_module import weekskip
+        amount = weekskip.weekly_prey(amount)
         highest_rot = f"expires_in_{get_config('prey.time_to_rot')}"
         self.active_pile[highest_rot] += amount
         self.total_amount += amount

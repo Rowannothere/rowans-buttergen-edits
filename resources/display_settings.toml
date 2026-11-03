@@ -80,6 +80,7 @@
         thought_tooltips = true
         backgrounds = true
         freshkill = true
+        weekskip = false
         "all accessories" = false
         "modded names" = true
         "new prefixes" = true

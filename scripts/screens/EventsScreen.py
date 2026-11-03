@@ -40,6 +40,7 @@ from scripts.ui.generate_button import get_button_dict, ButtonStyles
 from scripts.ui.icon import Icon
 from scripts.clan_package.clan_symbols import clan_symbol_sprite
 from scripts.ui.theme import get_text_box_theme
+from scripts.events_module import weekskip
 from scripts.events_module.text_adjust import shorten_text_to_fit
 from scripts.ui.scale import (
     ui_scale,
@@ -217,6 +218,7 @@ class EventsScreen(Screens):
                     return
                 elif (
                     game.clan.your_cat.moons == 5
+                    and weekskip.next_is_full_moon()
                     and game.clan.your_cat.status.alive_in_player_clan
                     and game.clan.your_cat.status.rank == CatRank.KITTEN
                 ):
@@ -1310,17 +1312,18 @@ class EventsScreen(Screens):
         # UPDATE CLAN INFO
         # self.clan_info["season"].set_text(f"Current season: {game.clan.current_season}")
         self.clan_info["heading"].set_text(str(game.clan.your_cat.name))
-        self.clan_info["season"].set_text(
-            f"Season: {game.clan.current_season} - Clan Age: {game.clan.age}"
-        )
+        if weekskip.on():
+            self.clan_info["season"].set_text(
+                f"Season: {game.clan.current_season} - Clan Age: {weekskip.age_text(game.clan.age)}"
+            )
+        else:
+            self.clan_info["season"].set_text(
+                f"Season: {game.clan.current_season} - Clan Age: {game.clan.age}"
+            )
         if game.clan.your_cat.moons == -1:
             self.clan_info["age"].set_text("Your age: Unborn")
-        elif game.clan.your_cat.moons != 1:
-            self.clan_info["age"].set_text(
-                f"Your age: {game.clan.your_cat.moons} moons"
-            )
-        elif game.clan.your_cat.moons == 1:
-            self.clan_info["age"].set_text(f"Your age: {game.clan.your_cat.moons} moon")
+        else:
+            self.clan_info["age"].set_text(f"Your age: {weekskip.age_text(game.clan.your_cat.moons)}")
 
         category_map = {
             "all events": self.all_events,

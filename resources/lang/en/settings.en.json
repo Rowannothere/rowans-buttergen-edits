@@ -92,6 +92,8 @@
         "moons and seasons_tooltip": "Displays Clan age and current Clan season on several pages.",
         "freshkill": "Enable auto freshkill",
         "freshkill_tooltip": "Your Clan will catch freshkill every moon without your help.",
+        "weekskip": "Skip by weeks",
+        "weekskip_tooltip": "Each skip is a week instead of a moon. Every 4th week is a full moon, when cats age and kits are born. Big events like deaths and injuries stay as rare per moon.",
         "all accessories": "Enable all accessories",
         "all accessories_tooltip": "Give every accessory to every cat. If disabled later, they will keep all accessories they've ever tried on.",
         "thought_tooltips": "Show cat thoughts on hover",

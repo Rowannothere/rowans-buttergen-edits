@@ -247,6 +247,11 @@ class HerbSupply:
         )
 
     def start_storage(self, clan_size):
+        from scripts.events_module import weekskip
+        with weekskip.moon_work():
+            self._start_storage(clan_size)
+
+    def _start_storage(self, clan_size):
         """
         start's a Clan's storage. Clans begin with a random set of herbs.
         """
@@ -465,6 +470,9 @@ class HerbSupply:
             return
 
         num_collected = int(num_collected)
+        # BUTTERGEN: a quarter during a week when skipping by weeks
+        from scripts.events_module import weekskip
+        num_collected = weekskip.weekly_herbs(num_collected)
         if outside_group is not None:
             # loners/rogues gather a fraction of what a clan does
             num_collected = max(1, round(num_collected / self.HERB_OUTSIDER_DIVISOR))
