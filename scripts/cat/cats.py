@@ -3127,6 +3127,7 @@ class Cat:
                 "backstory": self.backstory or None,
                 "moons": self.moons,
                 "trait": self.personality.trait,
+                "trait2": self.personality.trait2,
                 "facets": self.personality.get_facet_string(),
                 "parent1": self.parent1,
                 "parent2": self.parent2,
