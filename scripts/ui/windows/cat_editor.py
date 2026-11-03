@@ -322,9 +322,10 @@ class CatEditorWindow(EditorWindowBase):
         self._text("Relationship with", (20, 164 + oy, 200, 30))
         target_name = str(self.target.name) if self.target else "Choose a cat..."
         self._button(target_name, (230, 164 + oy, 270, 32), self._open_picker)
-        both_id = "@checked_checkbox" if self.both_ways else "@unchecked_checkbox"
+        # the plain @checked_checkbox style has no images in this ClanGen's theme
+        both_id = "@checked_checkbox_smalltooltip" if self.both_ways else "@unchecked_checkbox_smalltooltip"
         box = UIImageButton(
-            ui_scale(pygame.Rect((524, 162 + oy, 34, 34))),
+            ui_scale(pygame.Rect((526, 164 + oy, 30, 30))),
             "",
             container=self,
             object_id=both_id,

@@ -253,10 +253,11 @@ class CatStatEditorWindow(EditorWindowBase):
         # flags
         for i, (flag, label) in enumerate(LIFE_FLAGS):
             box = UIImageButton(
-                ui_scale(pygame.Rect((20 + i * 222, 432, 34, 34))),
+                ui_scale(pygame.Rect((22 + i * 222, 434, 30, 30))),
                 "",
                 container=self,
-                object_id="@checked_checkbox" if getattr(cat, flag) else "@unchecked_checkbox",
+                # the plain @checked_checkbox style has no images in this ClanGen's theme
+                object_id="@checked_checkbox_smalltooltip" if getattr(cat, flag) else "@unchecked_checkbox_smalltooltip",
             )
             self.elements.append(box)
             self.actions[box] = lambda f=flag: setattr(cat, f, not getattr(cat, f))
@@ -323,7 +324,9 @@ class CatStatEditorWindow(EditorWindowBase):
         chunk = options[self.page * PICKER_PAGE:(self.page + 1) * PICKER_PAGE]
         for i, option in enumerate(chunk):
             col, row = i % PICKER_COLUMNS, i // PICKER_COLUMNS
-            self._button(option, (20 + col * 222, 56 + row * 58, 214, 44), lambda o=option: self._pick(o))
+            # internal condition names use underscores, like broken_bone
+            self._button(option.replace("_", " "), (20 + col * 222, 56 + row * 58, 214, 44),
+                         lambda o=option: self._pick(o))
         self._button("Back", (540, 612, 140, 32), self._close_picker)
         self._button("Prev", (20, 612, 100, 32), self._prev_page, disabled=self.page == 0)
         self._text(f"Page {self.page + 1} / {pages}", (290, 614, 120, 30), "#text_box_26_horizcenter")
