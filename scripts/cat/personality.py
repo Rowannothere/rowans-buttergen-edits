@@ -99,10 +99,10 @@ class Personality:
 
         # If trait is still empty, or if the trait is not valid with the facets, change it.
         if not self.trait or not self.is_trait_valid(self.trait):
-            self.trait = self.choose_trait()
+            self.trait = self.choose_trait(exclude=self.trait2)
 
-        if not self.trait2 and not self.is_trait_valid(self.trait2):
-            self.trait2 = self.choose_trait()
+        if not self.trait2 or not self.is_trait_valid(self.trait2):
+            self.trait2 = self.choose_trait(exclude=self.trait)
 
     def __repr__(self) -> str:
         """For debugging"""
@@ -141,9 +141,9 @@ class Personality:
         """Do not use property in init"""
         self._law = Personality.adjust_to_range(new_val)
         if not self.is_trait_valid(self.trait):
-            self.trait = self.choose_trait()
+            self.trait = self.choose_trait(exclude=self.trait2)
         if not self.is_trait_valid(self.trait2):
-            self.trait2 = self.choose_trait()
+            self.trait2 = self.choose_trait(exclude=self.trait)
 
     @property
     def sociability(self):
@@ -154,9 +154,9 @@ class Personality:
         """Do not use property in init"""
         self._social = Personality.adjust_to_range(new_val)
         if not self.is_trait_valid(self.trait):
-            self.trait = self.choose_trait()
+            self.trait = self.choose_trait(exclude=self.trait2)
         if not self.is_trait_valid(self.trait2):
-            self.trait2 = self.choose_trait()
+            self.trait2 = self.choose_trait(exclude=self.trait)
 
     @property
     def aggression(self):
@@ -167,9 +167,9 @@ class Personality:
         """Do not use property in init"""
         self._aggress = Personality.adjust_to_range(new_val)
         if not self.is_trait_valid(self.trait):
-            self.trait = self.choose_trait()
+            self.trait = self.choose_trait(exclude=self.trait2)
         if not self.is_trait_valid(self.trait2):
-            self.trait2 = self.choose_trait()
+            self.trait2 = self.choose_trait(exclude=self.trait)
 
     @property
     def stability(self):
@@ -180,9 +180,9 @@ class Personality:
         """Do not use property in init"""
         self._stable = Personality.adjust_to_range(new_val)
         if not self.is_trait_valid(self.trait):
-            self.trait = self.choose_trait()
+            self.trait = self.choose_trait(exclude=self.trait2)
         if not self.is_trait_valid(self.trait2):
-            self.trait2 = self.choose_trait()
+            self.trait2 = self.choose_trait(exclude=self.trait)
 
 
     # ---------------------------------------------------------------------------- #
@@ -204,9 +204,9 @@ class Personality:
         """Switch the trait-type. True for kit, False for normal"""
         self.kit = kit
         if not self.is_trait_valid(self.trait):
-            self.trait = self.choose_trait()
+            self.trait = self.choose_trait(exclude=self.trait2)
         if not self.is_trait_valid(self.trait2):
-            self.trait2 = self.choose_trait()
+            self.trait2 = self.choose_trait(exclude=self.trait)
 
     def is_trait_valid(self, checking_trait) -> bool:
         """Return True if the current facets fit the trait ranges, false
@@ -247,8 +247,8 @@ class Personality:
 
         return True
 
-    def choose_trait(self):
-        """Chooses trait based on the facets"""
+    def choose_trait(self, exclude=None):
+        """Chooses trait based on the facets, avoiding exclude (the other trait) if anything else fits"""
 
         if self.kit:
             trait_type_dict = Personality.trait_ranges["kit_traits"]
@@ -268,6 +268,7 @@ class Personality:
 
             possible_traits.append(trait)
 
+        possible_traits = [trait for trait in possible_traits if trait != exclude] or possible_traits
         if possible_traits:
             return choice(possible_traits)
         else:
