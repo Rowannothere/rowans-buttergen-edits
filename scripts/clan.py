@@ -92,6 +92,7 @@ class Clan:
 
     age = 0
     all_other_clans = []
+    weeks = 0
 
     grief_strings = {}
 
@@ -154,6 +155,7 @@ class Clan:
             self.med_cat_list
         )  # Must do this after the healer is added to the list.
         self.age = 0
+        self.weeks = 0
         self.starting_season = starting_season
         self.instructor = None
         # ^^ starclan guide
@@ -1068,6 +1070,7 @@ class Clan:
             "save_id": self.save_id,
             "displayname": self.prefix,
             "clanage": self.age,
+            "weeks": self.weeks,
             "biome": self.biome,
             "camp_bg": self.camp_bg,
             "rogue_group_bg": self.rogue_group_bg,
@@ -1361,6 +1364,7 @@ class Clan:
 
         game.clan.clancount = clan_data.get("clancount_mode", "singleclan")
         game.clan.age = clan_data["clanage"]
+        game.clan.weeks = clan_data["weeks"] if "weeks" in clan_data else 0
         game.clan.starting_season = (
             clan_data["starting_season"]
             if "starting_season" in clan_data

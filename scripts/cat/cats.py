@@ -166,6 +166,7 @@ class Cat:
         toggles: CatTogglesDict,
         experience: int,
         birth_cooldown: int,
+        weeks: int,
         specsuffix_hidden=False,  # to delete once Name is decoupled from Cat
         *,
         example=False,
@@ -208,6 +209,11 @@ class Cat:
         self._mentor = None  # plz
         self._experience = None
         self._moons = None
+        if weeks is not None:
+            self.weeks = weeks
+        elif weeks is None:
+            self.weeks = randint(1,3)
+        self._pronouns: Dict[str, List[Dict[str, Union[str, int]]]] = {}
         self._pronouns: Dict[str, List[Dict[str, Union[str, int]]]] = {}
 
         # Public attributes
@@ -1630,10 +1636,17 @@ class Cat:
         """Handles a moon skip for an alive cat."""
         old_age = self.age
 
+        if get_clan_setting("weekskip"):
+            self.weeks += 1
+            if self.weeks == 4:
+                self.moons += 1
+                self.weeks = 0
+        else:
+            self.moons += 1
+
         if self.dead and not self.faded:
             return
 
-        self.moons += 1
         if self.moons >= 1 and self.status.rank == CatRank.NEWBORN:
             self.status._change_rank(CatRank.KITTEN)
 
@@ -3126,6 +3139,7 @@ class Cat:
                 "starclan_affinity": self.starclan_affinity,
                 "backstory": self.backstory or None,
                 "moons": self.moons,
+                "weeks": self.weeks,
                 "trait": self.personality.trait,
                 "trait2": self.personality.trait2,
                 "facets": self.personality.get_facet_string(),

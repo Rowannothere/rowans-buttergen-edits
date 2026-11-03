@@ -49,6 +49,9 @@ class LoadCatFactory(BaseCatFactory):
         if "trait2" not in kwargs:
             kwargs["trait2"] = None
 
+        if "weeks" not in kwargs:
+            kwargs["weeks"] = 0
+
         mate = kwargs.get("mate", [])
         inheritance = InheritanceDict(
             parent1=kwargs["parent1"],
@@ -149,6 +152,7 @@ class LoadCatFactory(BaseCatFactory):
                 CatAge.get_from_moons(kwargs["moons"]).is_baby(),
             ),
             "mentorship": mentorship,
+            "weeks": kwargs.get("weeks", 0),
             "inheritance": inheritance,
             "affinity": affinity,
             "toggles": toggles,

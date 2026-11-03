@@ -216,7 +216,7 @@ class EventsScreen(Screens):
                     DeathScreen("events screen")
                     return
                 elif (
-                    game.clan.your_cat.moons == 5
+                    game.clan.your_cat.moons == 5 and game.clan.your_cat.weeks == 0
                     and game.clan.your_cat.status.alive_in_player_clan
                     and game.clan.your_cat.status.rank == CatRank.KITTEN
                 ):
@@ -563,7 +563,7 @@ class EventsScreen(Screens):
             anchors={
                 "centerx": "centerx",
             },
-            text_kwargs={"count": game.clan.age},
+            text_kwargs={"count": game.clan.age, "week_count": game.clan.weeks},
         )
         if game.clan.game_mode == "cruel_season":
             self.clan_info["view_cards"] = UIImageButton(
@@ -1311,16 +1311,20 @@ class EventsScreen(Screens):
         # self.clan_info["season"].set_text(f"Current season: {game.clan.current_season}")
         self.clan_info["heading"].set_text(str(game.clan.your_cat.name))
         self.clan_info["season"].set_text(
-            f"Season: {game.clan.current_season} - Clan Age: {game.clan.age}"
+            f"Season: {game.clan.current_season} - Clan Age: {game.clan.age} moons, {game.clan.weeks} weeks"
         )
         if game.clan.your_cat.moons == -1:
             self.clan_info["age"].set_text("Your age: Unborn")
-        elif game.clan.your_cat.moons != 1:
+        elif game.clan.your_cat.moons != 1 and game.clan.your_cat.weeks != 1:
             self.clan_info["age"].set_text(
-                f"Your age: {game.clan.your_cat.moons} moons"
+                f"Your age: {game.clan.your_cat.moons} moons, {game.clan.your_cat.weeks} weeks"
             )
-        elif game.clan.your_cat.moons == 1:
-            self.clan_info["age"].set_text(f"Your age: {game.clan.your_cat.moons} moon")
+        elif game.clan.your_cat.moons != 1 and game.clan.your_cat.weeks == 1:
+            self.clan_info["age"].set_text(f"Your age: {game.clan.your_cat.moons} moons, {game.clan.your_cat.weeks} week")
+        elif game.clan.your_cat.moons == 1 and game.clan.your_cat.weeks != 1:
+            self.clan_info["age"].set_text(f"Your age: {game.clan.your_cat.moons} moon, {game.clan.your_cat.weeks} weeks")
+        elif game.clan.your_cat.moons == 1 and game.clan.your_cat.weeks == 1:
+            self.clan_info["age"].set_text(f"Your age: {game.clan.your_cat.moons} moon, {game.clan.your_cat.weeks} week")
 
         category_map = {
             "all events": self.all_events,

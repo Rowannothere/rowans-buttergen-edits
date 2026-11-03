@@ -40,6 +40,7 @@ class FadedCatFactory(BaseCatFactory):
             skills=None,
             personality=None,
             mentorship={},
+            weeks=kwargs.get("weeks", 0),
             inheritance=InheritanceDict(
                 parent1=kwargs["parent1"],
                 parent2=kwargs["parent2"],

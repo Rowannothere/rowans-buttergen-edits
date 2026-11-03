@@ -262,7 +262,13 @@ def _one_moon_impl():
     game.dated_cats.clear()
 
     # age up the clan, set current season
-    game.clan.age += 1
+    if get_clan_setting("weekskip"):
+        game.clan.weeks += 1
+        if game.clan.weeks == 4:
+            game.clan.weeks = 0
+            game.clan.age += 1
+    else:
+        game.clan.age += 1
 
     update_afterlife_temper()
     pregnancy_events.increment_pregnancy_age()
@@ -657,9 +663,9 @@ def _one_moon_impl():
 
     lifegen_events = load_lifegen_events()
     if game.clan.your_cat.status.alive_in_your_cat_group:
-        if game.clan.your_cat.moons == 0:
+        if game.clan.your_cat.moons == 0 and game.clan.your_cat.weeks == 0:
             generate_birth_event()
-        elif game.clan.your_cat.moons < 6:
+        elif game.clan.your_cat.moons < 6 and game.clan.your_cat.moons > 0:
             generate_kit_events()
         elif game.clan.your_cat.status.is_outsider:
             # Outsiders (kittypet/loner/rogue) don't get Clan ceremonies
@@ -668,7 +674,7 @@ def _one_moon_impl():
                 generate_outsider_age_ceremony()
             else:
                 generate_lifegen_events()
-        elif game.clan.your_cat.moons == 6:
+        elif game.clan.your_cat.moons == 6 and game.clan.your_cat.weeks == 0:
             generate_app_ceremony()
         elif game.clan.your_cat.status.rank.is_any_apprentice_rank():
             generate_lifegen_events()
@@ -693,7 +699,7 @@ def _one_moon_impl():
             if "retire" not in switch_get_value(Switch.windows_dict):
                 switch_append_list_value(Switch.windows_dict, "retire")
         elif (
-            game.clan.your_cat.moons == 120
+            game.clan.your_cat.moons == 120 and game.clan.your_cat.weeks == 0
             and game.clan.your_cat.status.rank == CatRank.ELDER
             and game.clan.your_cat.status.alive_in_player_clan
             and not game.clan.your_cat.status.is_shunned()

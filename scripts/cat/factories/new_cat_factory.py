@@ -110,6 +110,7 @@ class NewCatFactory(BaseCatFactory, ABC):
             ),
             "skills": skills,
             "personality": cls._get_random_personality(age),
+            "weeks": overrides.get("weeks", 0),
             "mentorship": MentorshipDict(
                 mentor=None,
                 former_mentor=[],
