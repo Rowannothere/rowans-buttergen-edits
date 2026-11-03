@@ -54,6 +54,14 @@ class Skills(Enum):
     SLEEPER = "SLEEPER"
     GARDENER = "GARDENER"
 
+    # BUTTERGEN
+    WEATHER = "WEATHER"
+    NIGHT = "NIGHT"
+    MIMIC = "MIMIC"
+    LEAPER = "LEAPER"
+    JOKER = "JOKER"
+    PATIENT = "PATIENT"
+
     # these ones are NOT real skills! DO NOT USE THEM!!
     # they're just here so that the tests don't error out.
     # we can search/replace them in the json files when backstory constraints are added

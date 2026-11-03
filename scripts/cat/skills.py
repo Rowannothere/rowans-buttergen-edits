@@ -69,6 +69,14 @@ class SkillPath(Enum):
     SLEEPER = ("SLEEPER,0", "SLEEPER,1", "SLEEPER,2", "SLEEPER,3")
     GARDENER = ("GARDENER,0", "GARDENER,1", "GARDENER,2", "GARDENER,3")
 
+    # BUTTERGEN skills
+    WEATHER = ("WEATHER,0", "WEATHER,1", "WEATHER,2", "WEATHER,3")
+    NIGHT = ("NIGHT,0", "NIGHT,1", "NIGHT,2", "NIGHT,3")
+    MIMIC = ("MIMIC,0", "MIMIC,1", "MIMIC,2", "MIMIC,3")
+    LEAPER = ("LEAPER,0", "LEAPER,1", "LEAPER,2", "LEAPER,3")
+    JOKER = ("JOKER,0", "JOKER,1", "JOKER,2", "JOKER,3")
+    PATIENT = ("PATIENT,0", "PATIENT,1", "PATIENT,2", "PATIENT,3")
+
     # LG: outsider-unique skill paths
     # Kittypet-unique
     TWOLEGCARE = ("TWOLEGCARE,0", "TWOLEGCARE,1", "TWOLEGCARE,2", "TWOLEGCARE,3")
@@ -215,6 +223,12 @@ class Skill:
         SkillPath.LANGUAGE: "language",
         SkillPath.SLEEPER: "sleeping",
         SkillPath.GARDENER: "gardening",
+        SkillPath.WEATHER: "weather sense",
+        SkillPath.NIGHT: "night prowling",
+        SkillPath.MIMIC: "mimicking",
+        SkillPath.LEAPER: "leaping",
+        SkillPath.JOKER: "joking",
+        SkillPath.PATIENT: "waiting",
         SkillPath.TWOLEGCARE: "twoleg care",
         SkillPath.CHARMER: "charming",
         SkillPath.SHOWCAT: "showcat",
@@ -443,6 +457,12 @@ class CatSkills:
         SkillPath.LANGUAGE: SkillTypeFlag.SOCIAL,
         SkillPath.SLEEPER: SkillTypeFlag.STRONG,
         SkillPath.GARDENER: SkillTypeFlag.OBSERVANT,
+        SkillPath.WEATHER: SkillTypeFlag.OBSERVANT | SkillTypeFlag.SMART,
+        SkillPath.NIGHT: SkillTypeFlag.AGILE | SkillTypeFlag.OBSERVANT,
+        SkillPath.MIMIC: SkillTypeFlag.SOCIAL | SkillTypeFlag.SMART,
+        SkillPath.LEAPER: SkillTypeFlag.AGILE | SkillTypeFlag.STRONG,
+        SkillPath.JOKER: SkillTypeFlag.SOCIAL,
+        SkillPath.PATIENT: SkillTypeFlag.OBSERVANT | SkillTypeFlag.STRONG,
         SkillPath.TWOLEGCARE: SkillTypeFlag.SOCIAL | SkillTypeFlag.OBSERVANT,
         SkillPath.CHARMER: SkillTypeFlag.SOCIAL,
         SkillPath.SHOWCAT: SkillTypeFlag.SOCIAL | SkillTypeFlag.AGILE,

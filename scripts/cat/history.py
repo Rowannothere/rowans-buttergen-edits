@@ -302,6 +302,12 @@ class History:
             SkillPath.LANGUAGE: ["using their words"],
             SkillPath.SLEEPER: ["self-care"],
             SkillPath.GARDENER: ["taking care of plants"],
+            SkillPath.WEATHER: ["reading the weather"],
+            SkillPath.NIGHT: ["moving through the dark"],
+            SkillPath.MIMIC: ["copying prey calls"],
+            SkillPath.LEAPER: ["leaping and pouncing"],
+            SkillPath.JOKER: ["lifting spirits with a joke"],
+            SkillPath.PATIENT: ["waiting patiently"],
             SkillPath.DARK: ["connecting to the Dark Forest"],
             # Kittypet-unique
             SkillPath.TWOLEGCARE: ["getting along with Twolegs"],
