@@ -204,6 +204,103 @@ def set_trait(cat: Cat, trait: str) -> bool:
     return True
 
 
+# ------------------------------------------------------------------ skills
+
+SKILL_SLOTS = [("primary", "Main skill"), ("secondary", "Second skill")]
+
+
+def skill_options() -> dict:
+    """{label: SkillPath} for every skill path, labels like "hunting". Two paths that share a
+    label get their path name added."""
+    from scripts.cat.skills import Skill, SkillPath
+
+    labels = {path: Skill(path).get_short_skill_string() for path in SkillPath}
+    counts = {}
+    for label in labels.values():
+        counts[label] = counts.get(label, 0) + 1
+    options = {}
+    for path, label in labels.items():
+        if counts[label] > 1:
+            label = f"{label} ({path.name.lower()})"
+        options[label] = path
+    return dict(sorted(options.items()))
+
+
+def skill_text(cat: Cat, slot: str) -> str:
+    import i18n
+
+    skill = getattr(cat.skills, slot)
+    if not skill:
+        return "none"
+    name = i18n.t(f"cat.skills.{skill.skill}")
+    if skill.interest_only:
+        return f"{name} (just an interest, {skill.points} points)"
+    return f"{name} (level {skill.tier}, {skill.points} points)"
+
+
+def set_skill_path(cat: Cat, slot: str, path) -> None:
+    """Changes which skill a slot has. The points stay, a new skill starts at 0"""
+    from scripts.cat.skills import Skill
+
+    old = getattr(cat.skills, slot)
+    other_slot = "secondary" if slot == "primary" else "primary"
+    other = getattr(cat.skills, other_slot)
+    if other and other.path == path:
+        # the same skill twice would count double, swap the two instead
+        setattr(cat.skills, slot, other)
+        setattr(cat.skills, other_slot, old)
+        return
+    if old:
+        old.path = path
+    else:
+        setattr(cat.skills, slot, Skill(path, 0, interest_only=cat.moons < 6))
+
+
+def nudge_skill_points(cat: Cat, slot: str, amount: int) -> None:
+    skill = getattr(cat.skills, slot)
+    if skill:
+        skill.points += amount
+
+
+def toggle_skill_interest(cat: Cat, slot: str) -> None:
+    """Kits only have interests, grown cats have real levels"""
+    skill = getattr(cat.skills, slot)
+    if skill:
+        skill.interest_only = not skill.interest_only
+
+
+def remove_second_skill(cat: Cat) -> None:
+    # the main skill can only be changed, the game expects every cat to have one
+    cat.skills.secondary = None
+
+
+def hidden_options() -> list:
+    from scripts.cat.skills import HiddenSkillEnum
+
+    return ["none"] + [hidden.value for hidden in HiddenSkillEnum]
+
+
+def set_hidden(cat: Cat, value: str) -> None:
+    from scripts.cat.skills import HiddenSkillEnum
+
+    cat.skills.hidden = None if value == "none" else HiddenSkillEnum(value)
+
+
+def max_skills(cat: Cat) -> None:
+    for slot, _label in SKILL_SLOTS:
+        skill = getattr(cat.skills, slot)
+        if skill:
+            skill.interest_only = False
+            skill.points = skill.point_range[1]
+
+
+def reset_skills(cat: Cat) -> None:
+    for slot, _label in SKILL_SLOTS:
+        skill = getattr(cat.skills, slot)
+        if skill:
+            skill.points = 0
+
+
 def condition_options(kind: str) -> list:
     """names that can be given to a cat, kind is injury, illness or permanent"""
     from scripts.cat.cats import ILLNESSES, INJURIES

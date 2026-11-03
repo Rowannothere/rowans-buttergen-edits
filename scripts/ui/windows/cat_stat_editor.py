@@ -1,6 +1,6 @@
 """
-The "edit cat" window. Lets you change a cat's personality, lifegen stats, faith, health and
-other life stuff, with max out and reset buttons on each tab. Only reachable when the Cat Editor
+The "edit cat" window. Lets you change a cat's personality, lifegen stats, faith, skills, health
+and other life stuff, with max out and reset buttons on each tab. Only reachable when the Cat Editor
 setting is on.
 """
 
@@ -12,20 +12,31 @@ from scripts.cat_editor_logic import (
     LIFE_FLAGS,
     LIFEGEN_STATS,
     PERSONALITY_FACETS,
+    SKILL_SLOTS,
     all_traits,
     clear_permanent,
     condition_options,
     get_stat,
     give_condition,
     heal_all,
+    hidden_options,
+    max_skills,
     max_stats,
     nudge_stat,
     remove_condition,
+    remove_second_skill,
+    reset_skills,
     unshun,
     reset_stats,
     set_moons,
+    set_hidden,
     set_rank,
+    set_skill_path,
     set_trait,
+    skill_options,
+    skill_text,
+    nudge_skill_points,
+    toggle_skill_interest,
 )
 from scripts.ui.elements.image_button import UIImageButton
 from scripts.ui.scale import ui_scale
@@ -34,6 +45,7 @@ from scripts.ui.windows.cat_editor import EditorWindowBase
 TABS = [
     ("personality", "Personality"),
     ("stats", "Stats & faith"),
+    ("skills", "Skills"),
     ("health", "Health & life"),
 ]
 
@@ -86,7 +98,7 @@ class CatStatEditorWindow(EditorWindowBase):
         cat = self.the_cat
         self._text(f"Edit Cat - {cat.name}", (0, 10, 700, 34), "#text_box_34_horizcenter")
         for i, (key, label) in enumerate(TABS):
-            self._button(label, (20 + i * 166, 50, 160, 32), lambda k=key: self._set_tab(k),
+            self._button(label, (20 + i * 124, 50, 118, 32), lambda k=key: self._set_tab(k),
                          disabled=self.tab == key)
         self._button("Appearance", (518, 50, 162, 32), self._open_appearance,
                      disabled=cat.dead,
@@ -97,6 +109,8 @@ class CatStatEditorWindow(EditorWindowBase):
             self._build_personality()
         elif self.tab == "stats":
             self._build_stats()
+        elif self.tab == "skills":
+            self._build_skills()
         else:
             self._build_health()
         self._text(
@@ -159,6 +173,41 @@ class CatStatEditorWindow(EditorWindowBase):
             lambda: reset_stats(cat, LIFEGEN_STATS),
             "Courage, intelligence, empathy and compassion to 10, faith to 9, StarClan affinity to 100.",
             "Everything back to 0.",
+        )
+
+    def _build_skills(self):
+        cat = self.the_cat
+        for i, (slot, label) in enumerate(SKILL_SLOTS):
+            top = 100 + i * 150
+            skill = getattr(cat.skills, slot)
+            self._text(f"{label}: {skill_text(cat, slot)}", (20, top, 660, 30))
+            self._button("change skill", (20, top + 36, 170, 32), lambda s=slot: self._open_skill_picker(s))
+            if slot == "secondary":
+                self._button("remove", (200, top + 36, 120, 32), lambda: remove_second_skill(cat),
+                             disabled=skill is None)
+            self._button("make it a real skill" if skill and skill.interest_only else "make it an interest",
+                         (330, top + 36, 230, 32), lambda s=slot: toggle_skill_interest(cat, s),
+                         disabled=skill is None,
+                         tooltip="Kits have interests, grown cats have real skills with levels.")
+            self._text("Points:", (20, top + 80, 100, 30))
+            for j, step in enumerate((-10, -1, 1, 10)):
+                self._button(f"+{step}" if step > 0 else str(step), (120 + j * 78, top + 78, 70, 30),
+                             lambda s=slot, n=step: nudge_skill_points(cat, s, n), disabled=skill is None)
+        hidden = cat.skills.hidden.value if cat.skills.hidden else "none"
+        self._text(f"Hidden knowledge: {hidden}", (20, 400, 420, 30))
+        self._button("change", (450, 398, 140, 32), self._open_hidden_picker)
+        self._text(
+            "Points go from 0 to 29: level 1 at 0, level 2 at 10 and level 3 at 20. "
+            "Hidden knowledge is what rogues, loners and kittypets learned outside the Clans.",
+            (20, 440, 660, 80),
+            "#text_box_26_horizleft_pad_10_14",
+        )
+        self._max_reset(
+            560,
+            lambda: max_skills(cat),
+            lambda: reset_skills(cat),
+            "Both skills to level 3, as real skills.",
+            "Both skills back to 0 points.",
         )
 
     def _build_health(self):
@@ -231,6 +280,14 @@ class CatStatEditorWindow(EditorWindowBase):
 
     def _open_trait_picker(self):
         self._open_picker("Choose a trait", all_traits(self.the_cat), lambda t: set_trait(self.the_cat, t))
+
+    def _open_skill_picker(self, slot):
+        options = skill_options()
+        self._open_picker("Choose a skill", list(options),
+                          lambda label: set_skill_path(self.the_cat, slot, options[label]))
+
+    def _open_hidden_picker(self):
+        self._open_picker("Choose hidden knowledge", hidden_options(), lambda h: set_hidden(self.the_cat, h))
 
     def _open_rank_picker(self):
         self._open_picker("Choose a rank", [str(r) for r in EDITABLE_RANKS],
