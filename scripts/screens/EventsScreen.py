@@ -581,7 +581,8 @@ class EventsScreen(Screens):
             )
         self.timeskip_button = UISurfaceImageButton(
             ui_scale(pygame.Rect((248, 223) if game.clan.clancount != 'multiclan' else (195, 223), (180, 30))),
-            "screens.events.timeskip_button",
+            # BUTTERGEN: weeks when skipping by weeks
+            "screens.events.timeskip_week_button" if weekskip.on() else "screens.events.timeskip_button",
             get_button_dict(ButtonStyles.SQUOVAL, (180, 30)),
             object_id="@buttonstyles_squoval",
             starting_height=1,
