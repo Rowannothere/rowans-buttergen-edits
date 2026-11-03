@@ -3,7 +3,7 @@ from typing import Dict, Tuple, Optional, Union, List
 
 import ujson
 
-from scripts.cat import patch_genes
+from scripts.cat import patch_genes, tint_genes
 from scripts.cat.phenotype import Phenotype
 from scripts.cat.cats import Cat
 from scripts.cat.constants import BACKSTORIES
@@ -343,6 +343,8 @@ class LoadCatFactory(BaseCatFactory):
             }
         )
         pelt.check_and_convert(convert_dict=cls.CONVERT)
+        # BUTTERGEN: cats from before tints were genes carry the tints they have
+        tint_genes.keep_shown(phenotype, pelt, only_missing=True)
 
         return pelt
 

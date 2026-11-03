@@ -1,6 +1,6 @@
 from random import choice, choices, randint, random
 import json
-from scripts.cat import patch_genes, physical_traits, special_eyes
+from scripts.cat import patch_genes, physical_traits, special_eyes, tint_genes
 from scripts.cat.breed_functions import breed_functions
 from scripts.clan_package.settings import get_clan_setting
 from scripts.special_dates import SpecialDate, is_today
@@ -151,6 +151,8 @@ class Genotype:
         self.special_eyes = {}
         # BUTTERGEN: white and tortie patch genes, {name: copies} (see patch_genes.py)
         self.patch_genes = {}
+        # BUTTERGEN: coat and white patch tints, {kind: [copy, copy]} (see tint_genes.py)
+        self.tint_genes = {}
 
     def __getitem__(self, name):
         return getattr(self, name)
@@ -277,6 +279,9 @@ class Genotype:
             self.patch_genes = {k: v for k, v in self.patch_genes.items() if k in patch_genes.GENES}
         else:
             self.patch_genes = patch_genes.founder_genes(new_look=False)
+        # older saves have none, they're filled in from the cat's tints when it loads
+        found = jsonstring.get("tint_genes")
+        self.tint_genes = found if isinstance(found, dict) else {}
         self.body_value = jsonstring.get("body_type", randint(1, sum(self.body_ranges)))
         self.height_value = jsonstring.get("height", randint(1, sum(self.height_ranges)))
         self.shoulder_height = jsonstring.get("shoulder_height", 0)
@@ -385,6 +390,7 @@ class Genotype:
             "physical_traits" : self.physical_traits,
             "special_eyes" : self.special_eyes,
             "patch_genes" : self.patch_genes,
+            "tint_genes" : self.tint_genes,
             "april_fools" : self.april_fools
         }
     
@@ -520,6 +526,8 @@ class Genotype:
         self.physical_traits = physical_traits.founder_traits()
         self.special_eyes = special_eyes.founder_eyes()
         self.patch_genes = patch_genes.founder_genes()
+        # rolled with the coat, see tint_genes.py
+        self.tint_genes = {}
         self.blacknose = random() < 0.005
 
         self.unders_ruf = ''
@@ -948,6 +956,8 @@ class Genotype:
         self.physical_traits = physical_traits.founder_traits()
         self.special_eyes = special_eyes.founder_eyes()
         self.patch_genes = patch_genes.founder_genes()
+        # rolled with the coat, see tint_genes.py
+        self.tint_genes = {}
 
         self.GeneSort()
 
@@ -1019,6 +1029,7 @@ class Genotype:
         self.physical_traits = physical_traits.kit_traits(par1, par2)
         self.special_eyes = special_eyes.kit_eyes(par1, par2)
         self.patch_genes = patch_genes.kit_genes(par1, par2)
+        self.tint_genes = tint_genes.kit_genes(par1, par2)
 
         if chimera:
             if isinstance(par3, Genotype) and random() < 0.33:
@@ -1945,8 +1956,8 @@ class Genotype:
         self.Polygenes = ["Wideband:", self.wideband, self.wbtype, "Rufousing:", self.rufousing, self.ruftype, "Underbelly rufousing:", self.unders_ruf, self.unders_ruftype, "Fur Shade:", self.fur_shade, "Colour Warmth:", self.colour_warmth, "Bengal:", self.bengal, self.bengtype, "Sokoke:", self.sokoke, self.soktype, "Spotted:", self.spotted, self.spottype, "Ticked:", self.tickgenes, self.ticktype, "White Grade:", self.whitegrade, "Refraction:", self.refraction, "Pigmentation:", self.pigmentation]
 
         if is_today(SpecialDate.APRIL_FOOLS):
-            return self.Cat_Genes, "Other Fur Genes: ", self.Fur_Genes, "Other Colour Genes: ", self.Other_Colour, "Body Mutations: ", self.Body_Genes, "Polygenes: ", self.Polygenes, "Physical Traits: ", physical_traits.gene_list(self), "Special Eyes: ", special_eyes.gene_list(self), "April Fools:", april_fools_output
-        return self.Cat_Genes, "Other Fur Genes: ", self.Fur_Genes, "Other Colour Genes: ", self.Other_Colour, "Body Mutations: ", self.Body_Genes, "Polygenes: ", self.Polygenes, "Physical Traits: ", physical_traits.gene_list(self), "Special Eyes: ", special_eyes.gene_list(self)
+            return self.Cat_Genes, "Other Fur Genes: ", self.Fur_Genes, "Other Colour Genes: ", self.Other_Colour, "Body Mutations: ", self.Body_Genes, "Polygenes: ", self.Polygenes, "Physical Traits: ", physical_traits.gene_list(self), "Special Eyes: ", special_eyes.gene_list(self), "Tints: ", tint_genes.gene_list(self), "April Fools:", april_fools_output
+        return self.Cat_Genes, "Other Fur Genes: ", self.Fur_Genes, "Other Colour Genes: ", self.Other_Colour, "Body Mutations: ", self.Body_Genes, "Polygenes: ", self.Polygenes, "Physical Traits: ", physical_traits.gene_list(self), "Special Eyes: ", special_eyes.gene_list(self), "Tints: ", tint_genes.gene_list(self)
     
     def Mutate(self):
         wheremutation = ["body", "furtype", "furtype", "othercoat", "othercoat", "othercoat", "maincoat", "maincoat", "maincoat", "maincoat", "maincoat", "maincoat"]

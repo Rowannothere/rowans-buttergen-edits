@@ -8,7 +8,7 @@ import pygame
 import pygame_gui
 from pygame_gui.core import ObjectID
 
-from scripts.cat import gene_menus, physical_traits
+from scripts.cat import gene_menus, physical_traits, tint_genes
 from scripts.cat.cats import Cat
 from scripts.cat.conditions.gain_conditions import gain_permanent_condition
 from scripts.cat.enums import CatAge, CatRank, CatSocial
@@ -2828,6 +2828,7 @@ class CustomCatScreen(MakeClanScreenBase):
                 # don't set would otherwise come from a new random cat)
                 self.your_cat.phenotype = deepcopy(self.custom_cat.phenotype)
                 self.your_cat.chimerapheno = deepcopy(self.custom_cat.chimerapheno)
+                tint_genes.keep_shown(self.your_cat.phenotype, self.your_cat.pelt)
                 self.your_cat.pelt.phenotype = self.your_cat.phenotype
                 self.your_cat.pelt.length = self.custom_cat.pelt.length
                 self.your_cat.pelt.rebuild_sprite = True
@@ -2978,6 +2979,8 @@ class CustomCatScreen(MakeClanScreenBase):
         for field in ("tint", "white_patches_tint", "reverse"):
             if now[field] != start[field]:
                 setattr(target.pelt, field, now[field])
+        # BUTTERGEN: a tint picked by hand is carried as a gene
+        tint_genes.keep_shown(target.phenotype, target.pelt)
 
         if self.personality and now["personality"] != start["personality"]:
             set_trait(target, self.personality)

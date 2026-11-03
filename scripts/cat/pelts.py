@@ -4,7 +4,7 @@ from random import choice, choices, random, randint, shuffle
 
 import i18n
 
-from scripts.cat import patch_swap
+from scripts.cat import patch_swap, tint_genes
 from scripts.config import get_config
 import scripts.game_structure.screen_settings
 from scripts.cat.enums import CatAge
@@ -1303,10 +1303,10 @@ class Pelt:
         color_group = sprites.cat_tints["colour_groups"].get(colour, "warm")
         color_tints = sprites.cat_tints["possible_tints"][color_group]
 
-        if base_tints or color_tints:
-            self.tint = choice(base_tints + color_tints)
-        else:
-            self.tint = None
+        # BUTTERGEN: tints are genes, see tint_genes.py
+        fitting = base_tints + color_tints
+        self.tint = tint_genes.pick(
+            self.phenotype, "tint", fitting, lambda: choice(fitting) if fitting else None)
 
         # WHITE PATCHES TINT
         # Now for white patches
@@ -1317,10 +1317,9 @@ class Pelt:
         else:
             color_tints = []
 
-        if base_tints or color_tints:
-            self.white_patches_tint = choice(base_tints + color_tints)
-        else:
-            self.white_patches_tint = None
+        fitting = base_tints + color_tints
+        self.white_patches_tint = tint_genes.pick(
+            self.phenotype, "white_tint", fitting, lambda: choice(fitting) if fitting else None)
 
     @staticmethod
     def describe_appearance(cat, short=False):

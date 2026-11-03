@@ -9,7 +9,7 @@ import logging
 import random
 from copy import deepcopy
 
-from scripts.cat import patch_genes, physical_traits, special_eyes
+from scripts.cat import patch_genes, physical_traits, special_eyes, tint_genes
 from scripts.cat.microservices.add_to_clan import add_dependents_to_clan, add_to_clan
 from scripts.cat_relations.cat_handle_funcs import (
     create_relationships_new_cat,
@@ -1409,6 +1409,7 @@ def match_parents_to_kit(kit, parents):
     physical_traits.match_parents(kit_genes, parent_genes)
     special_eyes.match_parents(kit_genes, parent_genes)
     patch_genes.match_parents(kit_genes, parent_genes)
+    tint_genes.match_parents(kit_genes, parent_genes)
 
     for gene in PARENT_POLYGENES:
         kit_string = kit_genes[gene]
