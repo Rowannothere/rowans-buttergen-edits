@@ -28,6 +28,8 @@ from scripts.cat_editor_logic import (
     reset_skills,
     unshun,
     reset_stats,
+    second_trait_options,
+    set_second_trait,
     set_moons,
     set_hidden,
     set_rank,
@@ -137,12 +139,15 @@ class CatStatEditorWindow(EditorWindowBase):
 
     def _build_personality(self):
         cat = self.the_cat
-        self._text(f"Trait: {cat.personality.trait}", (20, 100, 380, 30))
-        self._button("change trait", (400, 98, 170, 32), self._open_trait_picker)
-        self._stat_rows(PERSONALITY_FACETS, 150, (-4, -1, 1, 4))
+        self._text(f"Trait: {cat.personality.trait}", (20, 96, 380, 30))
+        self._button("change trait", (400, 94, 170, 32), self._open_trait_picker)
+        self._text(f"Second trait: {cat.personality.trait2}", (20, 134, 380, 30))
+        self._button("change", (400, 132, 170, 32), self._open_second_trait_picker)
+        self._stat_rows(PERSONALITY_FACETS, 186, (-4, -1, 1, 4))
         self._text(
-            "The four facets decide which traits fit a cat, so changing them can change the trait too.",
-            (20, 320, 660, 60),
+            "The four facets decide which traits fit a cat, so changing them can change the traits too. "
+            "Second traits only list the ones that can go with the first.",
+            (20, 350, 660, 60),
             "#text_box_26_horizleft_pad_10_14",
         )
         self._max_reset(
@@ -288,6 +293,10 @@ class CatStatEditorWindow(EditorWindowBase):
 
     def _open_hidden_picker(self):
         self._open_picker("Choose hidden knowledge", hidden_options(), lambda h: set_hidden(self.the_cat, h))
+
+    def _open_second_trait_picker(self):
+        options = second_trait_options(self.the_cat.personality.kit, self.the_cat.personality.trait)
+        self._open_picker("Choose a second trait", options, lambda t: set_second_trait(self.the_cat, t))
 
     def _open_rank_picker(self):
         self._open_picker("Choose a rank", [str(r) for r in EDITABLE_RANKS],

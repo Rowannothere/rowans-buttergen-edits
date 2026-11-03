@@ -185,23 +185,61 @@ def all_traits(cat: Cat) -> list:
     return sorted(table)
 
 
-def set_trait(cat: Cat, trait: str) -> bool:
-    """changes the trait and moves the facets into that trait's range so it sticks"""
+FACETS = (("lawfulness", "_law"), ("sociability", "_social"), ("aggression", "_aggress"), ("stability", "_stable"))
+
+
+def _trait_table(kit: bool) -> dict:
     from scripts.cat.personality import Personality
 
-    table = Personality.trait_ranges["kit_traits" if cat.personality.kit else "normal_traits"]
+    return Personality.trait_ranges["kit_traits" if kit else "normal_traits"]
+
+
+def _shared_ranges(table: dict, trait: str, trait2: str):
+    """the facet ranges both traits allow, or None if they can't both fit one cat"""
+    shared = {}
+    for facet, _attr in FACETS:
+        low = max(table[trait][facet][0], table[trait2][facet][0])
+        high = min(table[trait][facet][1], table[trait2][facet][1])
+        if low > high:
+            return None
+        shared[facet] = (low, high)
+    return shared
+
+
+def second_trait_options(kit: bool, trait: str) -> list:
+    """second traits that can go with this trait, since both have to fit the cat's facets"""
+    table = _trait_table(kit)
+    if trait not in table:
+        return []
+    return sorted(other for other in table if other != trait and _shared_ranges(table, trait, other))
+
+
+def set_traits(cat: Cat, trait: str, trait2: str = None) -> bool:
+    """Changes the trait, and the second trait if given, and moves the facets into the middle of
+    what both allow so they stick. A second trait that can't go with the first is rerolled."""
+    personality = cat.personality
+    table = _trait_table(personality.kit)
     if trait not in table:
         return False
-    ranges = table[trait]
-    personality = cat.personality
+    trait2 = trait2 or personality.trait2
+    shared = _shared_ranges(table, trait, trait2) if trait2 in table and trait2 != trait else None
+    ranges = shared or {facet: table[trait][facet] for facet, _attr in FACETS}
     # set the private values straight away, going through the setters one at a time
     # would keep picking new traits in between
-    personality._law = (ranges["lawfulness"][0] + ranges["lawfulness"][1]) // 2
-    personality._social = (ranges["sociability"][0] + ranges["sociability"][1]) // 2
-    personality._aggress = (ranges["aggression"][0] + ranges["aggression"][1]) // 2
-    personality._stable = (ranges["stability"][0] + ranges["stability"][1]) // 2
+    for facet, attr in FACETS:
+        setattr(personality, attr, (ranges[facet][0] + ranges[facet][1]) // 2)
     personality.trait = trait
+    personality.trait2 = trait2 if shared else personality.choose_trait(exclude=trait)
     return True
+
+
+def set_trait(cat: Cat, trait: str) -> bool:
+    """changes the trait and moves the facets into that trait's range so it sticks"""
+    return set_traits(cat, trait)
+
+
+def set_second_trait(cat: Cat, trait2: str) -> bool:
+    return set_traits(cat, cat.personality.trait, trait2)
 
 
 # ------------------------------------------------------------------ skills

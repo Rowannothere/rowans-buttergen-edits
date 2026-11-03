@@ -20,7 +20,7 @@ from scripts.cat.pronouns import get_default_pronouns
 from scripts.cat.skills import SkillPath, Skill
 from scripts.cat.sprites.display_sprites import generate_sprite
 from scripts.cat.sprites.load_sprites import sprites
-from scripts.cat_editor_logic import set_trait
+from scripts.cat_editor_logic import second_trait_options, set_traits
 from scripts.game_structure import game
 from scripts.game_structure.game.settings import game_setting_get
 from scripts.game_structure.game.switches import switch_get_value, switch_set_value, Switch
@@ -110,6 +110,8 @@ class CustomCatScreen(MakeClanScreenBase):
         self.opacity=100
         self.skill = "Random"
         self.personality = ""
+        # BUTTERGEN: Rowan's second trait, "" lets the game pick one
+        self.personality2 = ""
         self.picked_conditions = []
         self.page = 0
         self.faith = "flexible"
@@ -533,6 +535,7 @@ class CustomCatScreen(MakeClanScreenBase):
                 'patient','rebellious','honest'
             ]
         )
+        self.personality2 = ""
         self.picked_conditions = [choice(permanent_conditions)] if random.randint(1,30) == 1 else []
 
         if "born without a tail" in self.picked_conditions:
@@ -1310,7 +1313,7 @@ class CustomCatScreen(MakeClanScreenBase):
         elif self.page == 3:
 
             if self.current_selection not in [
-                "condition", "trait", "skill", "faith", "sex"
+                "condition", "trait", "second_trait", "skill", "faith", "sex"
                 ]:
                 self.current_selection = "condition"
 
@@ -1324,7 +1327,7 @@ class CustomCatScreen(MakeClanScreenBase):
 
             x_pos = 120
             selection_y_pos = 150
-            for i in ["condition", "trait", "skill"]:
+            for i in ["condition", "trait", "second_trait", "skill"]:
                 self.current_selection_buttons[i] = UISurfaceImageButton(
                     ui_scale(pygame.Rect((x_pos, selection_y_pos), (120, 40))),
                     i.replace("_", " "),
@@ -1412,8 +1415,8 @@ class CustomCatScreen(MakeClanScreenBase):
             traits = []
             for trait in Personality.trait_ranges["kit_traits"]:
                 traits.append(trait)
-            traits = self.trait_choices()
-            if self.current_selection == "trait":
+            traits = self.trait_choices() if self.current_selection == "trait" else self.second_trait_choices()
+            if self.current_selection in ("trait", "second_trait"):
                 for trait in traits:
                     if 15 <= len(trait):
                         short_name = str(trait)[0:13]
@@ -2356,10 +2359,15 @@ class CustomCatScreen(MakeClanScreenBase):
                         else:
                             self.sync_condition_looks()
                     elif self.current_selection == "trait":
-                        traits = ['unruly','shy','impulsive','bullying','attention-seeker','daydreamer','charming','fearless','skittish','quiet','self-conscious','know-it-all','sweet','polite','bossy','noisy','smug','secretive','grumpy','manipulative','leader-like','passionate','disciplined','patient','rebellious','honest']
-                        current_index = traits.index(self.personality)
+                        traits = self.trait_choices()
+                        current_index = traits.index(self.personality) if self.personality in traits else 0
                         next_index = (current_index + num) % len(traits)
-                        self.personality = traits[next_index]
+                        self.pick_trait(traits[next_index])
+                    elif self.current_selection == "second_trait":
+                        traits = self.second_trait_choices()
+                        now = self.personality2 or "Random"
+                        current_index = traits.index(now) if now in traits else 0
+                        self.pick_trait(traits[(current_index + num) % len(traits)], second=True)
                     elif self.current_selection == "skill":
                         current_index = self.skills.index(self.skill)
                         next_index = (current_index + num) % len(self.skills)
@@ -2451,7 +2459,9 @@ class CustomCatScreen(MakeClanScreenBase):
                         else:
                             self.sync_condition_looks()
                     elif self.current_selection == "trait":
-                        self.personality = random.choice(['unruly','shy','impulsive','bullying','attention-seeker','daydreamer','charming','fearless','skittish','quiet','self-conscious','know-it-all','sweet','polite','bossy','noisy','smug','secretive','grumpy','manipulative','leader-like','passionate','disciplined','patient','rebellious','honest'])
+                        self.pick_trait(random.choice(self.trait_choices()))
+                    elif self.current_selection == "second_trait":
+                        self.pick_trait(random.choice(self.second_trait_choices()), second=True)
                     elif self.current_selection == "skill":
                         skill_choices = []
                         for i in self.skills:
@@ -2707,7 +2717,7 @@ class CustomCatScreen(MakeClanScreenBase):
                         self.update_disabled_buttons()
                 for i in self.trait_buttons.items():
                     if event.ui_element == self.trait_buttons[i[0]]:
-                        self.personality = i[0]
+                        self.pick_trait(i[0], second=self.current_selection == "second_trait")
                         self.update_disabled_buttons()
                 for i in self.skill_buttons.items():
                     if event.ui_element == self.skill_buttons[i[0]]:
@@ -2855,6 +2865,8 @@ class CustomCatScreen(MakeClanScreenBase):
                     if condition in self.picked_conditions and scar not in self.your_cat.pelt.scars:
                         self.your_cat.pelt.scars = (*self.your_cat.pelt.scars, scar)
                 self.your_cat.personality = Personality(trait=self.personality, kit_trait=True)
+                if self.personality2:
+                    set_traits(self.your_cat, self.personality, self.personality2)
                 if self.skill == "Random":
                     self.skill = random.choice(self.skills)
                 self.your_cat.skills.primary = Skill.get_skill_from_string(Skill, self.skill, "True")
@@ -2885,6 +2897,7 @@ class CustomCatScreen(MakeClanScreenBase):
         self.elements["main_menu"].set_text("buttons.back")
         self.elements["menu_warning"].hide()
         self.personality = target.personality.trait
+        self.personality2 = target.personality.trait2 or ""
         self.faith = target.lock_faith
         self.preview_age = self.age_to_preview(target.moons)
         self.selected_cat = target
@@ -2916,6 +2929,21 @@ class CustomCatScreen(MakeClanScreenBase):
             return sorted(Personality.trait_ranges["normal_traits"])
         return ['unruly','shy','impulsive','bullying','attention-seeker','daydreamer','charming','fearless','skittish','quiet','self-conscious','know-it-all','sweet','polite','bossy','noisy','smug','secretive','grumpy','manipulative','leader-like','passionate','disciplined','patient','rebellious','honest']
 
+    def second_trait_choices(self):
+        """second traits that go with the first one, Random lets the game pick"""
+        target = Cat.fetch_cat(CustomCatScreen.edit_target_id) if CustomCatScreen.edit_target_id else None
+        kit = not (target and not target.personality.kit)
+        return ["Random"] + second_trait_options(kit, self.personality)
+
+    def pick_trait(self, trait, second=False):
+        """a second trait that doesn't go with a new first trait goes back to Random"""
+        if second:
+            self.personality2 = "" if trait == "Random" else trait
+            return
+        self.personality = trait
+        if self.personality2 and self.personality2 not in self.second_trait_choices():
+            self.personality2 = ""
+
     def editing_picks(self):
         """what's picked right now, to see what changed since the cat maker opened"""
         legacy = self.custom_cat.legacy_pelt
@@ -2929,6 +2957,7 @@ class CustomCatScreen(MakeClanScreenBase):
             "white_patches_tint": legacy.white_patches_tint,
             "reverse": legacy.reverse,
             "personality": self.personality,
+            "personality2": self.personality2,
             "skill": self.skill,
             "faith": self.faith,
             "conditions": tuple(self.picked_conditions),
@@ -2982,8 +3011,8 @@ class CustomCatScreen(MakeClanScreenBase):
         # BUTTERGEN: a tint picked by hand is carried as a gene
         tint_genes.keep_shown(target.phenotype, target.pelt)
 
-        if self.personality and now["personality"] != start["personality"]:
-            set_trait(target, self.personality)
+        if self.personality and (now["personality"], now["personality2"]) != (start["personality"], start["personality2"]):
+            set_traits(target, self.personality, self.personality2 or None)
         if now["skill"] != start["skill"] and self.skill != "Random":
             target.skills.primary = Skill.get_skill_from_string(Skill, self.skill, "True")
         if now["faith"] != start["faith"]:
@@ -3214,20 +3243,21 @@ class CustomCatScreen(MakeClanScreenBase):
                     self.condition_buttons[i[0]].enable()
                     self.condition_buttons[i[0]].tick(i[0] in self.picked_conditions)
 
+            picked = self.personality if self.current_selection != "second_trait" else (self.personality2 or "Random")
             for i in self.trait_buttons.items():
-                if i[0] != self.personality:
+                if i[0] != picked:
                     self.trait_buttons[i[0]].enable()
                 else:
                     self.trait_buttons[i[0]].disable()
 
-            if self.current_selection == "trait":
+            if self.current_selection in ("trait", "second_trait"):
                 if "trait_name" in self.elements:
                     self.elements["trait_name"].kill()
                     del self.elements["trait_name"]
 
-                if self.personality:
+                if picked:
                     self.elements["trait_name"] = pygame_gui.elements.UITextBox(
-                        self.personality.capitalize(),
+                        picked.capitalize(),
                         ui_scale(pygame.Rect((276, 470), (247, 49))),
                         object_id=get_text_box_theme("#text_box_30_horizcenter"),
                         manager=MANAGER
