@@ -881,8 +881,8 @@ def set_legs(genes, value):
     genes.poly = ["Pd", "pd"] if index & 2 else ["pd", "pd"]
 
 
-BODY_TYPES = ["snub-nosed cobby", "cobby", "semi-cobby", "intermediate", "semi-oriental", "oriental",
-              "wedge-faced oriental"]
+BODY_TYPES = ["snub-nosed cobby", "cobby", "semi-cobby", "intermediate", "semi-lanky", "lanky",
+              "wedge-faced lanky"]  # Genemod renamed the oriental types
 SIZES = ["teacup", "tiny", "small", "below average", "average", "above average", "large", "massive",
          "giant", "goliath"]
 
@@ -1016,7 +1016,7 @@ SHORT = {
     "Servaline-rosetted": "Serval-rosetted",
     "Reduced barring ticked": "Reduced barring",
     "Medium 1 and tail": "Medium 1 + tail",
-    "Wedge-faced oriental": "Wedge oriental",
+    "Wedge-faced lanky": "Wedge lanky",
     "Patchy brush coat": "Patchy brush",
     "Hairless (sphynx)": "Sphynx",
     "Pangere": "Pale markings",
