@@ -87,6 +87,7 @@ class ChooseCatsScreen(MakeClanScreenBase):
                         "clan_creation.rank_weights"
                     ),
                     lifegen_kitten_creation=True,
+                    cards=self.clan_info.cruel_cards,
                 ),
             )
 
