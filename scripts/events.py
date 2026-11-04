@@ -632,7 +632,7 @@ def _one_moon_impl():
         med_fulfilled = medicine_cats_can_cover_clan(Cat.all_cats.values(), clan=CatGroup.PLAYER_CLAN_ID)
 
         if not med_fulfilled:
-            string = i18n.t("defaults.warn_low_medcats")
+            string = event_text_adjust(Cat, i18n.t("defaults.warn_low_medcats"), clan=game.clan)
             game.cur_events_list.insert(0, EventInformation(string, ["health"], clan=game.clan.group_ID))
     else:
         has_med = any(
