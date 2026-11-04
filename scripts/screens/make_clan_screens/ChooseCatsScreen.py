@@ -367,7 +367,8 @@ class ChooseCatsScreen(MakeClanScreenBase):
                 self.elements["roll3"].hide()
 
         # allow the player forward
-        if self.clan_info.has_minimum_cats():
+        # LG: and your cat is picked (coming back here clears your cat but keeps the Clan)
+        if self.clan_info.has_minimum_cats() and self.clan_info.your_cat:
             self.elements["next_step"].enable()
         else:
             self.elements["next_step"].disable()
