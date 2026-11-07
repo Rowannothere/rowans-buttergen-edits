@@ -421,10 +421,7 @@ class ChooseRebornScreen(Screens):
         cat_list_filter.draw_grid(self.cat_list_buttons, display_cats, 100, 402, self.cat_filter, fav=self.fav, cell_h=72)
 
     def update_tabs(self):
-        if self.selected_cat and self.selected_cat.status.is_outsider:
-            self.confirm_cat.disable()
-            self.cant_switch_warning.show()
-        elif self.selected_cat is None:
+        if self.selected_cat is None:
             self.confirm_cat.disable()
             self.cant_switch_warning.hide()
         else:
