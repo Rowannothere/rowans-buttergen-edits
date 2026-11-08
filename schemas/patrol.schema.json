@@ -1733,6 +1733,12 @@
           "title": "Frequency",
           "type": "integer"
         },
+        "options": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Option"
+          }
+        },
         "outcome_art": {
           "description": "The name of displayed patrol art file, without any file extension (no .png).",
           "title": "Outcome Art",
@@ -1821,8 +1827,40 @@
       "required": [
         "strings",
         "frequency",
-        "exp_gained"
+        "exp_gained",
+        "options"
       ],
+      "Option": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "chance_of_success": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "success_outcomes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/Outcome"
+            }
+          },
+          "fail_outcomes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/Outcome"
+            }
+          }
+        },
+        "required": [
+          "text",
+          "chance_of_success",
+          "success_outcomes",
+          "fail_outcomes"
+        ]
+      },
       "title": "Outcome",
       "type": "object"
     },
@@ -2018,10 +2056,7 @@
         "patrol_art",
         "frequency",
         "chance_of_success",
-        "intro_strings",
-        "decline_strings",
-        "success_outcomes",
-        "fail_outcomes"
+        "intro_strings"
       ],
       "title": "PatrolSchemaItem",
       "type": "object"
