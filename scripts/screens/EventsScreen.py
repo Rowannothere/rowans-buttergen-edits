@@ -60,6 +60,10 @@ from scripts.ui.windows.choose_deputy import ChooseDeputyWindow
 from scripts.clan_package.get_clan_cats import get_living_clan_cat_count
 from scripts.ui.windows.view_cards import ViewCardsWindow
 
+def _has_clan_time_progressed(
+    clan_age: int, clan_weeks: int, weekskip_enabled: bool
+) -> bool:
+    return clan_age > 0 or (weekskip_enabled and clan_weeks > 0)
 
 class EventsScreen(Screens):
     current_display = "all events"
@@ -1394,8 +1398,9 @@ class EventsScreen(Screens):
             ele.kill()
         self.involved_cat_buttons = []
 
-        # Stop if Clan is new, so that events from previously loaded Clan don't show up
-        if game.clan.age == 0:
+        if not _has_clan_time_progressed(
+            game.clan.age, game.clan.weeks, weekskip.on()
+        ):
             return
 
         if not self.display_events:
