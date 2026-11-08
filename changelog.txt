@@ -1,3 +1,9 @@
+<strong>Buttergen v0.3.3</strong>
+
+Fixes:
+- Fixed a crash when clicking the mute button on the main menu
+- The stable version now lives on a GitHub branch called stable (the download link stays the same)
+
 <strong>Buttergen v0.3.2</strong>
 
 Fixes:
