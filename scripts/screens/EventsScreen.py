@@ -1,3 +1,4 @@
+from scripts.honor import choices as honor_choices
 from math import ceil
 from typing import Dict
 
@@ -164,6 +165,10 @@ class EventsScreen(Screens):
     def start_timeskip(self):
         # LG: starts the moon, also used right after picking your path at 5 moons
         self.timeskip_button.disable()
+        # BUTTERGEN: no choosing while the skip runs, it comes back afterward
+        if getattr(self, "honor_choice_badge", None) is not None:
+            self.honor_choice_badge.kill()
+            self.honor_choice_badge = None
         self.events_thread = self.loading_screen_start_work(events.one_moon)
         # rebuild_moon_n_season_indicator(change_moon=True, visible=True)
         self.save_button.reset_save()
@@ -209,6 +214,9 @@ class EventsScreen(Screens):
             event.type == pygame_gui.UI_BUTTON_PRESSED
         ):  # everything else on button press to prevent blinking
             element = event.ui_element
+            if element is not None and element == getattr(self, "honor_choice_badge", None):
+                honor_choices.open_window(self)
+                return
             if element == self.timeskip_button:
                 # ensure we can't run the same timeskip multiple times
                 if self.events_thread is not None and self.events_thread.is_alive():
@@ -801,6 +809,9 @@ class EventsScreen(Screens):
         self.open_involved_cat_button = None
         self.update_display_events_lists()
         self.update_events_display()
+        # BUTTERGEN: "Your cat has a choice" (honor system step 5)
+        self.honor_choice_badge = None
+        honor_choices.show_badge(self)
 
         # Draw and disable the correct menu buttons.
         self.set_disabled_menu_buttons(["events"])
@@ -1225,6 +1236,18 @@ class EventsScreen(Screens):
 
         self.update_display_events_lists()
 
+    def event_clan(self, event):
+        """the Clan whose page shows the event. Untagged events go with their first cat in a Clan, else the player's Clan"""
+        if event.clan:
+            return event.clan
+        clan_ids = [game.clan.group_ID] + [c.group_ID for c in game.clan.all_other_clans]
+        for cat_id in event.cats_involved:
+            cat = Cat.all_cats.get(cat_id)
+            group = cat.status.get_last_living_group() if cat and cat.dead else cat and cat.status.group_ID
+            if group in clan_ids:
+                return group
+        return game.clan.group_ID
+
     def update_display_events_lists(self):
         """
         Categorize events from game.cur_events_list into display categories for screen
@@ -1238,7 +1261,7 @@ class EventsScreen(Screens):
             for x in game.cur_events_list
             if "interaction" not in x.types
             and "faith" not in x.types
-            and (not x.clan or x.clan == self.current_clan)
+            and self.event_clan(x) == self.current_clan
         ]
 
         # LIFEGEN: changing all events based on fave filters
@@ -1277,27 +1300,27 @@ class EventsScreen(Screens):
 
         self.ceremony_events = [
             x for x in game.cur_events_list if "ceremony" in x.types and x.text
-            and (not x.clan or x.clan == self.current_clan)
+            and self.event_clan(x) == self.current_clan
         ]
         self.birth_death_events = [
             x for x in game.cur_events_list if "birth_death" in x.types and x.text
-            and (not x.clan or x.clan == self.current_clan)
+            and self.event_clan(x) == self.current_clan
         ]
         self.relation_events = [
             x for x in game.cur_events_list if "relation" in x.types and x.text
-            and (not x.clan or x.clan == self.current_clan)
+            and self.event_clan(x) == self.current_clan
         ]
         self.health_events = [
             x for x in game.cur_events_list if "health" in x.types and x.text
-            and (not x.clan or x.clan == self.current_clan)
+            and self.event_clan(x) == self.current_clan
         ]
         self.other_clans_events = [
             x for x in game.cur_events_list if "other_clans" in x.types and x.text
-            and (not x.clan or x.clan == self.current_clan)
+            and self.event_clan(x) == self.current_clan
         ]
         self.misc_events = [
             x for x in game.cur_events_list if "misc" in x.types and x.text
-            and (not x.clan or x.clan == self.current_clan)
+            and self.event_clan(x) == self.current_clan
         ]
 
     def update_events_display(self, is_page_update=False):
@@ -1345,12 +1368,12 @@ class EventsScreen(Screens):
             if self.faith_toggle is True:
                 self.display_events = [
                     x for x in game.cur_events_list if "faith" in x.types
-                    and (not x.clan or x.clan == self.current_clan)
+                    and self.event_clan(x) == self.current_clan
                 ]
             else:
                 self.display_events = [
                     x for x in game.cur_events_list if "interaction" in x.types
-                    and (not x.clan or x.clan == self.current_clan)
+                    and self.event_clan(x) == self.current_clan
                 ]
 
         # SET UP PAGES
@@ -1657,3 +1680,4 @@ class EventsScreen(Screens):
 
         self.update_events_display()
         self.timeskip_button.enable()
+        honor_choices.show_badge(self)

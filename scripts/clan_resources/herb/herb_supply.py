@@ -354,6 +354,24 @@ class HerbSupply:
                 expired.append(self.herb[herb_name])
                 self.storage[herb_name].pop(-1)
 
+        # healers tribute
+        taken_herbs = []
+        for herb_name in self.base_herb_list:
+            herb_loss = round(
+                self.total_of_herb(herb_name)
+                * get_config("clan_resources.herbs.herb_loss")
+            )
+            if herb_loss > 0:
+                self.remove_herb(herb_name, herb_loss)
+                if herb_loss > 1:
+                    taken_herbs.append(
+                        f"{herb_loss} {self.herb[herb_name].plural_display}"
+                    )
+                else:
+                    taken_herbs.append(
+                        f"{herb_loss} {self.herb[herb_name].singular_display}"
+                    )
+
         # add log entry to inform player of removal
         if expired:
             self.log.append(
@@ -362,7 +380,13 @@ class HerbSupply:
                     herbs=adjust_list_text([herb.plural_display for herb in expired]),
                 )
             )
-
+        if taken_herbs:
+            self.log.append(
+                i18n.t(
+                    "cruel_season.special_text.herb_loss",
+                    herbs=adjust_list_text(taken_herbs),
+                )
+            )
         game.herb_events_list.extend(self.log)
 
     def total_of_herb(self, herb) -> int:
@@ -422,18 +446,19 @@ class HerbSupply:
         returns med den message for current herb supply status
         """
         messages: list = MESSAGES["storage_status"][self.get_overall_rating()]
+        clan = med_cat.status.fetch_clan_object(game.clan)
         for message in messages.copy():
             if "lead_name" in message and (
-                not game.clan.leader or not game.clan.leader.status.alive_in_player_clan
+                not clan.leader or not clan.leader.status.group_ID == clan.group_ID
             ):
                 messages.remove(message)
             if "dep_name" in message and (
-                not game.clan.deputy or not game.clan.deputy.status.alive_in_player_clan
+                not clan.deputy or not clan.deputy.status.group_ID == clan.group_ID
             ):
                 messages.remove(message)
 
         return event_text_adjust(
-            Cat=med_cat, text=choice(messages), main_cat=med_cat, clan=game.clan
+            Cat=med_cat, text=choice(messages), main_cat=med_cat, clan=clan
         )
 
     def get_single_herb_total(self, herb: str) -> int:

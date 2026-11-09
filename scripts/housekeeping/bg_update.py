@@ -1,9 +1,4 @@
-"""Buttergen: is there a newer version on GitHub?
-
-ClanGen's own updater asks ClanGen's update server, which knows nothing about Buttergen,
-so this asks GitHub instead. It runs in the background once per game start, so the start screen
-never waits for it, and it quietly gives up without internet.
-"""
+"""Buttergen: checks GitHub for a newer version in the background."""
 import re
 import threading
 from configparser import ConfigParser

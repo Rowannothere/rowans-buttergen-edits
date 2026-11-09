@@ -184,6 +184,17 @@ class Clan:
         self.murdered = {}
         self.exile_return = False
         self.affair = False
+        # BUTTERGEN: kept and held secrets about broken code (scripts/honor/witness.py)
+        self.code_secrets = []
+        # cats waiting for the leader's judgment (scripts/honor/judgment.py)
+        self.code_judgments = []
+        # your cat's waiting choice, and the moon the last one came up (scripts/honor/choices.py)
+        self.code_choice = None
+        self.code_choice_moon = None
+        # the leader's Clan trust record (scripts/honor/leader.py)
+        self.code_leader = {}
+        # cats switching Clans by a task (scripts/honor/switching.py)
+        self.code_switch = {}
         self.achievements = []
         self.talks = []
         self.focus = ""
@@ -959,6 +970,11 @@ class Clan:
         for setting in ["hunter_first", "sick_injured_first"]:
             set_clan_setting(setting, True if starting_priority == setting else False)
 
+        # mentorship
+        if not get_config("roles.receive_mentor"):
+            set_clan_setting("assign_mentors", False)
+            save_clan_settings()
+
     def add_cat(self, cat):  # cat is a 'Cat' object
         """Adds cat into the list of clan cats"""
         if cat.ID in Cat.all_cats and cat.ID not in self.clan_cats:
@@ -1102,6 +1118,12 @@ class Clan:
             "murdered": self.murdered,
             "exile_return": self.exile_return,
             "affair": self.affair,
+            "code_secrets": self.code_secrets,
+            "code_judgments": self.code_judgments,
+            "code_choice": self.code_choice,
+            "code_choice_moon": self.code_choice_moon,
+            "code_leader": self.code_leader,
+            "code_switch": self.code_switch,
             "custom_pronouns": self.custom_pronouns,
             "clan_age": self.clan_age,
         }
@@ -1673,6 +1695,12 @@ class Clan:
 
         if "affair" in clan_data:
             game.clan.affair = clan_data["affair"]
+        game.clan.code_secrets = list(clan_data.get("code_secrets", []))
+        game.clan.code_judgments = list(clan_data.get("code_judgments", []))
+        game.clan.code_choice = clan_data.get("code_choice")
+        game.clan.code_choice_moon = clan_data.get("code_choice_moon")
+        game.clan.code_leader = dict(clan_data.get("code_leader") or {})
+        game.clan.code_switch = dict(clan_data.get("code_switch") or {})
 
         if "exile_return" in clan_data:
             game.clan.exile_return = clan_data["exile_return"]

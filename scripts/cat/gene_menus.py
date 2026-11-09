@@ -1,8 +1,4 @@
-"""the gene menus of the custom cat maker (from the LifeGen Genetics Cat Maker). Each
-menu sets the genes that make that look, and reads the current choice back from the genes, so the
-menus and the genes never disagree.
-
-Menus are grouped into tabs (see TABS at the bottom). SHORT has shorter names for the lists."""
+"""The cat maker's gene menus: each one sets the genes for a look and reads it back from them."""
 
 import colorsys
 import re
@@ -11,6 +7,8 @@ from scripts.cat import patch_genes, special_eyes
 import json
 import os
 from collections import namedtuple
+
+from scripts.cat.sprites.sprite_names import sprite_names
 
 
 OTHER = "(other)"
@@ -602,7 +600,37 @@ def eye_type(name):
 
 
 EYE_FAMILIES = ["Blue", "Aqua and teal", "Green", "Yellow and gold", "Orange and copper", "Brown and hazel",
-                "Red and pink", "Purple", "Gray and pale"]
+                "Red and pink", "Purple", "Gray and pale", "Albino"]
+
+
+def eye_kind(name_or_code):
+    """"albino", "blue" or "normal": albino and blue eyes come from other genes than the eye grades"""
+    if " ; " not in str(name_or_code) and name_or_code not in EYES:
+        return "normal"  # BUTTERGEN: special eyes are their own gene
+    code = name_or_code if " ; " in str(name_or_code) else eye_type(name_or_code)
+    pigment = code.split(" ; ")[1]
+    return pigment if pigment in ("albino", "blue") else "normal"
+
+
+def eye_kinds_allowed(genes):
+    """The kinds of eyes these genes can give, like Genemod's EyeColourFinder: albino cats only
+    have albino eyes, cs-pointed cats only blue ones, and blue eyes need white, some points or
+    blue-eyed white"""
+    points = list(genes.pointgene)
+    if "c" in points and points[0] != "C":
+        return {"albino"}
+    if points[0] == "cs":
+        return {"blue"}
+    kinds = {"normal"}
+    if (genes.white[0] not in ("w", "wg", "wsal")
+            or points in (["cb", "cs"], ["cb", "cm"], ["cm", "cm"], ["cm", "c"])
+            or genes.pax3[0] != "NoDBE"):
+        kinds.add("blue")
+    return kinds
+
+
+def eye_allowed(genes, name_or_code):
+    return eye_kind(name_or_code) in eye_kinds_allowed(genes)
 
 
 def eye_family(name):
@@ -614,6 +642,9 @@ def eye_family(name):
         outer = special_eyes.EYES[SPECIAL_BY_LABEL[name]]["outer"]
     elif name in EYES:
         rank, pigment = eye_type(name).split(" ; ")
+        if pigment == "albino":
+            # albino eyes all look alike (pale with a red pupil), so they're one group
+            return "Albino"
         outer = sprites.EYE_DATA[pigment][rank]["outer"]
     else:
         return None
@@ -675,11 +706,16 @@ def apply_maker_eyes(genes):
     eyes = getattr(genes, "maker_eyes", None)
     if not eyes:
         return
-    genes.lefteyetype, genes.righteyetype = eyes["left"], eyes["right"]
-    genes.lefteye, genes.righteye = eye_name(eyes["left"]), eye_name(eyes["right"])
-    genes.extraeye = eyes["sectoral"]
-    genes.extraeyetype = eyes["sectoral_color"]
-    genes.extraeyecolour = eye_name(eyes["sectoral_color"])
+    # an eye the genes can't give anymore (like blue after the white was taken off) stays as
+    # Genemod rolled it for these genes
+    if eye_allowed(genes, eyes["left"]):
+        genes.lefteyetype, genes.lefteye = eyes["left"], eye_name(eyes["left"])
+    if eye_allowed(genes, eyes["right"]):
+        genes.righteyetype, genes.righteye = eyes["right"], eye_name(eyes["right"])
+    if not eyes["sectoral_color"] or eye_allowed(genes, eyes["sectoral_color"]):
+        genes.extraeye = eyes["sectoral"]
+        genes.extraeyetype = eyes["sectoral_color"]
+        genes.extraeyecolour = eye_name(eyes["sectoral_color"])
 
 
 def set_eye_genes(genes, code):
@@ -914,6 +950,22 @@ def set_dark_patches(genes, value):
     patch_genes.set_copies(genes, "dark_white", 2 if value == "Yes" else 0)
 
 
+def get_tortie_shapes(genes):
+    return "Yes" if patch_genes.copies(genes, "tortie_shape_white") else "No"
+
+
+def set_tortie_shapes(genes, value):
+    patch_genes.set_copies(genes, "tortie_shape_white", 1 if value == "Yes" else 0)
+
+
+def get_white_shapes(genes):
+    return "Yes" if patch_genes.copies(genes, "white_shape_torties") else "No"
+
+
+def set_white_shapes(genes, value):
+    patch_genes.set_copies(genes, "white_shape_torties", 1 if value == "Yes" else 0)
+
+
 def menu(label, options, read, write, **kwargs):
     return Menu(label, options, read, write, **kwargs)
 
@@ -1095,6 +1147,8 @@ EXTRA_MENUS = [
     menu("Tortie pattern", ["Same as cat"] + list(PATTERNS), lambda genes: OTHER, lambda genes, value: None),
     # out of TABS on purpose: a menu in the White tab rolls the cat's white patches again
     menu("Dark white patches", ["No", "Yes"], get_dark_patches, set_dark_patches),
+    menu("Tortie shapes in white", ["No", "Yes"], get_tortie_shapes, set_tortie_shapes),
+    menu("White shapes in tortie", ["No", "Yes"], get_white_shapes, set_white_shapes),
 ]
 
 
@@ -1103,7 +1157,73 @@ EXTRA_MENUS = [
 
 def _sprite_list(path):
     with open(path, encoding="utf-8") as file:
-        return [name for row in json.load(file)["sprite_list"] for name in row]
+        return sprite_names(json.load(file)["sprite_list"])
+
+
+WHITE_SIZES = (("little", "Small patches"), ("mid", "Medium patches"), ("high", "Large patches"),
+               ("mostly", "Mostly white"))
+_WHITE_SIZE_OF = {}
+
+
+def white_size_groups(names):
+    """[(heading, [patch names])]: patches by the game's size for them, the rest under Other"""
+    if not _WHITE_SIZE_OF:
+        for size, _ in WHITE_SIZES:
+            for name in _sprite_list(f"sprites/dicts/white_patches_{size}_sprite_data.json"):
+                _WHITE_SIZE_OF.setdefault(name, size)
+    groups = [(heading, [n for n in names if _WHITE_SIZE_OF.get(n) == size]) for size, heading in WHITE_SIZES]
+    groups.append(("Other", [n for n in names if n not in _WHITE_SIZE_OF]))
+    return [(heading, group) for heading, group in groups if group]
+
+
+# Genemod's sizes for tortie patches (Phenotype.ChooseTortiePattern), for the cat maker's tortie list
+TORTIE_SIZES = (
+    ("Small tortie patches", ("DELILAH", "MOTTLED", "EYEDOT", "BANDANA", "SMUDGED", "EMBER", "BRINDLE", "SAFI",
+                              "BELOVED", "BODY", "MINIMALONE", "MINIMALTWO", "SHILOH", "FRECKLED", "WILDFIRE")),
+    ("Medium tortie patches", ("ONE", "TWO", "SMOKE", "MINIMALTHREE", "MINIMALFOUR", "OREO", "CHIMERA", "CHEST",
+                               "GRUMPYFACE", "SIDEMASK", "PACMAN", "BRIE", "ORIOLE", "ROBIN", "PAIGE", "HEARTBEAT",
+                               "TURTLECRAWL", "LARKPETAL", "MILQUE")),
+    ("Large tortie patches", ("THREE", "FOUR", "REDTAIL", "STREAK", "MASK", "SWOOP", "ARMTAIL", "STREAMSTRIKE",
+                              "DAUB", "ROSETAIL", "DAPPLENIGHT", "BLANKET", "CHERRYTAIL", "POWDERSNOW",
+                              "TAILTIPREVERSE_T", "UNDERTAIL_T", "HALF")),
+)
+
+
+def tortie_layer_groups(tortie_shapes):
+    """[(kind, heading, [shapes])] for the cat maker's tortie layers: the tortie shapes by size, then
+    the white shapes like the white list has them (by where they are, then by size)"""
+    result = []
+    used = set()
+    for heading, names in TORTIE_SIZES:
+        group = [s for s in tortie_shapes if s in names]
+        used.update(group)
+        if group:
+            result.append(("Tortie shapes", heading, group))
+    rest = [s for s in tortie_shapes if s not in used]
+    if rest:
+        result.append(("Tortie shapes", "Other tortie shapes", rest))
+    whites = [w for w in white_shapes() if w not in tortie_shapes]
+    areas = {heading: [] for heading, _ in WHITE_AREAS}
+    other = []
+    for name in whites:
+        area = next((heading for heading, words in WHITE_AREAS if re.search(words, name.lower())), None)
+        (areas[area] if area else other).append(name)
+    result += [("White shapes", heading, names) for heading, names in areas.items() if names]
+    result += [("White shapes", heading, names) for heading, names in white_size_groups(other)]
+    return result
+
+
+_WHITE_SHAPES = []
+
+
+def white_shapes():
+    """Clangen's white patch shapes, the ones born torties can have as tortie shapes"""
+    if not _WHITE_SHAPES:
+        for size in ("little", "mid", "high", "mostly"):
+            for name in _sprite_list(f"sprites/dicts/white_patches_{size}_sprite_data.json"):
+                if name not in _WHITE_SHAPES:
+                    _WHITE_SHAPES.append(name)
+    return _WHITE_SHAPES
 
 
 def _files(folder):
@@ -1141,9 +1261,28 @@ def white_patch_groups():
         area = next((heading for heading, words in WHITE_AREAS if re.search(words, name.lower())), None)
         (groups[area] if area else other).append(name)
     result = [(heading, names) for heading, names in groups.items() if names]
-    result.append(("Whole body and other", other))
+    # the rest are whole-body patches: by size (the game's own little, mid, high and mostly lists)
+    result += white_size_groups(other)
     result.append(("Color spots", [f"break/{name}" for name in _files("sprites/genemod/break white")]))
+    result.append(("Tortie shapes", tortie_shapes_in_white()))
     return result
+
+
+def tortie_shapes_in_white():
+    """BUTTERGEN: tortie patch shapes a white patch can take (Mink's Torties), the ones not already white"""
+    from scripts.cat import patch_swap
+
+    white = set(patch_swap.WHITE_LOW + patch_swap.WHITE_MID + patch_swap.WHITE_HIGH)
+    return [name for name in patch_swap.TORTIE if name not in white]
+
+
+def white_shapes_in_tortie():
+    """BUTTERGEN: white patch shapes a tortie patch can take (Mink's Torties), the ones not already tortie"""
+    from scripts.cat import patch_swap
+
+    tortie = set(patch_swap.TORTIE)
+    return list(dict.fromkeys(n for n in patch_swap.WHITE_LOW + patch_swap.WHITE_MID + patch_swap.WHITE_HIGH
+                              if n not in tortie))
 
 
 # tortie patches whose sprite names don't read well, only for the cat maker's list

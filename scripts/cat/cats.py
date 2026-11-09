@@ -251,6 +251,20 @@ class Cat:
         # afterlife affinity
         self.dark_forest_affinity = affinity["dark_forest"]
         self.starclan_affinity = affinity["starclan"]
+        # BUTTERGEN: the honor system, -100 to 100 each (scripts/honor/core.py)
+        self.honor = 0
+        self.reputation = 0
+        self.clan_trust = 0
+        # what's tempting the cat, by cause, and the Clan age when they last did each act
+        self.temptation = {}
+        self.code_done = {}
+        # judgments: [[clan age, step], ...] and the sentence being served, or None
+        self.code_record = []
+        self.code_sentence = None
+        # exiled from your Clan: when, why, and who refused them (scripts/honor/exile.py)
+        self.code_exile = None
+        # healer mates the Clan does and doesn't know about (scripts/honor/healer.py)
+        self.code_healer = None
 
         # toggles
         self.no_kits = toggles["no_kits"]
@@ -1253,8 +1267,10 @@ class Cat:
 
         return text
 
-    def generate_lead_ceremony(self):
-        """Create a leader ceremony and add it to the history"""
+    def generate_lead_ceremony(self, lives=None):
+        """Create a leader ceremony and add it to the history.
+        BUTTERGEN: lives is how many lives StarClan gives, when it isn't the usual (a challenge moves
+        the old leader's remaining lives to the deputy, scripts/honor/challenge.py)"""
 
         load_leader_ceremonies()
         # LG: the name before becoming leader. A cat that's already leader (a founder, another Clan's leader,
@@ -1263,6 +1279,8 @@ class Cat:
             self.history.prev_names.append(str(self.name))
 
         num_of_lives_to_give = min(max(get_config("death_related.min_leader_lives"), choice(get_config("death_related.leader_lives_nr"))), get_config("death_related.max_leader_lives"))
+        if lives:
+            num_of_lives_to_give = max(1, int(lives))
         self.status.fetch_clan_object().leader_lives = num_of_lives_to_give
 
         # determine which dict we're pulling from
@@ -1828,6 +1846,10 @@ class Cat:
         if not self.status.rank.is_any_apprentice_rank():
             return False
 
+        # if not going to have a mentor
+        if not get_config("roles.receive_mentor"):
+            return False
+
         # App and mentor must be members of the same clan
         if self.status.group_ID != potential_mentor.status.group_ID:
             return False
@@ -1941,6 +1963,13 @@ class Cat:
                     potential_mentors.append(cat)
                     if not cat.apprentice and cat.can_work() and cat.moons >= get_config("roles.min_mentorship_age"):
                         priority_mentors.append(cat)
+            # BUTTERGEN: cats who lost the Clan's trust aren't picked while anyone else can be
+            from scripts.honor.judgment import lost_trust
+
+            trusted_priority = [c for c in priority_mentors if not lost_trust(c)]
+            trusted = [c for c in potential_mentors if not lost_trust(c)]
+            if trusted_priority or trusted:
+                priority_mentors, potential_mentors = trusted_priority, trusted
             # First try for a cat who currently has no apprentices and is working
             if (
                 switch_get_value(Switch.request_apprentice)
@@ -2248,10 +2277,21 @@ class Cat:
         :param other_cat: The other cat
         :param recalculate_inheritance: Set to False if this func should SKIP recalculating inheritance. Take care when using this.
         """
+        new_mate = other_cat.ID not in self.mate
         if other_cat.ID not in self.mate:
             self.mate.append(other_cat.ID)
         if self.ID not in other_cat.mate:
             other_cat.mate.append(self.ID)
+        # BUTTERGEN: with the healer mates toggle on, a healer's new mate breaks the code (honor step 7)
+        if new_mate:
+            try:
+                from scripts.honor import healer as honor_healer
+
+                honor_healer.on_new_mate(self, other_cat)
+            except Exception:  # pylint: disable=broad-except
+                import traceback
+
+                traceback.print_exc()
 
         # If the current mate was in the previous mate list, remove them.
         if other_cat.ID in self.previous_mates:
@@ -3127,6 +3167,15 @@ class Cat:
                 "status": self.status.get_status_dict(),
                 "dark_forest_affinity": self.dark_forest_affinity,
                 "starclan_affinity": self.starclan_affinity,
+                "honor": self.honor,
+                "reputation": self.reputation,
+                "clan_trust": self.clan_trust,
+                "temptation": self.temptation,
+                "code_done": self.code_done,
+                "code_record": self.code_record,
+                "code_sentence": self.code_sentence,
+                "code_exile": self.code_exile,
+                "code_healer": self.code_healer,
                 "backstory": self.backstory or None,
                 "moons": self.moons,
                 "trait": self.personality.trait,

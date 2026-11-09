@@ -2,13 +2,15 @@
 
 A Warrior Cats game where you play as your own cat, every cat has real, inheritable genes so kits look like their parents, and cats come in a huge variety of looks. This is just the beginning, and plenty more features are on the way: see [Planned features](#planned-features) below.
 
-Updated November 7, 2026.
+Updated November 9, 2026.
+
+**This is the dev branch:** the newest features, before they're ready for a stable version. To download it, check that the branch button above the files says **dev**, then use the green **Code** button. For the stable version, go to the [main page](https://github.com/Tropicaluwu/Buttergen).
 
 **Buttergen is in early development.** Things will change, and there may be bugs. If you find one, please report it on the [Issues page](https://github.com/Tropicaluwu/Buttergen/issues).
 
 **Join the Discord server** for help, news and bug reports: [discord.gg/Kxdvk5eXC9](https://discord.gg/Kxdvk5eXC9)
 
-I ask that if you make a fork or a version of this mod built off of my code, you credit me as well as the creators of LifeGen, Genemod, LifeGen Genetics, ClanGen and the mods listed under Credits too.
+I ask that if you make a fork or a version of this mod built off of my code, you credit me as well as the creators of Lifegen, Genemod, Lifegen Genetics, Clangen and the mods listed under Credits too.
 
 ## How to play
 
@@ -143,6 +145,7 @@ Once your Clans show up in the new version, you can delete the old folder.
      uv sync --python cpython-3.12-windows-x86_64-none
      ```
   3. When it's done, close the window and double-click **run.bat** as usual.
+- **"failed to hardlink file" or "incompatible hardlinks" (Windows):** the game folder is (or was) inside OneDrive. Move the game folder somewhere outside OneDrive, like **C:\Games**. Then delete the hidden **.venv** folder inside the game folder, open **PowerShell**, run `uv cache clean`, and start the game again. OneDrive can also get in the way of your saves, so the game is best kept outside it.
 - **"An Application Control policy has blocked this file" or "python.exe - Bad Image" (Windows 11):** this is Windows Smart App Control, not a broken download. See [Blocked by Smart App Control](#blocked-by-smart-app-control).
 - **My Clans are gone after updating:** copy the **saves** folder from the old game folder into the new one (see [Updating](#updating-to-a-new-version)).
 
@@ -191,7 +194,8 @@ If it's still blocked and the error mentions `Python312\Lib\site-packages`, Wind
 - Cat picking screens you can sort, search and filter by group
 - Cats with their own faith, and flirting with your mate
 - Multi clan mode (optional, picked when you make a new clan), where the other Clans have their own real cats
-- Built on the newest development versions of Genemod, LifeGen and ClanGen
+- The honor system (dev build): honor, reputation and Clan trust, temptations to break the warrior code, witnesses and secrets, judgments at the full moon, exile and coming home, leader challenges and switching Clans
+- Built on the newest development versions of Genemod, Lifegen and Clangen
 
 See [changelog.txt](changelog.txt) for what's new.
 
@@ -200,11 +204,10 @@ See [changelog.txt](changelog.txt) for what's new.
 Buttergen is just getting started. These are on the way, roughly in this order (plans can change):
 
 - **Affairs:** a reworked affairs system
-- **Code and Borders:** living by (or breaking) the warrior code, and murder of other Clans' cats, with honor loss, angry neighbors, exile and even war
+- **Code and Borders:** more patrols where your choice counts for honor, and murder of other Clans' cats, with angry neighbors and even war
 - **Skills and mentors:** seven skills that level up with experience and change how patrols and your choices go, with mentors who teach them
 - **Genes matter:** a cat's genes affect their skills, like camouflage in their biome, coat thickness in the cold, and size and build
 - **Territory:** prey, weather and hazards, and how well your Clan is holding its land
-- **Better Honor system:** witnesses, blackmail, rumors, and redemption
 - **Faith and the afterlife:** dreams, omens, crises of faith, and StarClan and the Dark Forest trying to recruit cats
 - **Diplomacy and war** between the Clans
 - **Healers:** deeper medicine cat gameplay
@@ -234,29 +237,29 @@ Buttergen is built on other people's work. Thank you to all of them!
 
 - **Rowan** ([Rowannothere](https://github.com/Rowannothere)): secondary personality traits (and choosing them in the cat maker and cat editor), and the idea and first version of skipping by weeks
 
-### LifeGen
-Made by the **LifeGen team**: playing as your own cat.
+### Lifegen
+Made by the **Lifegen team**: playing as your own cat.
 - GitHub: [sedgestripe/clangen](https://github.com/sedgestripe/clangen)
-- Full list of everyone who worked on it: [LifeGen credits](https://docs.google.com/document/d/1XCm5Eo-y5VA6W9quDMbF3VNyKL7S8_9Tl4c2buuiA8g/edit?usp=sharing)
+- Full list of everyone who worked on it: [Lifegen credits](https://docs.google.com/document/d/1XCm5Eo-y5VA6W9quDMbF3VNyKL7S8_9Tl4c2buuiA8g/edit?usp=sharing)
 
 ### Genemod (Genetics mod)
 Made by **Chinch-Bug** and contributors. Genemod gives every cat real, inheritable genes.
 - GitHub: [Chinch-Bug/clangen-genemod](https://github.com/Chinch-Bug/clangen-genemod)
 
-### LifeGen Genetics
-Buttergen started from **LifeGen Genetics** by Tropicaluwu, which brought LifeGen and Genemod together.
+### Lifegen Genetics
+Buttergen started from **Lifegen Genetics** by Tropicaluwu, which brought Lifegen and Genemod together.
 - GitHub: [Tropicaluwu/Lifegen-Genetics-dev](https://github.com/Tropicaluwu/Lifegen-Genetics-dev)
 
-### ClanGen
-The game everything is built on. Original creator **just-some-cat**, fan edit by **SableSteel** and the ClanGen team.
+### Clangen
+The game everything is built on. Original creator **just-some-cat**, fan edit by **SableSteel** and the Clangen team.
 - GitHub: [ClanGenOfficial/clangen](https://github.com/ClanGenOfficial/clangen)
 - Itch.io: [sablesteel.itch.io/clan-gen-fan-edit](https://sablesteel.itch.io/clan-gen-fan-edit)
 
 ### Dev testers
 Thank you to the Buttergen dev testers for playing early versions and finding bugs!
 
-Buttergen is an unofficial fan project. **Please don't take bug reports from it to the LifeGen, Genemod or ClanGen teams.** They didn't make this version and can't help with it.
+Buttergen is an unofficial fan project. **Please don't take bug reports from it to the Lifegen, Genemod or Clangen teams.** They didn't make this version and can't help with it.
 
 ## License
 
-Code is under the Mozilla Public License 2.0, and the sprites and art are under CC BY-NC 4.0, the same as ClanGen and the mods Buttergen is built on. That means you can share and change them, but not sell them, and you have to credit the artists. See [LICENSE.md](LICENSE.md).
+Code is under the Mozilla Public License 2.0, and the sprites and art are under CC BY-NC 4.0, the same as Clangen and the mods Buttergen is built on. That means you can share and change them, but not sell them, and you have to credit the artists. See [LICENSE.md](LICENSE.md).
