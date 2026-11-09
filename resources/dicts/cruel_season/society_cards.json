@@ -1,4 +1,25 @@
 {
+  "iron_code": {
+    "card_art": "society/pride_and_joy.png",
+    "modifiers": {
+      "buttergen.honor.harsher_judgments": 1,
+      "buttergen.honor.favorites_off": false
+    }
+  },
+  "fading_code": {
+    "card_art": "society/survival_of_fittest.png",
+    "modifiers": {
+      "buttergen.honor.code_event_factor": 2.0,
+      "buttergen.honor.report_factor": 0.5
+    }
+  },
+  "whispers": {
+    "card_art": "society/resolute.png",
+    "modifiers": {
+      "buttergen.honor.secret_spread_factor": 2.0,
+      "buttergen.honor.secret_out_at": 3
+    }
+  },
   "resolute": {
     "card_art": "society/resolute.png",
     "modifiers": {
@@ -52,6 +73,12 @@
       "roles.can_manually_change.deputy": false,
       "clan_creation.ranks_needed.deputy": false,
       "roles.only_leader_kits_deputy": true
+    }
+  },
+  "on_their_own": {
+    "card_art": "society/on_their_own.png",
+    "modifiers": {
+      "roles.receive_mentor": false
     }
   },
   "disorganized": {

@@ -755,6 +755,16 @@ def _one_moon_impl():
         game.clan.affair = False
         game.clan.exile_return = False
 
+    # BUTTERGEN: the honor system's code events, every skip. A bug here mustn't stop the skip
+    try:
+        from scripts.honor import temptation
+
+        temptation.on_skip(full_moon)
+    except Exception:  # pylint: disable=broad-except
+        import traceback
+
+        traceback.print_exc()
+
     generate_dialogue_focus()
     checks = [
         len(game.clan.your_cat.apprentice),
@@ -1044,7 +1054,10 @@ def handle_lead_den_event():
                                 )
                                 invited_cat.specsuffix_hidden = False
                         # if cat is an apprentice, make sure they get a mentor!
-                        if invited_cat.status.rank.is_any_apprentice_rank():
+                        if (
+                            invited_cat.status.rank.is_any_apprentice_rank()
+                            and get_config("roles.receive_mentor")
+                        ):
                             invited_cat.update_mentor()
                         # if the cat chose to become a mediator but the settings don't allow it, make them a warrior instead
                         if (
@@ -1486,8 +1499,83 @@ def match_sibling_to_kit(kit, sibling):
     """A kit born to made up parents shares your cat's pattern and white"""
     for gene in FAMILY_LOOK:
         setattr(sibling.phenotype, gene, deepcopy(kit.phenotype[gene]))
+    tints = _share_your_look(kit, sibling)
     _redraw_from_genes(sibling)
+    for attr in tints:
+        setattr(sibling.pelt, attr, getattr(kit.pelt, attr))
     _copy_white(kit, sibling)
+
+
+# BUTTERGEN: your cat's color genes a sibling can share
+SIBLING_COLOR = ["eumelanin", "dilute", "dilutemd", "pinkdilute", "silver", "ext", "corin", "pointgene"]
+
+
+def _share_your_look(kit, sibling):
+    """BUTTERGEN: a sibling may share your cat's color and special looks. Returns the shown tints to copy"""
+    from scripts.cat import gene_menus
+
+    rules = get_config("buttergen.family")
+    kit_genes, genes = kit.phenotype, sibling.phenotype
+    both_tortie = gene_menus.get_tortie(kit_genes) != "No" and gene_menus.get_tortie(genes) != "No"
+    if random.random() < rules["tortie_color_chance" if both_tortie else "color_chance"]:
+        for gene in SIBLING_COLOR:
+            setattr(genes, gene, deepcopy(kit_genes[gene]))
+        kit_x = [x for x in kit_genes.sexgene if x != "Y"]
+        if kit_x and len(genes.sexgene) == 2:
+            genes.sexgene = [random.choice(kit_x), "Y"] if "Y" in genes.sexgene else (kit_x * 2)[:2]
+    for attr in ("physical_traits", "special_eyes", "patch_genes"):
+        theirs = dict(getattr(genes, attr, None) or {})
+        for name, copies in (getattr(kit_genes, attr, None) or {}).items():
+            if random.random() < rules["look_chance"]:
+                theirs[name] = copies
+        setattr(genes, attr, theirs)
+    tints = []
+    kit_tints = getattr(kit_genes, "tint_genes", None) or {}
+    for kind, shown in (("tint", "tint"), ("white_tint", "white_patches_tint")):
+        if kind in kit_tints and random.random() < rules["look_chance"]:
+            genes.tint_genes = dict(getattr(genes, "tint_genes", None) or {})
+            genes.tint_genes[kind] = list(kit_tints[kind])
+            tints.append(shown)
+    return tints
+
+def _pair_fits(kit_pair, parent_pairs):
+    if not _is_pair(kit_pair) or not all(_is_pair(pair) for pair in parent_pairs):
+        return True
+    a, b = kit_pair
+    if len(parent_pairs) == 1:
+        return a in parent_pairs[0] or b in parent_pairs[0]
+    p, q = parent_pairs
+    return (a in p and b in q) or (b in p and a in q)
+
+
+def _sex_fits(kit_sex, parent_sexes):
+    """the X genes: a son's comes from his mother, a daughter gets one from each parent"""
+    kit_x = [x for x in kit_sex if x != "Y"]
+    son = "Y" in kit_sex
+    mothers = [[x for x in p if x != "Y"] for p in parent_sexes if "Y" not in p]
+    fathers = [[x for x in p if x != "Y"] for p in parent_sexes if "Y" in p]
+    if len(mothers) > 1 or len(fathers) > 1 or (son and len(kit_x) != 1) or (not son and len(kit_x) != 2):
+        return True  # same sex parents or rare sex genes: not checked
+    if son:
+        return not mothers or kit_x[0] in mothers[0]
+    if mothers and fathers:
+        m, f = mothers[0], fathers[0]
+        return (kit_x[0] in m and kit_x[1] in f) or (kit_x[1] in m and kit_x[0] in f)
+    one = (mothers or fathers)[0]
+    return kit_x[0] in one or kit_x[1] in one
+
+
+def could_be_parents(kit, parents):
+    """True if these cats could have had this kit (every gene pair and the X genes)"""
+    parents = [p for p in parents if p]
+    if not parents:
+        return True
+    genes = [p.phenotype for p in parents]
+    for gene in PARENT_GENE_PAIRS:
+        if not _pair_fits(kit.phenotype[gene], [g[gene] for g in genes]):
+            return False
+    return _sex_fits(kit.phenotype.sexgene, [g.sexgene for g in genes])
+
 
 
 def get_acc_name(acc):
@@ -1702,6 +1790,8 @@ def generate_birth_event():
             and cat.age.can_have_mate()
             and is_gender_compatible
             and is_relation_compatible
+            # a birth parent has to be able to have had your cat
+            and (adoptive or could_be_parents(game.clan.your_cat, [cat, other_parent]))
         )
         return valid
 
@@ -1740,12 +1830,18 @@ def generate_birth_event():
             if not parent1:
                 birth_type = BirthType.NO_PARENTS
                 parent1 = generate_outsider_parent(dead=True)
-            elif parent1.mate:
+            elif parent1.mate and could_be_parents(
+                game.clan.your_cat, [parent1, Cat.fetch_cat(parent1.mate[-1])]
+            ):
                 parent2 = Cat.fetch_cat(parent1.mate[-1])
                 birth_type = BirthType.TWO_PARENTS
 
         elif birth_type == BirthType.TWO_PARENTS:
             parent1 = pick_valid_parent()
+            if not parent1:
+                # nobody in the Clan could have had your cat
+                birth_type = BirthType.NO_PARENTS
+                return birth_type, generate_outsider_parent(dead=True), None, []
             parent2 = pick_valid_parent(parent1)
             if parent2 and parent2.ID not in parent1.mate:
                 parent1.set_mate(parent2)
@@ -3227,6 +3323,9 @@ def one_moon_cat(cat, clan):
     # handle nutrition amount
     # (CARE: the cats have to be fed before this happens - should be handled in "one_moon" function)
     if game.clan.game_mode in ("expanded", "cruel_season") and game.clan.freshkill_pile and cat.status.alive_in_player_clan:
+        # a cat that came back to the Clan after this moon's feeding (like the player's cat after exile) starts out fed
+        if cat.ID not in game.clan.freshkill_pile.nutrition_info:
+            game.clan.freshkill_pile.add_cat_to_nutrition(cat)
         handle_nutrition(cat, game.clan.freshkill_pile.nutrition_info)
 
         if cat.dead:
@@ -4552,6 +4651,10 @@ def exile_or_forgive(cat):
 
     if not int(random.random() * fate):
         cat.status.exile_from_group()
+        # BUTTERGEN: remembered, so they can ask to come home later (honor system step 6)
+        from scripts.honor import exile
+
+        exile.record(cat, "shunning")
         text = event_text_adjust(
             Cat,
             text=(
@@ -4617,8 +4720,9 @@ def check_missing_mentors():
     Checks to see if any apprentices have missing mentors, reminds players of this.
     """
 
-    # Only do the check if mentors aren't being assigned randomly.
-    if get_clan_setting("assign_mentors"):
+    # Only do the check if mentors aren't being assigned randomly
+
+    if get_clan_setting("assign_mentors") or not get_config("roles.receive_mentor"):
         return
 
     mentorless = []

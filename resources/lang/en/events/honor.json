@@ -1,0 +1,34 @@
+{
+    "honor": {
+        "honorable": "honorable",
+        "trustworthy": "trustworthy",
+        "unremarkable": "unremarkable",
+        "questionable": "questionable",
+        "dishonored": "dishonored"
+    },
+    "reputation": {
+        "respected": "respected",
+        "trusted": "trusted",
+        "unremarkable": "unremarkable",
+        "doubted": "doubted",
+        "disgraced": "disgraced"
+    },
+    "clan_trust": {
+        "unwavering": "unwavering",
+        "firm": "firm",
+        "steady": "steady",
+        "shaken": "shaken",
+        "broken": "broken"
+    },
+    "profile": {
+        "honor_line": "honor: %{honor}, seen as %{reputation}",
+        "trust_line": "the Clan's trust: %{trust}",
+        "sentence": " (%{sentence}, %{moons} moons left)",
+        "sentence_one": " (%{sentence}, 1 moon left)",
+        "sentences": {
+            "duties": "extra duties",
+            "lost_trust": "lost trust",
+            "demotion": "demoted"
+        }
+    }
+}

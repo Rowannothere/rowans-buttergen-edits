@@ -549,7 +549,7 @@ def create_new_cat_block(
                     )
                 else:  # completely new name
                     chosen_cat.name.give_prefix(
-                        Cat,
+                        chosen_cat,
                         biome=clan.biome
                     )
                     chosen_cat.name.give_suffix(
@@ -644,61 +644,63 @@ def create_new_cat_block(
                 n_c.set_mate(inter_cat)
 
             # LITTERMATES
+            var_min, var_max = get_config("new_cat.sib_buff.variability")
+            sib_buff = get_config("new_cat.sib_buff.cat1_to_cat2")
+
             for inter_cat in new_cats:
                 if n_c == inter_cat:
                     continue
-
-                y = randrange(0, 20)
-                start_relation = Relationship(n_c, inter_cat, True)
-                start_relation.like += 40 + y
-                start_relation.comfort = 40 + y
-                start_relation.respect = 10 + y
-                start_relation.trust = 30 + y
-                n_c.relationships[inter_cat.ID] = start_relation
+                y = randrange(var_min, var_max)
+                rel_dict = {
+                    reltype: change + y for (reltype, change) in sib_buff.items()
+                }
+                change_relationship_values(
+                    cats_from=[n_c], cats_to=[inter_cat], **rel_dict
+                )
 
             # BIO PARENTS
+            var_min, var_max = get_config("new_cat.parent_buff.variability")
+            parent_to_kit = get_config("new_cat.parent_buff.parent_to_kit")
+            kit_to_parent = get_config("new_cat.parent_buff.kit_to_parent")
+
             for par in (parent1, parent2):
                 if not par:
                     continue
 
-                y = randrange(0, 20)
-                start_relation = Relationship(par, n_c, True)
-                start_relation.like += 60 + y
-                start_relation.comfort = 40 + y
-                start_relation.respect = 30 + y
-                start_relation.trust = 30 + y
-                par.relationships[n_c.ID] = start_relation
+                y = randrange(var_min, var_max)
+                rel_dict = {
+                    reltype: change + y for (reltype, change) in parent_to_kit.items()
+                }
+                change_relationship_values(cats_from=[par], cats_to=[n_c], **rel_dict)
 
-                y = randrange(0, 20)
-                start_relation = Relationship(n_c, par, True)
-                start_relation.like += 40 + y
-                start_relation.comfort = 70 + y
-                start_relation.respect = 30 + y
-                start_relation.trust = 60 + y
-                n_c.relationships[par.ID] = start_relation
+                y = randrange(var_min, var_max)
+                rel_dict = {
+                    reltype: change + y for (reltype, change) in kit_to_parent.items()
+                }
+                change_relationship_values(cats_from=[n_c], cats_to=[par], **rel_dict)
 
             # ADOPTIVE PARENTS
+            var_min, var_max = get_config("new_cat.adoptive_parent_buff.variability")
+            parent_to_kit = get_config("new_cat.adoptive_parent_buff.parent_to_kit")
+            kit_to_parent = get_config("new_cat.adoptive_parent_buff.parent_to_kit")
+
             for par in adoptive_parents:
                 if not par:
                     continue
 
                 par = Cat.fetch_cat(par)
 
-                y = randrange(0, 20)
-                start_relation = Relationship(par, n_c, True)
-                start_relation.like += 60 + y
-                start_relation.comfort = 40 + y
-                start_relation.respect = 30 + y
-                start_relation.trust = 30 + y
-                par.relationships[n_c.ID] = start_relation
+                y = randrange(var_min, var_max)
+                rel_dict = {
+                    reltype: change + y for (reltype, change) in parent_to_kit.items()
+                }
+                change_relationship_values(cats_from=[par], cats_to=[n_c], **rel_dict)
 
-                y = randrange(0, 20)
-                start_relation = Relationship(n_c, par, True)
-                start_relation.like += 40 + y
-                start_relation.comfort = 70 + y
-                start_relation.respect = 30 + y
-                start_relation.trust = 60 + y
-                n_c.relationships[par.ID] = start_relation
+                y = randrange(var_min, var_max)
+                rel_dict = {
+                    reltype: change + y for (reltype, change) in kit_to_parent.items()
+                }
+                change_relationship_values(cats_from=[n_c], cats_to=[par], **rel_dict)
 
             # UPDATE INHERITANCE
         inheritance_db.load_inheritances(Cat)
@@ -1246,7 +1248,7 @@ def create_new_cat(
                 new_cat.change_name(new_prefix=name, new_suffix="")
                 if overwrite_prefix:
                     new_cat.name.give_prefix(
-                        Cat, new_cat.status.fetch_clan_object(game.clan).biome, no_suffix=True)
+                        new_cat, new_cat.status.fetch_clan_object(game.clan).biome, no_suffix=True)
 
         # Remove disabling scars, if they generated.
         # these are removed bc the cat won't have the associated perm condition
@@ -1366,10 +1368,11 @@ def gather_cat_objects(
             continue
 
         found_cat = None
+        # patrols pass no event, so a stray m_c or r_c is skipped instead of crashing
         if abbr == "m_c":
-            found_cat = extra_cat if extra_cat else event.main_cat
+            found_cat = extra_cat if extra_cat else getattr(event, "main_cat", None)
         elif abbr == "r_c":
-            found_cat = event.random_cat
+            found_cat = getattr(event, "random_cat", None)
         # LG: the same cats the patrol text names as o_c1-4
         elif re.match(r"o_c[1-4]$", abbr) and involved_cats and involved_cats.get("patrol_cats"):
             other_cats = [
