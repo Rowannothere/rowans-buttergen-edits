@@ -340,7 +340,7 @@
                             },
                             {
                                 "text": "Fight!",
-                                "chance_of_success": 2,
+                                "chance_of_success": 20,
                                 "success_outcomes": [
                                     {
                                         "strings": ["Despite all odds, p_l stands {PRONOUN/p_l/poss} ground and successfully fends the dog off, though not without obtaining a few scrapes and bruises in the scuffle. Once the dog has retreated, p_l even takes its freshkill back home as a prize."],
