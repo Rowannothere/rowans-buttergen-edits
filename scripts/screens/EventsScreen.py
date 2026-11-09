@@ -42,7 +42,6 @@ from scripts.ui.icon import Icon
 from scripts.clan_package.clan_symbols import clan_symbol_sprite
 from scripts.ui.theme import get_text_box_theme
 from scripts.events_module import weekskip
-from scripts.events_module.bulk_timeskip import bulk_timeskip
 from scripts.events_module.text_adjust import shorten_text_to_fit
 from scripts.ui.scale import (
     ui_scale,
@@ -101,7 +100,6 @@ class EventsScreen(Screens):
         self.event_screen_container = None
         self.clan_info = {}
         self.timeskip_button = None
-        self.bulk_skip_button = None
 
         self.full_event_display_container = None
         self.events_frame = None
@@ -173,12 +171,6 @@ class EventsScreen(Screens):
             self.honor_choice_badge = None
         self.events_thread = self.loading_screen_start_work(events.one_moon)
         # rebuild_moon_n_season_indicator(change_moon=True, visible=True)
-        self.save_button.reset_save()
-
-    def start_bulk_timeskip(self):
-        self.timeskip_button.disable()
-        self.bulk_skip_button.disable()
-        self.events_thread = self.loading_screen_start_work(bulk_timeskip)
         self.save_button.reset_save()
 
     def handle_event(self, event):
@@ -263,11 +255,6 @@ class EventsScreen(Screens):
                     ChooseDeputyWindow("events screen")
                 else:
                     self.start_timeskip()
-
-            elif element == self.bulk_skip_button:
-                if self.events_thread is not None and self.events_thread.is_alive():
-                    return
-                self.start_bulk_timeskip()
 
             elif self.death_button and event.ui_element == self.death_button:
                 DeathScreen("events screen")
@@ -608,23 +595,6 @@ class EventsScreen(Screens):
             ui_scale(pygame.Rect((248, 223) if game.clan.clancount != 'multiclan' else (195, 223), (180, 30))),
             # BUTTERGEN: weeks when skipping by weeks
             "screens.events.timeskip_week_button" if weekskip.on() else "screens.events.timeskip_button",
-            get_button_dict(ButtonStyles.SQUOVAL, (180, 30)),
-            object_id="@buttonstyles_squoval",
-            starting_height=1,
-            container=self.event_screen_container,
-            manager=MANAGER,
-            sound_id="timeskip",
-        )
-        self.bulk_skip_button = UISurfaceImageButton(
-            ui_scale(
-                pygame.Rect(
-                    (248, 255)
-                    if game.clan.clancount != "multiclan"
-                    else (195, 255),
-                    (180, 30),
-                )
-            ),
-            "screens.events.bulkskip_button",
             get_button_dict(ButtonStyles.SQUOVAL, (180, 30)),
             object_id="@buttonstyles_squoval",
             starting_height=1,
@@ -1711,4 +1681,3 @@ class EventsScreen(Screens):
         self.update_events_display()
         self.timeskip_button.enable()
         honor_choices.show_badge(self)
-        self.bulk_skip_button.enable()
