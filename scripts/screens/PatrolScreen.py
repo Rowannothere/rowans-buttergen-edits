@@ -8,6 +8,7 @@ from pygame_gui.core import ObjectID
 
 from scripts.cat.cats import Cat
 from scripts.events_module.patrol.patrol import Patrol, get_patrol_temperament
+from scripts.events_module.timeskip_log import record_activity
 from scripts.game_structure import game
 from scripts.ui.elements.dropdown_container import UIDropDownContainer
 from ..events_module.patrol.enums import PatrolChoice
@@ -1353,20 +1354,25 @@ class PatrolScreen(Screens):
 
     def run_patrol_proceed(self, user_input: PatrolChoice, selected_option=None):
         """Proceeds the patrol - to be run in the separate thread."""
+        intro_text = self.display_text
         (
             self.display_text,
             self.results_text,
             self.rel_results,
             self.outcome_art,
-        ) = self.patrol_obj.proceed_patrol(user_input, selected_option)
-
-    def open_patrol_result_screen(self):
-        if self.patrol_obj.available_options:
-            self.open_patrol_event_screen()
-        else:
-            for button in self.option_buttons:
-                button.disable()
-            self.open_patrol_complete_screen()
+        ) = self.patrol_obj.proceed_patrol(user_input)
+        if user_input != PatrolChoice.DECLINE:
+            patrol_names = ", ".join(str(cat.name) for cat in self.current_patrol)
+            patrol_text = f"{patrol_names}: {intro_text} | {self.display_text}"
+            if self.results_text:
+                patrol_text += f" | {self.results_text}"
+            record_activity(
+                game.clan,
+                self.current_clan or game.clan,
+                "Patrols",
+                patrol_text,
+                living_cats=Cat.all_cats.values(),
+            )
 
     def open_patrol_complete_screen(self):
         """
