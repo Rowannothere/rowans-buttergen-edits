@@ -13,6 +13,7 @@ from scripts.ui.elements.surface_image_button import UISurfaceImageButton
 from scripts.screens.enums import GameScreen
 
 from scripts.events_module.dialogue.dialogue import Dialogue
+from scripts.events_module.timeskip_log import record_activity
 
 from ..game_structure.game.switches import switch_get_value, Switch
 from ..game_structure.game.settings import game_setting_get
@@ -86,6 +87,7 @@ class TalkScreen(Screens):
 
         # DIALOGUE CLASS (to be instantiated later, as it's done for each new dialogue)
         self.dialogue_class = None
+        self.logged_dialogue_lines = set()
 
     def screen_switches(self):
         super().screen_switches()
@@ -99,6 +101,7 @@ class TalkScreen(Screens):
         self.other_dict.clear()
         self.text_index = 0
         self.frame_index = 0
+        self.logged_dialogue_lines.clear()
         self.speaking_cat_elements = {}
         self.update_camp_bg()
         self.hide_menu_buttons()
@@ -503,6 +506,24 @@ class TalkScreen(Screens):
             else:
                 self.speaking_cat_elements["cat_name"].show()
                 self.speaking_cat_elements["cat_image"].show()
+
+            if marker not in self.logged_dialogue_lines:
+                self.logged_dialogue_lines.add(marker)
+                activity_clan = next(
+                    (
+                        clan
+                        for clan in [game.clan] + game.clan.all_other_clans
+                        if clan.group_ID == self.the_cat.status.group_ID
+                    ),
+                    game.clan,
+                )
+                record_activity(
+                    game.clan,
+                    activity_clan,
+                    "Dialogue",
+                    f"{self.speaking_cat.name}: {self.texts[self.text_index]}",
+                    living_cats=Cat.all_cats.values(),
+                )
 
             # rebuild the typing frames from the now-final text for this line
             self.text_frames = [

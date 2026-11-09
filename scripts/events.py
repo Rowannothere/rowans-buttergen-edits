@@ -51,6 +51,7 @@ from scripts.cat.names import Name
 from scripts.cat.save_load import save_cats, add_cat_to_fade_id
 from scripts.clan_package.settings import get_clan_setting, set_clan_setting
 from scripts.events_module import weekskip
+from scripts.events_module.timeskip_log import record_timeskip
 from scripts.game_structure.game.settings import game_setting_get
 from scripts.clan_resources.freshkill import FRESHKILL_EVENT_ACTIVE
 from scripts.events_module.event_information import EventInformation
@@ -802,6 +803,24 @@ def _one_moon_impl():
             game.save_events()
         except:
             SaveErrorWindow(traceback.format_exc())
+
+    logged_clan_ids = {
+        clan.group_ID for clan in [game.clan] + game.clan.all_other_clans
+    }
+    for cat in Cat.all_cats.values():
+        if (
+            cat.status.group_ID in logged_clan_ids
+            and not cat.dead
+            and not cat.thought
+        ):
+            get_new_thought(cat, cat.next_thought_type)
+
+    record_timeskip(
+        game.clan,
+        [game.clan] + game.clan.all_other_clans,
+        Cat.all_cats.values(),
+        game.cur_events_list,
+    )
 
 
 def update_afterlife_temper():
