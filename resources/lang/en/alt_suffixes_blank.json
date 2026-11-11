@@ -28,7 +28,43 @@
         "CLAIRVOYANT": [],
         "PROPHET": [],
         "GHOST": [],
-        "DARK": []
+        "DARK": [],
+        "EXPLORER": [],
+        "TRACKER": [],
+        "ARTISTAN": [],
+        "GUARDIAN": [],
+        "TUNNELER": [],
+        "NAVIGATOR": [],
+        "SONG": [],
+        "GRACE": [],
+        "CLEAN": [],
+        "INNOVATOR": [],
+        "COMFORTER": [],
+        "MATCHMAKER": [],
+        "THINKER": [],
+        "COOPERATIVE": [],
+        "SCHOLAR": [],
+        "TIME": [],
+        "TREASURE": [],
+        "FISHER": [],
+        "LANGUAGE": [],
+        "SLEEPER": [],
+        "GARDENER": [],
+        "WEATHER": [],
+        "NIGHT": [],
+        "MIMIC": [],
+        "LEAPER": [],
+        "JOKER": [],
+        "PATIENT": [],
+        "TWOLEGCARE": [],
+        "CHARMER": [],
+        "SHOWCAT": [],
+        "WANDERER": [],
+        "SCAVENGER": [],
+        "SURVIVOR": [],
+        "BRAWLER": [],
+        "INTIMIDATOR": [],
+        "AMBUSHER": []
     },
     "honour": {
         "adaptability": [],
@@ -181,6 +217,9 @@
         "zest": []
     },
     "trait": {
+        "absent-minded": {
+            "general": []
+        },
         "adventurous": {
             "adaptability": {},
             "boldness": {},
@@ -198,6 +237,21 @@
             "valiance": {},
             "valor": {},
             "versatility": {},
+            "general": []
+        },
+        "aesthetic": {
+            "general": []
+        },
+        "aimless": {
+            "general": []
+        },
+        "airy": {
+            "general": []
+        },
+        "alert": {
+            "general": []
+        },
+        "aloof": {
             "general": []
         },
         "ambitious": {
@@ -219,6 +273,27 @@
             "strength": {},
             "general": []
         },
+        "amoral": {
+            "general": []
+        },
+        "amusing": {
+            "general": []
+        },
+        "angry": {
+            "general": []
+        },
+        "antagonistic": {
+            "general": []
+        },
+        "anxious": {
+            "general": []
+        },
+        "appreciative": {
+            "general": []
+        },
+        "argumentative": {
+            "general": []
+        },
         "arrogant": {
             "candor": {},
             "commitment": {},
@@ -227,6 +302,27 @@
             "intensity": {},
             "perspective": {},
             "spirit": {},
+            "general": []
+        },
+        "artful": {
+            "general": []
+        },
+        "artificial": {
+            "general": []
+        },
+        "athletic": {
+            "general": []
+        },
+        "attentive": {
+            "general": []
+        },
+        "balanced": {
+            "general": []
+        },
+        "benevolent": {
+            "general": []
+        },
+        "bizarre": {
             "general": []
         },
         "bloodthirsty": {
@@ -248,6 +344,9 @@
             "vigor": {},
             "general": []
         },
+        "blunt": {
+            "general": []
+        },
         "bold": {
             "boldness": {},
             "bravery": {},
@@ -265,6 +364,24 @@
             "strong will": {},
             "valiance": {},
             "vulnerability": {},
+            "general": []
+        },
+        "boring": {
+            "general": []
+        },
+        "bouncy": {
+            "general": []
+        },
+        "breezy": {
+            "general": []
+        },
+        "bright": {
+            "general": []
+        },
+        "bubbly": {
+            "general": []
+        },
+        "calculating": {
             "general": []
         },
         "calm": {
@@ -293,6 +410,12 @@
             "understanding": {},
             "general": []
         },
+        "capable": {
+            "general": []
+        },
+        "carefree": {
+            "general": []
+        },
         "careful": {
             "caution": {},
             "composure": {},
@@ -310,6 +433,12 @@
             "thoughtfulness": {},
             "wisdom": {},
             "wit": {},
+            "general": []
+        },
+        "casual": {
+            "general": []
+        },
+        "challenging": {
             "general": []
         },
         "charismatic": {
@@ -331,6 +460,12 @@
             "wit": {},
             "general": []
         },
+        "charmless": {
+            "general": []
+        },
+        "cheeky": {
+            "general": []
+        },
         "childish": {
             "adaptability": {},
             "audacity": {},
@@ -348,6 +483,12 @@
             "spirit": {},
             "tenacity": {},
             "zeal": {},
+            "general": []
+        },
+        "chummy": {
+            "general": []
+        },
+        "clumsy": {
             "general": []
         },
         "cold": {
@@ -369,6 +510,9 @@
             "skill": {},
             "steadfastness": {},
             "wit": {},
+            "general": []
+        },
+        "colorless": {
             "general": []
         },
         "compassionate": {
@@ -411,6 +555,9 @@
             "intensity": {},
             "general": []
         },
+        "complex": {
+            "general": []
+        },
         "confident": {
             "adaptability": {},
             "boldness": {},
@@ -426,6 +573,30 @@
             "resilience": {},
             "spirit": {},
             "strong will": {},
+            "general": []
+        },
+        "convincing": {
+            "general": []
+        },
+        "cool": {
+            "general": []
+        },
+        "courteous": {
+            "general": []
+        },
+        "cowardly": {
+            "general": []
+        },
+        "crude": {
+            "general": []
+        },
+        "cruel": {
+            "general": []
+        },
+        "cryptic": {
+            "general": []
+        },
+        "cultured": {
             "general": []
         },
         "cunning": {
@@ -456,6 +627,99 @@
             "wit": {},
             "general": []
         },
+        "deceitful": {
+            "general": []
+        },
+        "dedicated": {
+            "general": []
+        },
+        "deep": {
+            "general": []
+        },
+        "dependable": {
+            "general": []
+        },
+        "dependent": {
+            "general": []
+        },
+        "desolate": {
+            "general": []
+        },
+        "destructive": {
+            "general": []
+        },
+        "devious": {
+            "general": []
+        },
+        "dignified": {
+            "general": []
+        },
+        "diplomatic": {
+            "general": []
+        },
+        "disciplined": {
+            "general": []
+        },
+        "disgusted": {
+            "general": []
+        },
+        "distracted": {
+            "general": []
+        },
+        "dramatic": {
+            "general": []
+        },
+        "driven": {
+            "general": []
+        },
+        "dry": {
+            "general": []
+        },
+        "dynamic": {
+            "general": []
+        },
+        "earnest": {
+            "general": []
+        },
+        "easy-going": {
+            "general": []
+        },
+        "efficient": {
+            "general": []
+        },
+        "elegant": {
+            "general": []
+        },
+        "emotional": {
+            "general": []
+        },
+        "encouraging": {
+            "general": []
+        },
+        "energetic": {
+            "general": []
+        },
+        "enigmatic": {
+            "general": []
+        },
+        "envious": {
+            "general": []
+        },
+        "escapist": {
+            "general": []
+        },
+        "ethical": {
+            "general": []
+        },
+        "expressive": {
+            "general": []
+        },
+        "exuberant": {
+            "general": []
+        },
+        "fair": {
+            "general": []
+        },
         "faithful": {
             "commitment": {},
             "dedication": {},
@@ -473,6 +737,15 @@
             "spirit": {},
             "transparency": {},
             "wisdom": {},
+            "general": []
+        },
+        "farsighted": {
+            "general": []
+        },
+        "fatalistic": {
+            "general": []
+        },
+        "fearful": {
             "general": []
         },
         "fierce": {
@@ -503,10 +776,67 @@
             "wit": {},
             "general": []
         },
+        "flexible": {
+            "general": []
+        },
+        "flirtatious": {
+            "general": []
+        },
+        "folksy": {
+            "general": []
+        },
+        "forceful": {
+            "general": []
+        },
+        "forgetful": {
+            "general": []
+        },
+        "forgiving": {
+            "general": []
+        },
+        "fox-hearted": {
+            "general": []
+        },
+        "free-thinking": {
+            "general": []
+        },
+        "fun-loving": {
+            "general": []
+        },
+        "gallant": {
+            "general": []
+        },
+        "generous": {
+            "general": []
+        },
+        "gentle": {
+            "general": []
+        },
+        "genuine": {
+            "general": []
+        },
+        "giving": {
+            "general": []
+        },
+        "glamorous": {
+            "general": []
+        },
         "gloomy": {
             "guardedness": {},
             "insight": {},
             "perspective": {},
+            "general": []
+        },
+        "gracious": {
+            "general": []
+        },
+        "greedy": {
+            "general": []
+        },
+        "grim": {
+            "general": []
+        },
+        "grotesque": {
             "general": []
         },
         "grumpy": {
@@ -514,6 +844,48 @@
             "dedication": {},
             "fortitude": {},
             "pragmatism": {},
+            "general": []
+        },
+        "hardworking": {
+            "general": []
+        },
+        "hearty": {
+            "general": []
+        },
+        "hefty": {
+            "general": []
+        },
+        "heroic": {
+            "general": []
+        },
+        "high-minded": {
+            "general": []
+        },
+        "humble": {
+            "general": []
+        },
+        "humorous": {
+            "general": []
+        },
+        "hyper": {
+            "general": []
+        },
+        "hypnotic": {
+            "general": []
+        },
+        "idealistic": {
+            "general": []
+        },
+        "incisive": {
+            "general": []
+        },
+        "incorruptible": {
+            "general": []
+        },
+        "innocent": {
+            "general": []
+        },
+        "innovative": {
             "general": []
         },
         "insecure": {
@@ -535,6 +907,21 @@
             "wisdom": {},
             "general": []
         },
+        "intense": {
+            "general": []
+        },
+        "judgmental": {
+            "general": []
+        },
+        "justified": {
+            "general": []
+        },
+        "killjoy": {
+            "general": []
+        },
+        "logical": {
+            "general": []
+        },
         "lonesome": {
             "caution": {},
             "composure": {},
@@ -551,6 +938,9 @@
             "serenity": {},
             "tranquility": {},
             "wisdom": {},
+            "general": []
+        },
+        "loud": {
             "general": []
         },
         "loving": {
@@ -591,6 +981,42 @@
             "wit": {},
             "general": []
         },
+        "many-sided": {
+            "general": []
+        },
+        "maternal": {
+            "general": []
+        },
+        "meek": {
+            "general": []
+        },
+        "mellow": {
+            "general": []
+        },
+        "messy": {
+            "general": []
+        },
+        "methodical": {
+            "general": []
+        },
+        "misguided": {
+            "general": []
+        },
+        "monotone": {
+            "general": []
+        },
+        "monstrous": {
+            "general": []
+        },
+        "moralistic": {
+            "general": []
+        },
+        "motherly": {
+            "general": []
+        },
+        "nerdy": {
+            "general": []
+        },
         "nervous": {
             "adaptability": {},
             "attention": {},
@@ -610,12 +1036,75 @@
             "vigilance": {},
             "general": []
         },
+        "neutral": {
+            "general": []
+        },
         "oblivious": {
             "enthusiasm": {},
             "humor": {},
             "kindness": {},
             "openness": {},
             "spirit": {},
+            "general": []
+        },
+        "obnoxious": {
+            "general": []
+        },
+        "obsessive": {
+            "general": []
+        },
+        "old-fashioned": {
+            "general": []
+        },
+        "one-sided": {
+            "general": []
+        },
+        "open": {
+            "general": []
+        },
+        "opinionated": {
+            "general": []
+        },
+        "optimistic": {
+            "general": []
+        },
+        "ordinary": {
+            "general": []
+        },
+        "organized": {
+            "general": []
+        },
+        "overimaginative": {
+            "general": []
+        },
+        "overthinker": {
+            "general": []
+        },
+        "passionate": {
+            "general": []
+        },
+        "passive-aggressive": {
+            "general": []
+        },
+        "pathetic": {
+            "general": []
+        },
+        "patient": {
+            "general": []
+        },
+        "peaceful": {
+            "general": []
+        },
+        "persistent": {
+            "general": []
+        },
+        "persuasive": {
+            "general": []
+        },
+        "pessimistic": {
+            "general": []
+        },
+        "philosophical": {
             "general": []
         },
         "playful": {
@@ -637,11 +1126,65 @@
             "zeal": {},
             "general": []
         },
+        "plodding": {
+            "general": []
+        },
+        "polished": {
+            "general": []
+        },
+        "power-hungry": {
+            "general": []
+        },
+        "practical": {
+            "general": []
+        },
+        "predictable": {
+            "general": []
+        },
+        "principled": {
+            "general": []
+        },
+        "private": {
+            "general": []
+        },
+        "protective": {
+            "general": []
+        },
+        "punctual": {
+            "general": []
+        },
+        "questioning": {
+            "general": []
+        },
+        "quirky": {
+            "general": []
+        },
+        "rational": {
+            "general": []
+        },
+        "reactive": {
+            "general": []
+        },
         "rebellious": {
             "passion": {},
             "perseverance": {},
             "tenacity": {},
             "zeal": {},
+            "general": []
+        },
+        "regretful": {
+            "general": []
+        },
+        "relaxed": {
+            "general": []
+        },
+        "remorseless": {
+            "general": []
+        },
+        "resentful": {
+            "general": []
+        },
+        "reserved": {
             "general": []
         },
         "responsible": {
@@ -681,6 +1224,51 @@
             "wit": {},
             "general": []
         },
+        "ritualistic": {
+            "general": []
+        },
+        "romantic": {
+            "general": []
+        },
+        "ruined": {
+            "general": []
+        },
+        "sadistic": {
+            "general": []
+        },
+        "sarcastic": {
+            "general": []
+        },
+        "sassy": {
+            "general": []
+        },
+        "scheming": {
+            "general": []
+        },
+        "scholarly": {
+            "general": []
+        },
+        "secretive": {
+            "general": []
+        },
+        "self-pitying": {
+            "general": []
+        },
+        "self-reliant": {
+            "general": []
+        },
+        "selfish": {
+            "general": []
+        },
+        "sensitive": {
+            "general": []
+        },
+        "sentimental": {
+            "general": []
+        },
+        "serious": {
+            "general": []
+        },
         "shameless": {
             "adaptability": {},
             "boldness": {},
@@ -707,6 +1295,33 @@
             "kindness": {},
             "perspective": {},
             "sincerity": {},
+            "general": []
+        },
+        "sloppy": {
+            "general": []
+        },
+        "small-thinking": {
+            "general": []
+        },
+        "sneaky": {
+            "general": []
+        },
+        "snobbish": {
+            "general": []
+        },
+        "soft": {
+            "general": []
+        },
+        "spiteful": {
+            "general": []
+        },
+        "spontaneous": {
+            "general": []
+        },
+        "stable": {
+            "general": []
+        },
+        "stoic": {
             "general": []
         },
         "strange": {
@@ -747,6 +1362,36 @@
             "thoughtfulness": {},
             "general": []
         },
+        "strong": {
+            "general": []
+        },
+        "subtle": {
+            "general": []
+        },
+        "superficial": {
+            "general": []
+        },
+        "supportive": {
+            "general": []
+        },
+        "suspicious": {
+            "general": []
+        },
+        "sweetie": {
+            "general": []
+        },
+        "sympathetic": {
+            "general": []
+        },
+        "talkative": {
+            "general": []
+        },
+        "teacherly": {
+            "general": []
+        },
+        "thievish": {
+            "general": []
+        },
         "thoughtful": {
             "amity": {},
             "commitment": {},
@@ -763,6 +1408,21 @@
             "understanding": {},
             "wisdom": {},
             "wit": {},
+            "general": []
+        },
+        "thoughtless": {
+            "general": []
+        },
+        "tidy": {
+            "general": []
+        },
+        "tolerant": {
+            "general": []
+        },
+        "tranquil": {
+            "general": []
+        },
+        "transparent": {
             "general": []
         },
         "troublesome": {
@@ -784,6 +1444,36 @@
             "zest": {},
             "general": []
         },
+        "trusting": {
+            "general": []
+        },
+        "unaggressive": {
+            "general": []
+        },
+        "uncaring": {
+            "general": []
+        },
+        "unfoolable": {
+            "general": []
+        },
+        "unimaginative": {
+            "general": []
+        },
+        "unlovable": {
+            "general": []
+        },
+        "unpredictable": {
+            "general": []
+        },
+        "unreliable": {
+            "general": []
+        },
+        "unreligious": {
+            "general": []
+        },
+        "vague": {
+            "general": []
+        },
         "vengeful": {
             "boldness": {},
             "cleverness": {},
@@ -803,6 +1493,15 @@
             "wit": {},
             "general": []
         },
+        "venomous": {
+            "general": []
+        },
+        "warm": {
+            "general": []
+        },
+        "weak-willed": {
+            "general": []
+        },
         "wise": {
             "composure": {},
             "dignity": {},
@@ -820,6 +1519,18 @@
             "tranquility": {},
             "understanding": {},
             "wisdom": {},
+            "general": []
+        },
+        "wishful": {
+            "general": []
+        },
+        "witty": {
+            "general": []
+        },
+        "wrongful": {
+            "general": []
+        },
+        "youthful": {
             "general": []
         }
     },

@@ -56,6 +56,10 @@ from scripts.special_dates import SpecialDate, is_today
 logger = logging.getLogger(__name__)
 
 
+# BUTTERGEN: added to a date's chance (out of 100) when the date is the player's cat's mate
+MATE_DATE_BONUS = 15
+
+
 def get_patrol_temperament(patrol_cats: list, patrol_leader=None) -> tuple[str, str]:
     """
     Determines the temperament of a patrol based on clan rank and patrol_leader
@@ -176,6 +180,9 @@ class Patrol:
                 print(
                     f"PATROL ID: {self.patrol_event.event_id} | SUCCESS: N/A (did not proceed)"
                 )
+                # BUTTERGEN: honor step 10, turning a temptation down counts
+                from scripts.honor import patrols as honor_patrols
+
                 return (
                     event_text_adjust(
                         Cat,
@@ -185,7 +192,7 @@ class Patrol:
                         other_clan=self.other_clan,
                         chosen_poi=self.chosen_poi,
                     ),
-                    "",
+                    "\n".join(honor_patrols.on_decline(self)),
                     {},
                     None,
                 )
@@ -900,6 +907,18 @@ class Patrol:
             if r and r.strip():
                 final_results.append(r)
 
+        # BUTTERGEN: honor step 10, the patrol's choices count
+        from scripts.honor import patrols as honor_patrols
+
+        final_results.extend(
+            honor_patrols.on_outcome(
+                self,
+                chosen_outcome.event_id,
+                self.outcome_cats[PatrolOutcome.SUCCESS if success else PatrolOutcome.FAILURE],
+                processed_text,
+            )
+        )
+
         # Run the chosen outcome
         return (
             processed_text,
@@ -961,7 +980,8 @@ class Patrol:
 
         # LG: dates depend on how your date feels about you
         if switch_get_value(Switch.patrol_category) == "date":
-            success_chance = self._get_date_success_chance()
+            # BUTTERGEN: the date chance is out of 100, but the roll below is out of 120
+            success_chance = round(self._get_date_success_chance() * 1.2)
 
         if success_chance >= 120:
             success_chance = 115
@@ -1014,6 +1034,9 @@ class Patrol:
             if relationship.like < 0:
                 success_chance -= 10
             success_chance += randint(-20, 20)
+        # BUTTERGEN: mates' dates usually go well
+        if you.ID in date.mate:
+            success_chance += MATE_DATE_BONUS
         success_chance = max(10, min(90, success_chance))
 
         if randint(1, 100) < success_chance:
