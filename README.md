@@ -2,7 +2,7 @@
 
 A Warrior Cats game where you play as your own cat, every cat has real, inheritable genes so kits look like their parents, and cats come in a huge variety of looks. This is just the beginning, and plenty more features are on the way: see [Planned features](#planned-features) below.
 
-Updated November 10, 2026.
+Updated November 12, 2026.
 
 **This is the dev branch:** the newest features, before they're ready for a stable version. To download it, check that the branch button above the files says **dev**, then use the green **Code** button. For the stable version, go to the [main page](https://github.com/Tropicaluwu/Buttergen).
 
@@ -190,7 +190,7 @@ If it's still blocked and the error mentions `Python312\Lib\site-packages`, Wind
 - Real cat genetics: coat color, patterns, white spotting, eyes, fur types, ear and tail traits, genetic conditions and offspring prediction
 - Physical traits passed down as genes: saber teeth, manes, ear tufts and more
 - A custom cat maker for your main character that can pick all of it
-- A Cat Editor (turn it on in the settings) to change any cat's personality, stats, health, faith, relationships and looks
+- A Cat Editor (turn it on in the settings) to change any cat's personality, stats, skills, experience, health, faith, relationships and looks
 - Cat picking screens you can sort, search and filter by group
 - Cats with their own faith, and flirting with your mate
 - Multi clan mode (optional, picked when you make a new clan), where the other Clans have their own real cats
