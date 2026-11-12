@@ -12,11 +12,11 @@ from scripts.honor import core
 from scripts.honor.acts import ACTS, CAUSES, HONOR_LOSS
 
 # Clan trust lost when a leader's misdeed comes out, by level
-TRUST_LOSS = {"minor": (4, 6), "serious": (10, 15), "grave": (20, 30)}
-GOOD_DEED_TRUST = (1, 3)
-OMEN_TRUST_LOSS = (3, 6)
+TRUST_LOSS = {"minor": (1, 1), "serious": (2, 3), "grave": (4, 6)}
+GOOD_DEED_TRUST = (1, 1)
+OMEN_TRUST_LOSS = (1, 2)
 DRIFT_EVERY = 3
-STEADY = (-9, 9)
+STEADY = (-1, 1)
 # the chance StarClan sends the healers an omen when a leader breaks the code
 OMEN_CHANCE = {"minor": 0.10, "serious": 0.30, "grave": 0.60}
 # a leader judging a cat they feel strongly about
@@ -174,9 +174,9 @@ def decide(healer, leader) -> str:
     law = healer.personality.lawfulness / 16
     like = _like(healer, leader)
     weights = [
-        0.2 + law * 0.4 + max(0, -like) / 100 + max(0, healer.honor) / 200,
+        0.2 + law * 0.4 + max(0, -like) / 100 + max(0, healer.honor) / 18,
         0.3 + max(0, like) / 100,
-        0.05 + (1 - law) * 0.2 + max(0, -healer.honor) / 200 + max(0, like) / 200,
+        0.05 + (1 - law) * 0.2 + max(0, -healer.honor) / 18 + max(0, like) / 200,
     ]
     return weighted_choice(OMEN_OPTIONS, weights)[0]
 

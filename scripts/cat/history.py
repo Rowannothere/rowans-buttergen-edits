@@ -720,8 +720,9 @@ class History:
         )
 
         if self.cat:
-            self.cat.starclan_affinity -= 100
-            self.cat.dark_forest_affinity += 100
+            self.cat.change_faith_from_afterlife(
+                starclan_change=-100, dark_forest_change=100
+            )
 
     def reveal_murder(
         self,

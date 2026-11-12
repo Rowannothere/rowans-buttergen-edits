@@ -11,14 +11,14 @@ from scripts.game_structure import game
 from scripts.honor import core
 from scripts.honor.leader import _like, _record, _you, is_leader, texts
 
-BROKEN = -40
+BROKEN = -4
 CALL_CHANCE = 0.15
 YOU_CALL_WEIGHT = 3
 PASS_AT = 0.75
-FAILED_REPUTATION = (5, 10)
+FAILED_REPUTATION = (1, 2)
 FAILED_LIKE = (15, 25)
 FAILED_LOST_TRUST = 0.5
-REFUSED_TRUST = (3, 6)
+REFUSED_TRUST = (1, 2)
 COOLDOWN_MOONS = 12
 VOTE, GATHERING, LIVES = "vote", "gathering", "lives"
 CALL, QUIET = "call", "quiet"
@@ -75,7 +75,7 @@ def voters(leader) -> list:
 
 
 def _call_weight(cat, leader) -> float:
-    return (0.2 + cat.personality.lawfulness / 16 + max(0, cat.honor) / 50
+    return (0.2 + cat.personality.lawfulness / 16 + max(0, cat.honor) / 4.5
             + max(0, -_like(cat, leader)) / 30)
 
 
@@ -123,7 +123,7 @@ def yes_chance(cat, leader) -> float:
     rel = cat.relationships.get(leader.ID)
     trust = rel.trust if rel else 0
     respect = rel.respect if rel else 0
-    p = 0.55 + min(0.3, (BROKEN - leader.clan_trust) / 100)
+    p = 0.55 + min(0.3, (BROKEN - leader.clan_trust) / 17)
     p -= (trust + respect) / 400
     p += (cat.personality.lawfulness - 8) / 16 * 0.2
     if kin_or_friend(cat, leader):

@@ -27,8 +27,8 @@ Some parts of this section might need you to read expanded explanation because I
 |  `"pronouns": {"en":[]}, ` |  Pronouns the cat will use in text  |  Recommend changing while in game  |
 | ` "birth_cooldown": 0,  `|  Pregnancy cooldown  |  Highest is 6 unless the game_config is edited  |
 |  `"status": {[]},`  |  The standing a group status of a cat |  Please refer to expanded explanation for full details  |
-|  `"dark_forest_affinity": 0`  |  The cat's affinity towards the dark forest. -# = less likely, +# = more likely |  Influences whether the cat goes to the DF when they die  |
-|  `"starclan_affinity": 0`  |  The cat's affinity towards starclan. -# = less likely, +# = more likely |  Influences whether the cat goes to starclan when they die |
+|  `"honor": 0`  |  The cat's single score for code conduct, reputation, and Clan trust |  Integer from -9 to +9; older saves' three values are averaged and clamped when loaded |
+|  `"faith": 0`  |  The cat's afterlife alignment, from -9 (Dark Forest) to +9 (StarClan) |  Integer from -9 to +9; influences acceptance by the afterlife guide |
 | ` "backstory": "clanborn",`  |  Cat's backstory  |  Options: [Backstories documentation](https://ClanGen.io/docs/dev/writing/reference/tag-lists/#backstories)  |
 |  `"moons": 20, ` |  Age of the cat in moons  |  Age Ranges: [age & status](https://ClanGen.io/docs/dev/writing/reference/tag-lists/#age-and-status)  |
 | ` "trait": "troublesome", ` |  Cat's trait  |  Options: [trait & skills](https://ClanGen.io/docs/dev/writing/reference/tag-lists/#traits-and-skills)  |
@@ -198,13 +198,11 @@ Everything that affects status is here. It also lists previous statuses, the cla
 
 ---
 
-`"dark_forest_affinity": 0,`
+`"faith": 0,`
 
-`"starclan_affinity": 0,`
+Faith is the single afterlife-alignment stat: negative integers favor the Dark Forest, positive integers favor StarClan, and zero is neutral. Values are clamped to -9..9. Older saves with separate `starclan_affinity` and `dark_forest_affinity` values are combined into faith when loaded; those legacy fields are not written to new saves.
 
-Lago, PR 4005: "By default, a cat goes to where the guide is, but negative affinity with that afterlife may cause a cat to go to the opposite one instead. affinity is not currently modified anywhere in-game (not implemented as a feature)"
-
-Affinity can either be a negative or positive number. Negative means the cat would be *less likely* to go into the afterlife, positive is *more likely* to go into the afterlife.
+Honor is the shared code, reputation, and Clan-trust score. It is stored as an integer from -9 to +9. Older saves' available honor, reputation, and Clan-trust values are averaged and clamped when loaded; new saves only write `honor`.
 
 `"backstory": "abandoned4",`
 
@@ -534,8 +532,7 @@ Holds a template of a cat's code for copy/pasting/editing purposes. All the valu
                 }
             ]
         },
-        "dark_forest_affinity": 0,
-        "starclan_affinity": 0,
+        "faith": 0,
         "backstory": "",
         "moons": 0,
         "trait": "",
@@ -1094,4 +1091,3 @@ After removing the `"group": null` section and `"lost"`:
 ```
 
 If you're trying to manually make a cat lost, you'll just do the opposite. Add a `"group": null,` section in `"group_history"` and the `"lost"` value in your `"group": "1"` for `"standing_history"`.
-

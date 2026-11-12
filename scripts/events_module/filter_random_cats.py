@@ -355,7 +355,7 @@ def __filter_skill(abbrev_block, cat):
 def __filter_cluster(abbrev_block, cat):
     if "cluster" not in abbrev_block:
         return True
-    cluster1, cluster2 = get_cluster(cat.personality.trait)
+    cluster1, cluster2 = get_cluster(cat.personality)
     if (
         cluster1 not in abbrev_block["cluster"]
         and cluster2 not in abbrev_block["cluster"]

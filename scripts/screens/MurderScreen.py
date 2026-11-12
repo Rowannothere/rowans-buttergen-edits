@@ -2419,7 +2419,7 @@ class MurderScreen(Screens):
                     [game.clan.your_cat.ID, cat_to_murder.ID],
                 ),
             )
-            you.faith -= 0.5
+            you.faith -= 1
         elif punishment_chance == 2:
             if game.clan.your_cat.dead:
                 txt = f"After your and v_c's deaths, {accomplice.name} is blamed for both of them."
@@ -2434,7 +2434,7 @@ class MurderScreen(Screens):
                     [game.clan.your_cat.ID, accomplice.ID, cat_to_murder.ID],
                 ),
             )
-            accomplice.faith -= 0.5
+            accomplice.faith -= 1
         else:
             txt = f"The unsettling truth of v_c's death is discovered, with you and {accomplice.name} responsible. The Clan decides both of your punishments."
             txt = txt.replace("v_c", str(cat_to_murder.name))
@@ -2446,7 +2446,7 @@ class MurderScreen(Screens):
                     [game.clan.your_cat.ID, accomplice.ID, cat_to_murder.ID],
                 ),
             )
-            accomplice.faith -= 0.5
+            accomplice.faith -= 1
 
         if punishment_chance == 1 or punishment_chance == 3:
             kit_punishment = [

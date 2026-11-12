@@ -1,11 +1,16 @@
 import unittest
 from random import Random
+from types import SimpleNamespace
 
 from scripts.cat.enums import CatRank, CatCompatibility
 from scripts.cat.factories.test_cat_factory import TestCatFactory
 from scripts.cat_relations.enums import RelType
 
-from scripts.cat.cats import Cat
+from scripts.cat.cats import (
+    Cat,
+    merge_legacy_faith_and_affinity,
+    merge_legacy_honor_scores,
+)
 from scripts.cat_relations.inheritance2 import inheritance_db
 from scripts.cat_relations.relationship import Relationship
 from scripts.events_module.event_filters import (
@@ -13,8 +18,125 @@ from scripts.events_module.event_filters import (
     get_personality_compatibility,
 )
 from scripts.clan_package.get_clan_cats import get_alive_clan_queens
+from scripts.honor import core
+from scripts.lifegen_utility import get_cluster
 
 cat_factory = TestCatFactory()
+
+
+class TestPersonalityClusters(unittest.TestCase):
+    def test_clusters_use_highest_and_lowest_facets(self):
+        examples = (
+            ("stability", "sociability", "brooding"),
+            ("stability", "lawfulness", "cool"),
+            ("stability", "aggression", "stable"),
+            ("sociability", "stability", "unabashed"),
+            ("sociability", "lawfulness", "silly"),
+            ("sociability", "aggression", "sweet"),
+            ("lawfulness", "stability", "neurotic"),
+            ("lawfulness", "sociability", "introspective"),
+            ("lawfulness", "aggression", "upstanding"),
+            ("aggression", "stability", "hotheaded"),
+            ("aggression", "sociability", "assertive"),
+            ("aggression", "lawfulness", "unlawful"),
+        )
+        for highest, lowest, expected in examples:
+            with self.subTest(highest=highest, lowest=lowest):
+                facets = {
+                    "stability": 8,
+                    "sociability": 8,
+                    "lawfulness": 8,
+                    "aggression": 8,
+                }
+                facets[highest] = 16
+                facets[lowest] = 0
+                self.assertEqual(get_cluster(SimpleNamespace(**facets)), (expected, ""))
+
+    def test_equal_facets_use_stable_fallback(self):
+        personality = SimpleNamespace(
+            stability=8,
+            sociability=8,
+            lawfulness=8,
+            aggression=8,
+        )
+        self.assertEqual(get_cluster(personality), ("stable", ""))
+
+
+class TestFaithMigration(unittest.TestCase):
+    def test_saves_only_unified_faith(self):
+        cat = cat_factory.create_cat(disable_random=True)
+        cat.faith = 2.8
+        cat_data = cat.get_save_dict()
+
+        self.assertIn("faith", cat_data)
+        self.assertEqual(cat_data["faith"], 3)
+        self.assertIsInstance(cat_data["faith"], int)
+        self.assertNotIn("starclan_affinity", cat_data)
+        self.assertNotIn("dark_forest_affinity", cat_data)
+
+    def test_merges_legacy_affinities_into_faith(self):
+        self.assertEqual(merge_legacy_faith_and_affinity(1, 20, 0), 3)
+        self.assertEqual(merge_legacy_faith_and_affinity(1, 0, 20), -1)
+
+    def test_clamps_merged_faith(self):
+        self.assertEqual(merge_legacy_faith_and_affinity(8, 100, -100), 9)
+        self.assertEqual(merge_legacy_faith_and_affinity(-8, -100, 100), -9)
+
+    def test_cat_faith_is_integer_and_bounded(self):
+        cat = cat_factory.create_cat(disable_random=True)
+        cat.faith = 3.6
+        self.assertEqual(cat.faith, 4)
+        self.assertIsInstance(cat.faith, int)
+
+        cat.faith = -50.2
+        self.assertEqual(cat.faith, -9)
+
+
+class TestHonorScoreUnification(unittest.TestCase):
+    def test_legacy_scores_are_averaged(self):
+        self.assertEqual(merge_legacy_honor_scores(3, 6, 9), 6)
+        self.assertEqual(merge_legacy_honor_scores(None, 3, None), 3)
+
+    def test_legacy_score_is_clamped(self):
+        self.assertEqual(merge_legacy_honor_scores(100, 100, 100), 9)
+        self.assertEqual(merge_legacy_honor_scores(-100, -100, -100), -9)
+
+    def test_reputation_and_trust_share_honor(self):
+        cat = cat_factory.create_cat(disable_random=True)
+        cat.reputation = 35
+        self.assertEqual(cat.honor, 9)
+        self.assertEqual(cat.clan_trust, 9)
+
+        cat.clan_trust = -12
+        self.assertEqual(cat.honor, -9)
+        self.assertEqual(cat.reputation, -9)
+
+    def test_honor_is_integer_and_bounded(self):
+        cat = cat_factory.create_cat(disable_random=True)
+        cat.honor = 2.7
+        self.assertEqual(cat.honor, 3)
+        self.assertIsInstance(cat.honor, int)
+
+        cat.honor = -20.4
+        self.assertEqual(cat.honor, -9)
+
+    def test_reputation_and_trust_changes_share_honor(self):
+        cat = cat_factory.create_cat(disable_random=True)
+        core.change_reputation(cat, 5)
+        core.change_clan_trust(cat, -8)
+        self.assertEqual(cat.honor, -3)
+        self.assertEqual(cat.reputation, -3)
+        self.assertEqual(cat.clan_trust, -3)
+
+    def test_saves_only_one_honor_score(self):
+        cat = cat_factory.create_cat(disable_random=True)
+        cat.honor = 2.8
+        cat_data = cat.get_save_dict()
+        self.assertIn("honor", cat_data)
+        self.assertEqual(cat_data["honor"], 3)
+        self.assertIsInstance(cat_data["honor"], int)
+        self.assertNotIn("reputation", cat_data)
+        self.assertNotIn("clan_trust", cat_data)
 
 
 class TestPersonalityCompatibility(unittest.TestCase):

@@ -14,7 +14,6 @@ from scripts.cat.factories.typed_dicts import (
     CatTogglesDict,
     GenderDict,
     InheritanceDict,
-    AfterlifeAffinityDict,
 )
 from scripts.cat.history import History
 from scripts.cat.names import Name
@@ -126,11 +125,6 @@ class LoadCatFactory(BaseCatFactory):
             CatAge.get_from_moons(kwargs["moons"]),
         )
 
-        affinity = AfterlifeAffinityDict(
-            starclan=kwargs.get("starclan_affinity", 0),
-            dark_forest=kwargs.get("dark_forest_affinity", 0),
-        )
-
         cat_params = {
             "ID": cls.cat_id,
             "gender_dict": gender,
@@ -150,7 +144,6 @@ class LoadCatFactory(BaseCatFactory):
             ),
             "mentorship": mentorship,
             "inheritance": inheritance,
-            "affinity": affinity,
             "toggles": toggles,
             "experience": kwargs.get("experience"),
             "birth_cooldown": kwargs.get("birth_cooldown", 0),

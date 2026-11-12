@@ -465,7 +465,8 @@ def _one_moon_impl():
                     game.cur_events_list.append(
                         EventInformation(text, ["birth_death", "relation"], cats, clan=Cat.fetch_cat(cat_id).status.group_ID)
                     )
-                    Cat.fetch_cat(cat_id).faith += round(random.uniform(0, 0.4), 2)
+                    if random.random() < 0.2:
+                        Cat.fetch_cat(cat_id).faith += 1
 
         game.clan.grief_strings.clear()
 
@@ -1132,7 +1133,8 @@ def generate_dialogue_focus():
         for clan_cat in game.clan.clan_cats:
             clan_cat_cat = Cat.fetch_cat(clan_cat)
             if clan_cat_cat:
-                clan_cat_cat.faith += round(random.uniform(0, 0.4), 2)
+                if random.random() < 0.2:
+                    clan_cat_cat.faith += 1
 
     # Handle lost focus for focuses that have set duration
     if (
@@ -3392,8 +3394,9 @@ def one_moon_cat(cat, clan):
     if weekskip.big_event_roll():
         handle_murder(cat, clan)
     # faith slowly settles back towards where this cat leans, so the clan doesn't all end up the same
-    cat.faith += (cat.faith_leaning() - cat.faith) * 0.12 + random.uniform(-0.3, 0.3)
-    cat.faith = round(max(-9, min(9, cat.faith)), 2)
+    cat.faith += round(
+        (cat.faith_leaning() - cat.faith) * 0.12 + random.uniform(-0.3, 0.3)
+    )
 
     switch_set_value(Switch.skip_conditions, [])
 

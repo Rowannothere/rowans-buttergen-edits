@@ -3,11 +3,6 @@ from typing import TypedDict, Optional, List, Dict, Literal
 from scripts.cat.enums import CatSocial, CatRank, CatAge
 
 
-class AfterlifeAffinityDict(TypedDict):
-    starclan: int
-    dark_forest: int
-
-
 class CatTogglesDict(TypedDict):
     no_kits: bool
     no_mates: bool

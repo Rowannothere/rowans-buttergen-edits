@@ -266,13 +266,11 @@ Lead ceremony texts are in game folder > resources > lang > en > events
 
 ## afterlife_acceptance
 
-Added in 0.13, this part of the history doesn't have an implemented feature just yet (purely flavor text until further notice). It is connected to the clan_cats.json afterlife affinity's.
+Added in 0.13, this part of the history records the cat's afterlife placement and acceptance.
 
 afterlife_acceptance text and their ID's are found in [afterlife.en.json](https://github.com/ClanGenOfficial/ClanGen/blob/development/resources/lang/en/cat/afterlife.en.json)
 
-Based on the cat's afterlife affinity's in clan_cats.json and if they're a kitten rank, they'll generate with an "afterlife_acceptance" text when they die.
-
-- Until the feature is fleshed out in how affinity is applied, the cats will get default texts based on where the afterlife guide currently is (starclan or dark forest)
+The cat's faith alignment, relevant afterlife skill, and the Clan's afterlife guide determine whether the cat is accepted or rejected when they die. Kittens are automatically accepted.
 
 `"afterlife_acceptance": "starclan_default_2"` 
 

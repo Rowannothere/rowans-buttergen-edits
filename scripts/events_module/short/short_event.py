@@ -407,7 +407,7 @@ class ShortEvent:
 
         # affect affinity
         if "murder" in self.sub_type:
-            self.random_cat.change_affinity(
+            self.random_cat.change_faith_from_afterlife(
                 starclan_change=get_config("affinity.murder.starclan_change"),
                 dark_forest_change=get_config("affinity.murder.dark_forest_change"),
             )

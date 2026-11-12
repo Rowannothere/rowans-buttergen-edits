@@ -94,7 +94,7 @@ def _worst_grudge(cat):
 def build(cat, scale: float):
     """adds this skip's temptation. scale is 1 for a moon, a quarter for a week"""
     t = cat.temptation
-    honor_mult = 1 - cat.honor / 200
+    honor_mult = 1 - cat.honor / 18
     pile = getattr(game.clan, "freshkill_pile", None)
     hunger = 0
     if pile is not None and not pile.clan_has_enough_food():
@@ -109,7 +109,7 @@ def build(cat, scale: float):
     grudge = min(12, dislike / 5) if dislike > 30 else 0
     restless = 1 + max(0, 9 - cat.personality.lawfulness) * 1.2 + (3 if cat.moons < 18 else 0)
     dark = (8 if cat.joined_df else 0) + (4 if cat.lock_faith == "dark forest" else 0)
-    dark += 3 if cat.dark_forest_affinity > cat.starclan_affinity else 0
+    dark += 3 if cat.get_effective_faith() < 0 else 0
     if cat.status.rank == CatRank.DEPUTY:
         # step 8c: Anything For The Throne, while the leader's trust is broken
         from scripts.honor.challenge import broken
@@ -120,7 +120,7 @@ def build(cat, scale: float):
     gains = {HUNGER: hunger, LONGING: longing, GRUDGE: grudge, RESTLESS: restless, DARK: dark}
     for cause, amount in gains.items():
         t[cause] = min(MAX_TEMPTATION, t.get(cause, 0) + amount * scale * honor_mult)
-    duty = 2 + cat.personality.lawfulness * 0.8 + max(0, cat.honor) / 15
+    duty = 2 + cat.personality.lawfulness * 0.8 + max(0, cat.honor) / 3
     t[DUTY] = min(MAX_TEMPTATION, t.get(DUTY, 0) + duty * scale)
 
 

@@ -22,12 +22,12 @@ dev_tools = false
     # set to true to also kill a random cat when the leader dies
     stolen_vitality = false
 
-# settings regarding afterlife affinity
+# Afterlife settings. The affinity-named change values adjust the unified faith alignment.
 [affinity]
-  # controls how much an affinity change is affected by the cat's compatibility with the afterlife
+  # controls how much an afterlife alignment change is affected by personality compatibility
   base_compatibility_multiplier = 0.5
 
-  # how affinities are affected by a cat murdering another
+  # how a cat's alignment changes after murdering another cat
   [affinity.murder]
     starclan_change = -40
     dark_forest_change = 20

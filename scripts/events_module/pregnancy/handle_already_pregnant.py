@@ -1,4 +1,4 @@
-from random import choices, choice, randint, random, uniform, sample
+from random import choices, choice, randint, random, sample
 from typing import Optional, Dict, List
 
 import i18n
@@ -440,7 +440,8 @@ def handle_two_moon_pregnant(cat: Cat, clan):
             clan_cat_cat = Cat.fetch_cat(clan_cat)
             if clan_cat_cat:
                 # a birth lifts everyone's faith a little, not all the way to the top
-                clan_cat_cat.faith = min(9, clan_cat_cat.faith + round(uniform(0, 0.25), 2))
+                if random() < 0.125:
+                    clan_cat_cat.faith += 1
 
     # display event
     game.cur_events_list.append(

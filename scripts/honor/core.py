@@ -1,22 +1,23 @@
-"""BUTTERGEN: honor, reputation and Clan trust, the base of the honor system."""
+"""BUTTERGEN: shared honor score for code conduct, reputation, and Clan trust."""
 
 from scripts.cat.enums import CatRank
 from scripts.clan_package.settings import get_clan_setting
 from scripts.config import get_config
 from scripts.game_structure.localization import load_lang_resource
 
-LOW, HIGH = -100, 100
+LOW, HIGH = -9, 9
 
 # the ranks whose Clan trust matters
 TRUST_RANKS = (CatRank.LEADER, CatRank.DEPUTY, CatRank.MEDICINE_CAT)
 
 # label cutoffs, highest first: at or above the number gets the label
-HONOR_LABELS = ((40, "honorable"), (10, "trustworthy"), (-9, "unremarkable"), (-39, "questionable"))
+HONOR_LABELS = (
+    (4, "honorable"),
+    (1, "trustworthy"),
+    (-1, "unremarkable"),
+    (-4, "questionable"),
+)
 HONOR_LOWEST = "dishonored"
-REPUTATION_LABELS = ((40, "respected"), (10, "trusted"), (-9, "unremarkable"), (-39, "doubted"))
-REPUTATION_LOWEST = "disgraced"
-TRUST_LABELS = ((40, "unwavering"), (10, "firm"), (-9, "steady"), (-39, "shaken"))
-TRUST_LOWEST = "broken"
 
 
 def texts() -> dict:
@@ -32,11 +33,11 @@ def change_honor(cat, amount):
 
 
 def change_reputation(cat, amount):
-    cat.reputation = clamp(cat.reputation + amount)
+    change_honor(cat, amount)
 
 
 def change_clan_trust(cat, amount):
-    cat.clan_trust = clamp(cat.clan_trust + amount)
+    change_honor(cat, amount)
 
 
 def has_clan_trust(cat) -> bool:
@@ -63,32 +64,25 @@ def honor_label(cat) -> str:
     return _label(cat.honor, HONOR_LABELS, HONOR_LOWEST, "honor")
 
 
-def reputation_label(cat) -> str:
-    return _label(cat.reputation, REPUTATION_LABELS, REPUTATION_LOWEST, "reputation")
-
-
-def trust_label(cat) -> str:
-    return _label(cat.clan_trust, TRUST_LABELS, TRUST_LOWEST, "clan_trust")
-
-
 def with_number(label, value) -> str:
     """the label with its number, so small changes show: unremarkable (+6)"""
     return f"{label} ({int(value):+d})"
 
 
 def profile_lines(cat) -> str:
-    """the lines for the profile, each ending in a newline, or "" when the cat shows none"""
+    """The honor line for the profile, or "" when it does not apply."""
     if not has_honor(cat):
         return ""
     profile = texts()["profile"]
     from scripts.honor.judgment import profile_note
 
-    out = profile["honor_line"].replace("%{honor}", with_number(honor_label(cat), cat.honor)).replace(
-        "%{reputation}", with_number(reputation_label(cat), cat.reputation)
-    ) + profile_note(cat) + "\n"
-    if has_clan_trust(cat):
-        out += profile["trust_line"].replace("%{trust}", with_number(trust_label(cat), cat.clan_trust)) + "\n"
-    return out
+    return (
+        profile["honor_line"].replace(
+            "%{honor}", with_number(honor_label(cat), cat.honor)
+        )
+        + profile_note(cat)
+        + "\n"
+    )
 
 
 def code_frequency() -> str:

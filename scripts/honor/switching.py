@@ -133,11 +133,11 @@ def pull(cat, target) -> float:
     # pushes them out (only your Clan tracks honor)
     if cat.status.group_ID == home_group():
         leader = game.clan.leader
-        if cat.reputation < -20:
+        if cat.reputation < -2:
             score += 3
         if leader and leader is not cat and _like(cat, leader) < -30:
             score += 3
-        if leader and leader is not cat and leader.clan_trust <= -40:
+        if leader and leader is not cat and leader.clan_trust <= -4:
             score += 3
     score += max(0, 8 - cat.personality.lawfulness) / 8 * 1.5
     # keeps them home
@@ -179,7 +179,7 @@ def accept_chance(cat, target, bonus=0) -> int:
     if skill and getattr(skill, "tier", 0) >= 2:
         chance += 5
     if cat.status.group_ID == home_group():
-        chance += max(-10, min(10, cat.reputation // 5))
+        chance += max(-10, min(10, cat.reputation))
     return max(ACCEPT_LOW, min(ACCEPT_HIGH, chance))
 
 
@@ -258,7 +258,7 @@ def refused(cat, target):
 
 def _skill_bonus(cat, task) -> int:
     if task == "loyalty":
-        return int(max(0, cat.honor) * TASK_SKILL / 100)
+        return int(max(0, cat.honor) * TASK_SKILL / 9)
     paths = TASK_SKILLS.get(task, ())
     best = 0
     for skill in (cat.skills.primary, cat.skills.secondary):
@@ -276,7 +276,7 @@ def decide_effort(cat) -> str:
 
 
 def decide_told(cat) -> str:
-    keep = 0.5 + max(0, cat.honor) / 200 + cat.personality.lawfulness / 16 * 0.3
+    keep = 0.5 + max(0, cat.honor) / 18 + cat.personality.lawfulness / 16 * 0.3
     if random() < keep:
         return "refuse"
     return "little" if random() < 0.7 else "all"
@@ -346,7 +346,7 @@ def move(cat, target):
     other_clan = clan_of_group(target if target != home_group() else old)
     if other_clan is not None and other_clan is not game.clan:
         cotc.change_clan_relations(game.clan, other_clan, -1)
-    core.change_honor(cat, randint(2, 4))
+    core.change_honor(cat, randint(1, 2))
     if old == home_group() and cat.status.rank == CatRank.MEDICINE_CAT:
         game.clan.remove_med_cat(cat)
     cat.history.add_beginning(False)

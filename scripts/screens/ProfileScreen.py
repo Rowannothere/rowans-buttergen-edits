@@ -26,7 +26,7 @@ from scripts.cat.sprites.load_sprites import sprites
 from scripts.cat.sprites.display_sprites import calculate_size
 from ..cat.enums import CatAge, CatRank, CatGroup
 from scripts.cat.pelts import Pelt
-
+from scripts.lifegen_utility import get_cluster
 from scripts.clan_resources.freshkill import FRESHKILL_ACTIVE
 from scripts.events import handle_fading
 from scripts.clan_package.settings import get_clan_setting
@@ -36,10 +36,10 @@ from scripts.events import update_afterlife_temper
 from scripts.events_module.text_adjust import (
     event_text_adjust,
     adjust_list_text,
-    pronoun_repl,
     shorten_text_to_fit,
     adjust_list_text,
     process_text,
+    pronoun_repl,
 )
 from scripts.events_module.thoughts.generate_thoughts import get_new_thought
 from scripts.game_input import INPUT_ACTION_PRESSED, Action
@@ -68,7 +68,6 @@ from scripts.ui.windows.change_cat_name import ChangeCatNameWindow
 from scripts.ui.windows.change_cat_toggles import CatToggleWindow
 from scripts.ui.windows.cruel_locked_action import CruelLockedAction
 from scripts.ui.windows.kill_cat import KillCat
-from ..ui.windows.cat_editor import CatEditorWindow
 from ..ui.windows.cat_stat_editor import CatStatEditorWindow
 from ..cat_editor_logic import editor_enabled
 from ..housekeeping.datadir import get_save_dir
@@ -79,7 +78,6 @@ from ..ui.windows.leave_clan import LeaveClanWindow
 from scripts.cat.sprites.display_sprites import generate_sprite
 from scripts.cat.skills import SkillPath
 from scripts.events_module.pregnancy.check_parents import check_if_can_have_kits
-from scripts.lifegen_utility import get_cluster
 
 
 # ---------------------------------------------------------------------------- #
@@ -173,10 +171,8 @@ class ProfileScreen(Screens):
         self.cat_thought = None
         self.cat_name = None
         self.placeholder_tab_4 = None
-        self.placeholder_tab_3 = None
         self.placeholder_tab_2 = None
-        self.faith_bar = None
-        self.faith_edit_button = None
+        self.placeholder_tab_3 = None
         self.edit_cat_button = None
         self.your_tab = None
         self.backstory_tab_button = None
@@ -206,7 +202,6 @@ class ProfileScreen(Screens):
         self.previous_search_text = "search"
         self.cat_list_buttons = None
         self.search_inventory = []
-        self.faith_text = None
 
         # LG: all accs
         self.cat_inventory = []
@@ -392,14 +387,6 @@ class ProfileScreen(Screens):
                 self.toggle_conditions_tab()
             elif event.ui_element == self.accessories_tab_button:
                 self.toggle_accessories_tab()
-            elif event.ui_element == self.placeholder_tab_3:
-                self.toggle_faith_tab()
-            elif self.faith_edit_button and event.ui_element == self.faith_edit_button:
-                CatEditorWindow(
-                    self.the_cat,
-                    section="faith",
-                    on_close=self.refresh_after_faith_edit,
-                )
             elif event.ui_element == self.previous_page_button:
                 if self.page > 0:
                     self.page -= 1
@@ -634,8 +621,6 @@ class ProfileScreen(Screens):
                     self.request_apprentice_button.disable()
             elif event.ui_element == self.gift_accessory_button:
                 self.change_screen(GameScreen.GIFT)
-            elif event.ui_element == self.your_faith_button:
-                self.toggle_faith_tab()
         # Dangerous Tab
         elif self.open_tab == "dangerous":
             if event.ui_element == self.kill_cat_button:
@@ -914,11 +899,12 @@ class ProfileScreen(Screens):
 
         self.placeholder_tab_3 = UISurfaceImageButton(
             ui_scale(pygame.Rect((400, 622), (176, 30))),
-            "faith",
+            "",
             get_button_dict(ButtonStyles.PROFILE_MIDDLE, (176, 30)),
             object_id="@buttonstyles_profile_middle",
             manager=MANAGER,
         )
+        self.placeholder_tab_3.disable()
 
         self.accessories_tab_button = UISurfaceImageButton(
             ui_scale(pygame.Rect((576, 622), (176, 30))),
@@ -969,9 +955,9 @@ class ProfileScreen(Screens):
         self.dangerous_tab_button.kill()
         self.backstory_tab_button.kill()
         self.conditions_tab_button.kill()
+        self.placeholder_tab_3.kill()
         if self.your_tab:
             self.your_tab.kill()
-        self.placeholder_tab_3.kill()
         self.accessories_tab_button.kill()
         self.inspect_button.kill()
         self.close_current_tab()
@@ -1343,10 +1329,6 @@ class ProfileScreen(Screens):
         self.place_work_buttons()
 
         if self.the_cat.ID == game.clan.your_cat.ID and not game.clan.your_cat.dead:
-            if self.open_tab == "faith":
-                self.close_current_tab()
-            self.placeholder_tab_3.kill()
-
             self.your_tab = UISurfaceImageButton(
                 ui_scale(pygame.Rect((400, 622), (176, 30))),
                 "your tab",
@@ -1358,30 +1340,6 @@ class ProfileScreen(Screens):
         else:
             if self.open_tab == "your tab":
                 self.close_current_tab()
-            if self.open_tab == "faith" and (
-                self.the_cat.dead
-                or self.the_cat.status.is_outsider
-                or self.the_cat.moons < 6
-            ):
-                self.close_current_tab()
-            self.placeholder_tab_3.kill()
-            self.placeholder_tab_3 = None
-
-            self.placeholder_tab_3 = UISurfaceImageButton(
-                ui_scale(pygame.Rect((400, 622), (176, 30))),
-                "faith",
-                get_button_dict(ButtonStyles.PROFILE_MIDDLE, (176, 30)),
-                object_id="@buttonstyles_profile_middle",
-                manager=MANAGER,
-            )
-            if (
-                self.the_cat.dead
-                or self.the_cat.status.is_outsider
-                or self.the_cat.moons < 6
-            ):
-                self.placeholder_tab_3.disable()
-            else:
-                self.placeholder_tab_3.enable()
 
     def generate_column1(self, the_cat):
         """Generate the left column information"""
@@ -1740,11 +1698,6 @@ class ProfileScreen(Screens):
         # NEWLINE ----------
         output += "\n"
 
-        # BUTTERGEN: honor, reputation and the Clan's trust (labels only, numbers are in the editor)
-        from scripts.honor.core import profile_lines
-
-        output += profile_lines(the_cat)
-
         # NUTRITION INFO (if the game is in the correct mode)
         if (
             game.clan.game_mode in ["expanded", "cruel_season"]
@@ -2050,13 +2003,64 @@ class ProfileScreen(Screens):
 
         self.update_disabled_buttons_and_text()
 
+    def get_faith_text(self):
+        faith_dict = {}
+        with open("resources/dicts/faith_display.json", "r") as read_file:
+            faith_dict = ujson.loads(read_file.read())
+            cluster1, cluster2 = get_cluster(self.the_cat.personality)
+
+        faith_text = ""
+        if self.the_cat.faith == 0:
+            faith_text = faith_dict[str(self.the_cat.faith)]["All"]
+        else:
+            faith_text = faith_dict[str(self.the_cat.faith)][str(cluster1)]
+
+        process_text_dict = {}
+        process_text_dict["m_c"] = self.the_cat
+        for abbrev in process_text_dict.keys():
+            abbrev_cat = process_text_dict[abbrev]
+            process_text_dict[abbrev] = (abbrev_cat, choice(abbrev_cat.pronouns))
+        faith_text = sub(
+            r"\{(.*?)\}",
+            lambda x: pronoun_repl(x, process_text_dict, False),
+            faith_text,
+        )
+
+        return faith_text
+
+    def get_honor_text(self):
+        honor_dict = {}
+        with open("resources/dicts/honor_display.json", "r") as read_file:
+            honor_dict = ujson.loads(read_file.read())
+            cluster1, cluster2 = get_cluster(self.the_cat.personality)
+
+        honor_text = ""
+        if self.the_cat.honor == 0:
+            honor_text = honor_dict[str(self.the_cat.honor)]["All"]
+        else:
+            honor_text = honor_dict[str(self.the_cat.honor)][str(cluster1)]
+
+        process_text_dict = {}
+        process_text_dict["m_c"] = self.the_cat
+        for abbrev in process_text_dict.keys():
+            abbrev_cat = process_text_dict[abbrev]
+            process_text_dict[abbrev] = (abbrev_cat, choice(abbrev_cat.pronouns))
+        honor_text = sub(
+            r"\{(.*?)\}",
+            lambda x: pronoun_repl(x, process_text_dict, False),
+            honor_text,
+        )
+
+        return honor_text
+
     def build_dev_info_list(self):
         self.info_list = ""
 
         ### General
         self.info_list += f"ID: {self.the_cat.ID}\n"
         self.info_list += f"Personality Facets: Lawfulness ({self.the_cat.personality.lawfulness}), Sociability ({self.the_cat.personality.sociability}), Aggression ({self.the_cat.personality.aggression}), Stability ({self.the_cat.personality.stability})\n"
-        self.info_list += f"StarClan affinity: {self.the_cat.starclan_affinity}, Dark Forest affinity: {self.the_cat.dark_forest_affinity}\n"
+        self.info_list += f"Faith: {self.get_faith_text()}\n"
+        self.info_list += f"Honor: {self.get_honor_text()}\n"
 
         if self.the_cat.pelt.scars:
             self.info_list += f"Scars: {self.the_cat.pelt.scars}\n"
@@ -3072,62 +3076,6 @@ class ProfileScreen(Screens):
         text = "<br><br>".join(text_list)
         return text
 
-    def toggle_faith_tab(self):
-        """Opens faith tab"""
-        previous_open_tab = self.open_tab
-        self.close_current_tab()
-
-        if previous_open_tab == "faith":
-            pass
-        else:
-            self.open_tab = "faith"
-            rect = ui_scale(pygame.Rect((0, 0), (620, 157)))
-            rect.bottomleft = ui_scale_offset((89, 0))
-            self.backstory_background = pygame_gui.elements.UIImage(
-                rect,
-                get_box(
-                    BoxStyles.ROUNDED_BOX, (620, 157), sides=(True, True, False, True)
-                ),
-                anchors={
-                    "bottom": "bottom",
-                    "bottom_target": self.conditions_tab_button,
-                },
-            )
-            self.backstory_background.disable()
-            self.open_faith_tab()
-            self.update_disabled_buttons_and_text()
-
-    def open_faith_tab(self):
-        if self.faith_bar and self.faith_text:
-            self.faith_bar.kill()
-            self.faith_text.kill()
-        cat_faith = round(self.the_cat.get_effective_faith())
-        self.faith_bar = pygame_gui.elements.UIImage(
-            ui_scale(pygame.Rect((175, 500), (421, 39))),
-            image_cache.load_image(
-                f"resources/images/faith{cat_faith}.png"
-            ).convert_alpha(),
-        )
-        self.faith_bar.disable()
-        if self.faith_edit_button:
-            self.faith_edit_button.kill()
-            self.faith_edit_button = None
-        if editor_enabled():
-            self.faith_edit_button = UISurfaceImageButton(
-                ui_scale(pygame.Rect((606, 500), (98, 30))),
-                "edit faith",
-                get_button_dict(ButtonStyles.SQUOVAL, (98, 30)),
-                object_id="@buttonstyles_squoval",
-                starting_height=3,
-                manager=MANAGER,
-            )
-        self.faith_text = pygame_gui.elements.UITextBox(
-            self.get_faith_text(cat_faith),
-            ui_scale(pygame.Rect((175, 535), (425, 75))),
-            object_id="#text_box_26_horizleft_pad_10_14",
-            manager=MANAGER,
-        )
-
     def refresh_after_stat_edit(self):
         """Redraw the profile after the edit cat window closed, keeping the personal tab open."""
         self.clear_profile()
@@ -3135,43 +3083,6 @@ class ProfileScreen(Screens):
         if self.open_tab != "personal":
             self.toggle_personal_tab()
         self.update_disabled_buttons_and_text()
-
-    def refresh_after_faith_edit(self):
-        """Redraw the profile after the faith editor closed."""
-        was_open = self.open_tab == "faith"
-        self.clear_profile()
-        self.build_profile()
-        if was_open and self.open_tab != "faith":
-            # rebuilding the profile closes the tab for your own cat, so open it again
-            self.toggle_faith_tab()
-        elif self.open_tab == "faith":
-            self.open_faith_tab()
-        self.update_disabled_buttons_and_text()
-
-    def get_faith_text(self, faith):
-        faith_dict = {}
-        with open("resources/dicts/faith_display.json", "r") as read_file:
-            faith_dict = ujson.loads(read_file.read())
-            cluster1, cluster2 = get_cluster(self.the_cat.personality.trait)
-
-        faith_text = ""
-        if faith == 0:
-            faith_text = faith_dict[str(faith)]["All"]
-        else:
-            faith_text = faith_dict[str(faith)][str(cluster1)]
-
-        process_text_dict = {}
-        process_text_dict["m_c"] = self.the_cat
-        for abbrev in process_text_dict.keys():
-            abbrev_cat = process_text_dict[abbrev]
-            process_text_dict[abbrev] = (abbrev_cat, choice(abbrev_cat.pronouns))
-        faith_text = sub(
-            r"\{(.*?)\}",
-            lambda x: pronoun_repl(x, process_text_dict, False),
-            faith_text,
-        )
-
-        return faith_text
 
     def toggle_accessories_tab(self):
         """Opens accessories tab"""
@@ -3364,7 +3275,6 @@ class ProfileScreen(Screens):
             self.have_kits_button = None
             self.request_apprentice_button = None
             self.gift_accessory_button = None
-            self.your_faith_button = None
             self.update_disabled_buttons_and_text()
 
     def toggle_roles_tab(self):
@@ -3672,7 +3582,6 @@ class ProfileScreen(Screens):
                 self.have_kits_button,
                 self.request_apprentice_button,
                 self.gift_accessory_button,
-                self.your_faith_button,
             ):
                 if old_button:
                     old_button.kill()
@@ -3738,24 +3647,6 @@ class ProfileScreen(Screens):
                 self.gift_accessory_button.enable()
             else:
                 self.gift_accessory_button.disable()
-
-            self.your_faith_button = UISurfaceImageButton(
-                ui_scale(pygame.Rect((402, 472), (172, 36))),
-                "faith",
-                get_button_dict(ButtonStyles.LADDER_TOP, (172, 36)),
-                object_id="@buttonstyles_ladder_top",
-                starting_height=2,
-                manager=MANAGER,
-                anchors={"bottom_target": self.gift_accessory_button},
-            )
-            if (
-                not self.the_cat.age.is_baby()
-                and not self.the_cat.dead
-                and not self.the_cat.status.is_outsider
-            ):
-                self.your_faith_button.enable()
-            else:
-                self.your_faith_button.disable()
 
             if switch_get_value(Switch.request_apprentice):
                 self.request_apprentice_button.disable()
@@ -3911,9 +3802,6 @@ class ProfileScreen(Screens):
                 self.delete_accessory.enable()
 
             self.open_accessories()
-        elif self.open_tab == "faith":
-            self.open_faith_tab()
-
         # History Tab:
         elif self.open_tab == "history":
             # show/hide fav tab star
@@ -4097,13 +3985,6 @@ class ProfileScreen(Screens):
             self.search_bar_image.kill()
             self.search_bar.kill()
             self.previous_search_text = "search"
-        elif self.open_tab == "faith":
-            self.backstory_background.kill()
-            self.faith_bar.kill()
-            self.faith_text.kill()
-            if self.faith_edit_button:
-                self.faith_edit_button.kill()
-                self.faith_edit_button = None
         elif self.open_tab == 'your tab':
             if self.have_kits_button:
                 self.have_kits_button.kill()
@@ -4111,9 +3992,6 @@ class ProfileScreen(Screens):
                 self.request_apprentice_button.kill()
             if self.gift_accessory_button:
                 self.gift_accessory_button.kill()
-            if self.your_faith_button:
-                self.your_faith_button.kill()
-
         elif self.open_tab == "conditions":
             self.left_conditions_arrow.kill()
             self.right_conditions_arrow.kill()

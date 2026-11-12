@@ -11,7 +11,11 @@ import os
 import ujson
 
 from scripts.cat.old_save_looks import clean_old_looks
-from scripts.cat.cats import Cat
+from scripts.cat.cats import (
+    Cat,
+    merge_legacy_faith_and_affinity,
+    merge_legacy_honor_scores,
+)
 from scripts.cat.pelts import Pelt
 from scripts.cat.sprites.load_sprites import sprites
 from scripts.cat.sprites.sprite_names import sprite_names
@@ -67,10 +71,6 @@ LIFEGEN_SAVED_FIELDS = (
     "df_patrols",
     "df_join_moon",
     "graduated_df",
-    # BUTTERGEN: the honor system, old saves start at 0
-    "honor",
-    "reputation",
-    "clan_trust",
     "temptation",
     "code_done",
     "code_record",
@@ -695,6 +695,20 @@ def json_load(version_info: dict):
                 if field in cat_dict:
                     value = cat_dict[field]
                     setattr(cat, field, list(value) if isinstance(value, list) else value)
+            if "starclan_affinity" in cat_dict or "dark_forest_affinity" in cat_dict:
+                cat.faith = merge_legacy_faith_and_affinity(
+                    cat_dict.get("faith", 0),
+                    cat_dict.get("starclan_affinity", 0),
+                    cat_dict.get("dark_forest_affinity", 0),
+                )
+            if any(
+                field in cat_dict for field in ("honor", "reputation", "clan_trust")
+            ):
+                cat.honor = merge_legacy_honor_scores(
+                    cat_dict.get("honor"),
+                    cat_dict.get("reputation"),
+                    cat_dict.get("clan_trust"),
+                )
             Cat.all_cats[cat.ID] = cat
             all_cats.append(cat)
 

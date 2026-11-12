@@ -33,7 +33,6 @@ from scripts.cat.factories.typed_dicts import (
     MentorshipDict,
     CatTogglesDict,
     InheritanceDict,
-    AfterlifeAffinityDict,
     GenderDict,
 )
 from scripts.cat.history import History
@@ -76,6 +75,26 @@ from scripts.clan_package.get_clan_cats import find_alive_cats_with_rank
 
 if TYPE_CHECKING:
     import pygame
+
+
+def merge_legacy_faith_and_affinity(
+    faith: float, starclan_affinity: float, dark_forest_affinity: float
+) -> int:
+    """Convert the old separate values to the single signed faith alignment."""
+    alignment = faith + (starclan_affinity - dark_forest_affinity) / 10
+    return max(-9, min(9, int(round(alignment))))
+
+
+def merge_legacy_honor_scores(
+    honor: Optional[float] = None,
+    reputation: Optional[float] = None,
+    clan_trust: Optional[float] = None,
+) -> int:
+    """Combine legacy honor, reputation, and trust values into one score."""
+    scores = [value for value in (honor, reputation, clan_trust) if value is not None]
+    if not scores:
+        return 0
+    return max(-9, min(9, int(round(sum(scores) / len(scores)))))
 
 
 class Cat:
@@ -162,7 +181,6 @@ class Cat:
         personality: Personality,
         mentorship: MentorshipDict,
         inheritance: InheritanceDict,
-        affinity: AfterlifeAffinityDict,
         toggles: CatTogglesDict,
         experience: int,
         birth_cooldown: int,
@@ -185,7 +203,6 @@ class Cat:
         :param personality: Personality object
         :param mentorship: MentorshipDict containing mentor data and apprentice data, including former for both
         :param inheritance: Inheritance object
-        :param affinity: AffinityDict containing starclan & dark forest affinity values
         :param toggles: Dict of cat-related behavior toggles
         :param experience: Cat's experience value
         :param birth_cooldown: How many moons that must pass before this cat can give birth again
@@ -248,13 +265,8 @@ class Cat:
         self.previous_mates = inheritance["previous_mates"]
         self.inheritance = None
 
-        # afterlife affinity
-        self.dark_forest_affinity = affinity["dark_forest"]
-        self.starclan_affinity = affinity["starclan"]
-        # BUTTERGEN: the honor system, -100 to 100 each (scripts/honor/core.py)
+        # BUTTERGEN: shared honor, reputation, and Clan trust score, -100 to 100
         self.honor = 0
-        self.reputation = 0
-        self.clan_trust = 0
         # what's tempting the cat, by cause, and the Clan age when they last did each act
         self.temptation = {}
         self.code_done = {}
@@ -345,6 +357,38 @@ class Cat:
     def age(self, new_age):
         self._age = new_age
 
+    @property
+    def faith(self) -> int:
+        return self._faith
+
+    @faith.setter
+    def faith(self, value):
+        self._faith = max(-9, min(9, int(round(float(value)))))
+
+    @property
+    def honor(self) -> int:
+        return self._honor
+
+    @honor.setter
+    def honor(self, value):
+        self._honor = max(-9, min(9, int(round(float(value)))))
+
+    @property
+    def reputation(self):
+        return self.honor
+
+    @reputation.setter
+    def reputation(self, value):
+        self.honor = value
+
+    @property
+    def clan_trust(self):
+        return self.honor
+
+    @clan_trust.setter
+    def clan_trust(self, value):
+        self.honor = value
+
     def init_faded(
         self, ID: str, moons: int, status: Status, inheritance: InheritanceDict
     ):
@@ -391,7 +435,7 @@ class Cat:
         "neutral": (-3, 3),
     }
 
-    def get_effective_faith(self) -> float:
+    def get_effective_faith(self) -> int:
         if self.no_faith:
             return 0
         low, high = Cat.faith_lock_ranges.get(self.lock_faith, (-9, 9))
@@ -533,20 +577,19 @@ class Cat:
                 )
             else:
                 # LG
-                self.faith = self.get_effective_faith()
-                faith_pull = self.faith * 5
+                faith_pull = self.get_effective_faith() * 5
                 # ---
 
                 cat_skills = self.skills.get_skill_dict()
                 if cat_default_afterlife_id == CatGroup.STARCLAN_ID:
-                    affinity = self.starclan_affinity + faith_pull
+                    affinity = faith_pull
                     skill_match = SkillPath.STAR
                     skill_conflict = SkillPath.DARK
 
                     afterlife_group = CatGroup.STARCLAN
                     rejected_ID = CatGroup.DARK_FOREST_ID
                 else:
-                    affinity = self.dark_forest_affinity - faith_pull
+                    affinity = -faith_pull
                     skill_match = SkillPath.DARK
                     skill_conflict = SkillPath.STAR
 
@@ -990,11 +1033,12 @@ class Cat:
             specsuffix_hidden=self.name.specsuffix_hidden if self.name else self.specsuffix_hidden,
         )
 
-    def change_affinity(self, starclan_change: int = 0, dark_forest_change: int = 0):
+    def change_faith_from_afterlife(
+        self, starclan_change: int = 0, dark_forest_change: int = 0
+    ):
         """
-        Changes the starclan and dark forest affinity of the cat; applying additional modifiers based on the closeness of the cat's personality facets to the facets of the respective afterlife
-        :param starclan_change: The amount to change starclan affinity by
-        :param dark_forest_change: The amount to change dark forest affinity by
+        Convert legacy StarClan/Dark Forest affinity changes to the unified faith
+        alignment. Positive alignment favors StarClan; negative favors the Dark Forest.
         """
         modifier = get_config("affinity.base_compatibility_multiplier")
 
@@ -1014,8 +1058,7 @@ class Cat:
             elif compatibility == CatCompatibility.NEGATIVE:
                 dark_forest_change -= round(dark_forest_change * modifier)
 
-        self.starclan_affinity += starclan_change
-        self.dark_forest_affinity += dark_forest_change
+        self.faith += (starclan_change - dark_forest_change) / 10
 
     def manage_outside_trait(self):
         """To be run every moon on outside cats
@@ -1430,7 +1473,7 @@ class Cat:
         used_lives = []
         used_virtues = []
         trait = self.personality.trait
-        cluster, second_cluster = get_cluster(trait)
+        cluster, second_cluster = get_cluster(self.personality)
 
         for giver in life_givers:
             giver_cat = self.fetch_cat(giver)
@@ -1992,13 +2035,13 @@ class Cat:
         """Becoming a DF trainee"""
         self.joined_df = True
         self.df_join_moon = game.clan.age
-        self.faith -= 1
+        self.faith = max(-9, self.faith - 1)
         self.update_df_mentor()
 
     def leave_df(self):
         """Exiting the DF as a trainee"""
         self.joined_df = False
-        self.faith += 1
+        self.faith = min(9, self.faith + 1)
         try:
             Cat.all_cats[self.df_mentor].df_apprentices.remove(self.ID)
         except:
@@ -2513,7 +2556,7 @@ class Cat:
                         continue
             if "elder" in story:
                 if "cluster" in story["elder"]:
-                    cluster1, cluster2 = get_cluster(elder.personality.trait)
+                    cluster1, cluster2 = get_cluster(elder.personality)
                     if cluster1 not in story["elder"]["cluster"] and (
                         cluster2 and cluster2 not in story["elder"]["cluster"]
                     ):
@@ -2531,7 +2574,7 @@ class Cat:
                         continue
             if "random_cat" in story:
                 if "cluster" in story["random_cat"]:
-                    cluster1, cluster2 = get_cluster(random_cat.personality.trait)
+                    cluster1, cluster2 = get_cluster(random_cat.personality)
                     if cluster1 not in story["random_cat"]["cluster"] and (
                         cluster2 and cluster2 not in story["random_cat"]["cluster"]
                     ):
@@ -2873,7 +2916,6 @@ class Cat:
                 previous_mates=[],
                 faded_offspring=cat_info["faded_offspring"],
             ),
-            affinity={},
             toggles={},
             experience=0,
             birth_cooldown=0,
@@ -3165,11 +3207,7 @@ class Cat:
                 ),
                 "birth_cooldown": self.birth_cooldown,
                 "status": self.status.get_status_dict(),
-                "dark_forest_affinity": self.dark_forest_affinity,
-                "starclan_affinity": self.starclan_affinity,
                 "honor": self.honor,
-                "reputation": self.reputation,
-                "clan_trust": self.clan_trust,
                 "temptation": self.temptation,
                 "code_done": self.code_done,
                 "code_record": self.code_record,

@@ -381,5 +381,12 @@
             "accept_like": "t_c borrows some mossballs from the nursery to see if the rabbit wants to play! It doesn't seem to know what to do with the toys, but t_c doesn't seem discouraged.",
             "accept_dislike": "t_c asks if there aren't any other cats who would be more willing to take care of a rabbit, but reluctantly accepts your gift anyways."
         }
+    },
+    "hotheaded": {
+        "accept_like": [],
+        "accept_neutral": [],
+        "accept_dislike": [],
+        "already_have": [],
+        "accept_favourite": []
     }
 }

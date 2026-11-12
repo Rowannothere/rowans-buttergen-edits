@@ -16,7 +16,6 @@ from scripts.cat.factories.typed_dicts import (
     MentorshipDict,
     CatTogglesDict,
     InheritanceDict,
-    AfterlifeAffinityDict,
 )
 from scripts.cat.names import Name
 from scripts.cat.pelts import Pelt
@@ -128,7 +127,6 @@ class NewCatFactory(BaseCatFactory, ABC):
                 mate=mate,
                 previous_mates=[],
             ),
-            "affinity": AfterlifeAffinityDict(starclan=0, dark_forest=0),
             "toggles": CatTogglesDict(
                 no_kits=False,
                 no_mates=False,

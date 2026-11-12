@@ -669,21 +669,24 @@ class GiftScreen(Screens):
     def gift_acc(self):
         """Gives the accessory!"""
         acc = self.selected_accessory.tool_tip_text
-        cluster1, cluster2 = get_cluster(self.selected_cat.personality.trait)
+        cluster1, cluster2 = get_cluster(self.selected_cat.personality)
         reaction_txt = ""
         if cluster1 and cluster2:
             cluster = choice([cluster1, cluster2])
         else:
             cluster = cluster1
 
+        preference_cluster = (
+            cluster1 if cluster1 in ACC_REACTION else "assertive"
+        )
         reaction = "accept_neutral"
         if acc in self.selected_cat.pelt.inventory:
             reaction = "already_have"
-        elif acc in ACC_REACTION[cluster1]["like"] or (
+        elif acc in ACC_REACTION[preference_cluster]["like"] or (
             cluster2 and acc in ACC_REACTION[cluster2]["like"]
         ):
             reaction = "accept_like"
-        elif acc in ACC_REACTION[cluster1]["dislike"] or (
+        elif acc in ACC_REACTION[preference_cluster]["dislike"] or (
             cluster2 and acc in ACC_REACTION[cluster2]["dislike"]
         ):
             reaction = "accept_dislike"
@@ -700,7 +703,7 @@ class GiftScreen(Screens):
                 )
             self.selected_cat.pelt.inventory.append(acc)
             if (
-                acc in ACC_REACTION[cluster1]["like"]
+                acc in ACC_REACTION[preference_cluster]["like"]
                 or (cluster2 and acc in ACC_REACTION[cluster2]["like"])
             ) or reaction == "accept_favourite":
                 if len(self.selected_cat.pelt.accessory) <= 4:

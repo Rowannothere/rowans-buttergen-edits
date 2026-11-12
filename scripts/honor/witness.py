@@ -29,9 +29,9 @@ WHERE = {
     "healer_mate": "secret", "healer_kits": "secret",
 }
 # reputation lost when it comes out
-REPUTATION_LOSS = {"minor": (3, 5), "serious": (8, 12), "grave": (15, 25)}
+REPUTATION_LOSS = {"minor": (1, 1), "serious": (1, 2), "grave": (2, 3)}
 # what reporting gives the witness, it's following the code
-REPORT_HONOR, REPORT_REPUTATION = 2, 1
+REPORT_HONOR = 1
 FORGET_AFTER = 24
 OUT_AT_KNOWERS = 4  # Whispers changes it (core.card("secret_out_at"))
 NAME_OTHERS_CHANCE = 0.3
@@ -166,9 +166,9 @@ def decide(witness, offender, key) -> str:
     like = _like(witness, offender)
     level_bonus = {"minor": 0, "serious": 0.15, "grave": 0.35}[ACTS[key]["level"]]
     scores = {
-        "report": 0.15 + law * 0.5 + max(0, witness.honor) / 200 + max(0, -like) / 150 + level_bonus,
+        "report": 0.15 + law * 0.5 + max(0, witness.honor) / 18 + max(0, -like) / 150 + level_bonus,
         "keep": 0.25 + max(0, like) / 100,
-        "hold": 0.05 + (1 - law) * 0.25 + max(0, -witness.honor) / 200 + max(0, -like) / 200,
+        "hold": 0.05 + (1 - law) * 0.25 + max(0, -witness.honor) / 18 + max(0, -like) / 200,
     }
     what = _pick(scores)
     if what == "report" and random() >= core.card("report_factor"):
@@ -272,7 +272,6 @@ def report(offender, witness, key, other_clan, group, naming=True, level=None):
         _nudge(offender, witness, like=-randint(5, 10))
         if group == "report":
             core.change_honor(witness, REPORT_HONOR)
-            core.change_reputation(witness, REPORT_REPUTATION)
     _post(group, offender, witness, key, other_clan)
     if naming:
         name_others(offender)

@@ -51,7 +51,6 @@ class FadedCatFactory(BaseCatFactory):
                 previous_mates=[],
                 faded_offspring=kwargs["faded_offspring"],
             ),
-            affinity={},
             toggles={},
             experience=0,
             birth_cooldown=0,

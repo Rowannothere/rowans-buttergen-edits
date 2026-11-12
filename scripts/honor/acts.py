@@ -109,9 +109,9 @@ ACTS = {
 }
 
 # honor lost for breaking the code, by level
-HONOR_LOSS = {"minor": (2, 4), "serious": (6, 10), "grave": (15, 25)}
+HONOR_LOSS = {"minor": (1, 2), "serious": (2, 3), "grave": (4, 6)}
 # following the code
-HONOR_GAIN = (1, 4)
-REPUTATION_GAIN = (1, 2)
+HONOR_GAIN = (1, 2)
+REPUTATION_GAIN = (1, 1)
 # a cat doesn't do the same act again within this many moons
 COOLDOWN_MOONS = 6

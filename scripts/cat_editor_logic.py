@@ -119,22 +119,13 @@ LIFEGEN_STATS = [
     ("empathy", "Empathy", -10, 10, 0),
     ("compassion", "Compassion", -10, 10, 0),
     ("faith", "Faith", -9, 9, 0),
-    ("starclan_affinity", "StarClan affinity", -100, 100, 0),
-    ("dark_forest_affinity", "Dark Forest affinity", -100, 100, 0),
 ]
 
-# BUTTERGEN: the honor system. Clan trust only shows for leaders, deputies and healers
+# BUTTERGEN: one shared standing value for honor, reputation, and Clan trust
 HONOR_STATS = [
-    ("honor", "Honor", -100, 100, 0),
-    ("reputation", "Reputation", -100, 100, 0),
-    ("clan_trust", "Clan trust", -100, 100, 0),
+    ("honor", "Honor", -9, 9, 0),
 ]
 
-
-def honor_stats_for(cat: Cat) -> list:
-    from scripts.honor.core import has_clan_trust
-
-    return [row for row in HONOR_STATS if row[0] != "clan_trust" or has_clan_trust(cat)]
 
 # these come from genes in genemod, adding them by hand wouldnt match how the cat looks
 GENETIC_ONLY_CONDITIONS = [
@@ -183,10 +174,6 @@ def nudge_stat(cat: Cat, attr: str, amount: int):
 
 def max_stats(cat: Cat, table):
     for name, _label, _low, high, _reset in table:
-        if name == "dark_forest_affinity":
-            # maxing out means a good cat, not a dark forest one
-            set_stat(cat, name, 0)
-            continue
         set_stat(cat, name, high)
 
 

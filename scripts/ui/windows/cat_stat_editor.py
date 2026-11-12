@@ -12,7 +12,7 @@ from scripts.cat_editor_logic import (
     BIRTH_CONDITIONS,
     LIFE_FLAGS,
     LIFEGEN_STATS,
-    honor_stats_for,
+    HONOR_STATS,
     PERSONALITY_FACETS,
     SKILL_SLOTS,
     all_traits,
@@ -177,23 +177,19 @@ class CatStatEditorWindow(EditorWindowBase):
         self._text(f"Effective faith {round(cat.get_effective_faith())}, {lock}", (20, 96, 660, 30),
                    "#text_box_26_horizleft_pad_10_14")
         four = [row for row in LIFEGEN_STATS if row[0] in ("courage", "intelligence", "empathy", "compassion", "faith")]
-        affinity = [row for row in LIFEGEN_STATS if row[0].endswith("affinity")]
-        # BUTTERGEN: honor and reputation, and Clan trust for leaders, deputies and healers
-        honor = honor_stats_for(cat)
         self._stat_rows(four, 128, (-5, -1, 1, 5), spacing=36)
-        self._stat_rows(affinity + honor, 312, (-50, -10, 10, 50), spacing=36)
         self._text(
-            "Affinity is how much StarClan or the Dark Forest likes this cat, it matters when they die. "
-            "Honor is how well they really follow the warrior code, reputation is what the Clan knows.",
-            (20, 492, 660, 64),
+            "Faith is this cat's alignment: negative favors the Dark Forest, positive favors StarClan. "
+            "Honor combines warrior-code conduct, reputation, and Clan trust.",
+            (20, 312, 660, 64),
             "#text_box_26_horizleft_pad_10_14",
         )
+        self._stat_rows(HONOR_STATS, 388, (-5, -1, 1, 5), spacing=36)
         self._max_reset(
             560,
-            lambda: max_stats(cat, LIFEGEN_STATS + honor),
-            lambda: reset_stats(cat, LIFEGEN_STATS + honor),
-            "Courage, intelligence, empathy and compassion to 10, faith to 9, StarClan affinity, "
-            "honor and reputation to 100.",
+            lambda: max_stats(cat, LIFEGEN_STATS + HONOR_STATS),
+            lambda: reset_stats(cat, LIFEGEN_STATS + HONOR_STATS),
+            "Courage, intelligence, empathy and compassion to 10, faith and honor to 9.",
             "Everything back to 0.",
         )
 

@@ -1128,7 +1128,7 @@ def _check_cat_faith(cat, min_max_faith: list) -> bool:
 
 
 def _check_cat_cluster(cat, clusters: list) -> bool:
-    if any(cluster in get_cluster(cat.personality.trait) for cluster in clusters):
+    if any(cluster in get_cluster(cat.personality) for cluster in clusters):
         return True
     return False
 

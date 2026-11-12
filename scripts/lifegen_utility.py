@@ -14,24 +14,27 @@ from scripts.screens.enums import GameScreen
 _CLUSTER_MAP = None
 
 
-def get_cluster(trait):
+def get_cluster(personality):
     """
-    Returns the cluster(s) for a given trait.
+    Returns the personality cluster from the highest and lowest facets.
     """
-    # the map never changes while playing, so it's only read from the disk once
     global _CLUSTER_MAP
     if _CLUSTER_MAP is None:
         with open("resources/dicts/cluster_map.json", "r", encoding="utf-8") as file:
             _CLUSTER_MAP = ujson.load(file)
     cluster_map = _CLUSTER_MAP
 
-    clusters = [key for key, values in cluster_map.items() if trait in values]
+    facet_values = {facet: getattr(personality, facet) for facet in cluster_map}
 
-    # Assign cluster and second_cluster based on the length of clusters list
-    cluster = clusters[0] if clusters else "stable"
-    second_cluster = clusters[1] if len(clusters) > 1 else ""
+    if len(set(facet_values.values())) == 1:
+        return "stable", ""
 
-    return cluster, second_cluster
+    highest = max(facet_values, key=lambda facet: facet_values[facet])
+    lowest = min(
+        cluster_map[highest],
+        key=lambda facet: facet_values[facet],
+    )
+    return cluster_map[highest][lowest], ""
 
 
 def check_achievements(Cat, eventspage=False):

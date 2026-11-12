@@ -210,7 +210,7 @@ def window_text():
 def _personality_temptation(cat, key) -> str:
     law = cat.personality.lawfulness / 16
     pull = min(1.0, sum(cat.temptation.get(c, 0) for c in ACTS[key]["causes"]) / 60)
-    weights = [0.15 + pull * (1 - law) * 0.8, 0.3, 0.15 + law * 0.7 + max(0, cat.honor) / 200]
+    weights = [0.15 + pull * (1 - law) * 0.8, 0.3, 0.15 + law * 0.7 + max(0, cat.honor) / 18]
     return weighted_choice((GIVE, BETWEEN, RESIST), weights)[0]
 
 
@@ -222,7 +222,7 @@ def personality_witness(witness, offender, key) -> str:
     like = _like(witness, offender)
     level_bonus = {"minor": 0, "serious": 0.15, "grave": 0.35}[ACTS[key]["level"]]
     weights = [
-        0.15 + law * 0.5 + max(0, witness.honor) / 200 + max(0, -like) / 150 + level_bonus,
+        0.15 + law * 0.5 + max(0, witness.honor) / 18 + max(0, -like) / 150 + level_bonus,
         0.25 + max(0, like) / 100,
         0.1 + witness.personality.sociability / 16 * 0.3 + (0.15 if like > 0 else 0),
     ]
