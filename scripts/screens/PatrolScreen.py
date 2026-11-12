@@ -112,6 +112,7 @@ class PatrolScreen(Screens):
         self.living_groups_container = None
         self.choose_group_buttons = {}
         self.choose_living_dropdown = None
+        self.option_buttons = {}
 
     def handle_event(self, event):
         if event.type == pygame_gui.UI_BUTTON_DOUBLE_CLICKED:
@@ -448,12 +449,16 @@ class PatrolScreen(Screens):
 
     def handle_patrol_events_event(self, event):
         inp = None
+        selected_option = None
         if event.ui_element == self.elements["proceed"]:
             inp = PatrolChoice.PROCEED
         elif event.ui_element == self.elements["not_proceed"]:
             inp = PatrolChoice.DECLINE
         elif event.ui_element == self.elements["antagonize"]:
             inp = PatrolChoice.ANTAGONIZE
+        elif event.ui_element in self.option_buttons:
+            inp = PatrolChoice.PROCEED
+            selected_option = self.option_buttons[event.ui_element]
 
         if inp:
             if (
@@ -462,7 +467,7 @@ class PatrolScreen(Screens):
             ):
                 return
             self.proceed_patrol_thread = self.loading_screen_start_work(
-                self.run_patrol_proceed, "proceed", (inp,)
+                self.run_patrol_proceed, "proceed", (inp, selected_option)
             )
 
     def handle_patrol_complete_events(self, event):
@@ -1325,15 +1330,43 @@ class PatrolScreen(Screens):
         )
         if not self.patrol_obj.patrol_event.antag_success_outcomes:
             self.elements["antagonize"].hide()
+        options = self.patrol_obj.available_options
+        if options:
+            self._show_patrol_options(options)
 
-    def run_patrol_proceed(self, user_input: PatrolChoice):
+    def _show_patrol_options(self, options):
+        self.elements["proceed"].hide()
+        self.elements["antagonize"].hide()
+        self.elements["not_proceed"].hide()
+
+        self.option_buttons = {}
+        for index, option in enumerate(options):
+            button = UISurfaceImageButton(
+                ui_scale(pygame.Rect((550, 430 + index * 38), (172, 30))),
+                option.text,
+                get_button_dict(ButtonStyles.PROFILE_MIDDLE, (172, 30)),
+                object_id="@buttonstyles_profile_middle",
+                starting_height=2,
+                manager=MANAGER,
+            )
+            self.option_buttons[button] = option
+
+    def run_patrol_proceed(self, user_input: PatrolChoice, selected_option=None):
         """Proceeds the patrol - to be run in the separate thread."""
         (
             self.display_text,
             self.results_text,
             self.rel_results,
             self.outcome_art,
-        ) = self.patrol_obj.proceed_patrol(user_input)
+        ) = self.patrol_obj.proceed_patrol(user_input, selected_option)
+
+    def open_patrol_result_screen(self):
+        if self.patrol_obj.available_options:
+            self.open_patrol_event_screen()
+        else:
+            for button in self.option_buttons:
+                button.disable()
+            self.open_patrol_complete_screen()
 
     def open_patrol_complete_screen(self):
         """
@@ -1433,11 +1466,7 @@ class PatrolScreen(Screens):
         elif switch_get_value(Switch.patrol_category) == "lifegen":
             the_cat = game.clan.your_cat
             if (
-                (
-                    the_cat.status.alive_in_your_cat_group
-                    or (the_cat.status.is_outsider and the_cat.dead)
-                )
-                and the_cat.moons >= 1
+                the_cat.moons >= 1
                 and the_cat not in self.current_patrol
                 and "2" not in switch_get_value(Switch.patrolled)
             ):
@@ -1921,6 +1950,9 @@ class PatrolScreen(Screens):
         for ele in self.elements:
             self.elements[ele].kill()
         self.elements = {}
+        for button in self.option_buttons:
+            button.kill()
+        self.option_buttons.clear()
 
     def clear_cat_buttons(self):
         for cat in self.cat_buttons:
@@ -1955,7 +1987,7 @@ class PatrolScreen(Screens):
             self.start_patrol_thread, self.open_patrol_event_screen
         )
         self.loading_screen_on_use(
-            self.proceed_patrol_thread, self.open_patrol_complete_screen
+            self.proceed_patrol_thread, self.open_patrol_result_screen
         )
 
     @staticmethod

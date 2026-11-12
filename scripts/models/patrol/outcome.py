@@ -46,6 +46,11 @@ class Outcome(BaseTextPoolEvent):
         description="The amount of exp cats receive (sorta). The exact amount also depends on the number of cats and current EXP levels, but in general, a higher number here means more exp. If exp is 0, no exp will be given",
     )
 
+    options: List[dict] = Field(
+        default_factory=list,
+        description="Choices that become available after this outcome is shown.",
+    )
+
     # LG
     murder: Union[List[dict], MISSING] = Field(
         MISSING,

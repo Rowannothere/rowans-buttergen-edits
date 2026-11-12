@@ -11,6 +11,7 @@ from scripts.events_module.parameter_dicts import (
     RelationshipConstraintDict,
 )
 from scripts.events_module.text_pool_event.text_pool_event import TextPoolEvent
+from scripts.events_module.patrol.patrol_option import PatrolOption
 from scripts.game_structure import constants
 
 NUM_OF_TRAITS = len(Personality.trait_ranges["normal_traits"].keys()) + len(
@@ -26,10 +27,13 @@ class PatrolEvent:
 
     intro_strings: list[str]
     decline_strings: list[str]
-    success_outcomes: list[dict | TextPoolEvent]
-    fail_outcomes: list[dict | TextPoolEvent]
-    antag_success_outcomes: list[dict | TextPoolEvent] = field(default_factory=list)
-    antag_fail_outcomes: list[dict | TextPoolEvent] = field(default_factory=list)
+    success_outcomes: list[Union[dict, TextPoolEvent]] = field(default_factory=list)
+    fail_outcomes: list[Union[dict, TextPoolEvent]] = field(default_factory=list)
+    antag_success_outcomes: list[Union[dict, TextPoolEvent]] = field(
+        default_factory=list
+    )
+    antag_fail_outcomes: list[Union[dict, TextPoolEvent]] = field(default_factory=list)
+    options: list[Union[dict, PatrolOption]] = field(default_factory=list)
 
     types: list[
         Literal["hunting", "herb_gathering", "border", "training", "lifegen", "df", "date"]
@@ -102,6 +106,12 @@ class PatrolEvent:
 
         self._generate_outcomes()
 
+        self.options = [
+            option if isinstance(option, PatrolOption) else PatrolOption(**option)
+            for option in self.options
+        ]
+        self._assign_option_ids()
+
         self.new_cat = self._get_new_cat()
         self.other_clan = self._get_other_clan()
         self.herbs_given = self._get_herbs_given()
@@ -119,7 +129,7 @@ class PatrolEvent:
             + self.antag_fail_outcomes
             + self.antag_success_outcomes
         ):
-            if outcome.join:
+            if outcome.join or self._options_have(outcome, "join"):
                 return True
 
         return False
@@ -132,7 +142,9 @@ class PatrolEvent:
             + self.antag_fail_outcomes
             + self.antag_success_outcomes
         ):
-            if outcome.reputation_changes.get("other_clan"):
+            if outcome.reputation_changes.get("other_clan") or self._options_have(
+                outcome, "other_clan"
+            ):
                 return True
 
         return False
@@ -154,8 +166,56 @@ class PatrolEvent:
                 if supply_change["type"] in herb_list:
                     continue
                 herb_list.append(supply_change["type"])
+            for herb in self._get_herbs_from_options(out.options):
+                if herb not in herb_list:
+                    herb_list.append(herb)
 
         return herb_list
+
+    @staticmethod
+    def _options_have(outcome: TextPoolEvent, attribute: str) -> bool:
+        for option in outcome.options:
+            for child in option.success_outcomes + option.fail_outcomes:
+                if attribute == "join" and child.join:
+                    return True
+                if attribute == "other_clan" and child.reputation_changes.get(
+                    "other_clan"
+                ):
+                    return True
+                if PatrolEvent._options_have(child, attribute):
+                    return True
+        return False
+
+    @staticmethod
+    def _get_herbs_from_options(options: list[PatrolOption]) -> list:
+        herbs = []
+        for option in options:
+            for outcome in option.success_outcomes + option.fail_outcomes:
+                for supply_change in outcome.supply:
+                    if supply_change["type"] != "freshkill" and supply_change[
+                        "type"
+                    ] not in herbs:
+                        herbs.append(supply_change["type"])
+                for herb in PatrolEvent._get_herbs_from_options(outcome.options):
+                    if herb not in herbs:
+                        herbs.append(herb)
+        return herbs
+
+    def _assign_option_ids(self):
+        def assign(options, prefix):
+            for option_index, option in enumerate(options):
+                option_prefix = f"{prefix}_option{option_index}"
+                for outcome_type, outcomes in (
+                    ("success", option.success_outcomes),
+                    ("fail", option.fail_outcomes),
+                ):
+                    for outcome_index, outcome in enumerate(outcomes):
+                        outcome.event_id = (
+                            f"{option_prefix}_{outcome_type}{outcome_index}"
+                        )
+                        assign(outcome.options, outcome.event_id)
+
+        assign(self.options, self.event_id)
 
     def _generate_outcomes(self):
         """

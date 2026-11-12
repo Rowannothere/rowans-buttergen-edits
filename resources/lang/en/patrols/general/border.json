@@ -1,5 +1,382 @@
 [
     {
+        "event_id": "gen_bord_dog",
+        "location": ["any"],
+        "season": ["any"],
+        "types": ["border"],
+        "tags": [],
+        "patrol_art": "gen_bord_dog",
+        "required_cat_types": {
+            "patrol_cats": [
+                1,
+                1
+            ]
+        },
+        "frequency": 2,
+        "intro_strings": ["p_l catches the scent of a dog along the edge of the Clan's territory and finds a trail of blood alongside its pawprints."],
+        "chance_of_success": 40,
+        "decline_strings": ["p_l decides to not investigate the tracks."],
+        "options": [
+            {
+                "text": "Ambush the dog.",
+                "chance_of_success": 30,
+                "success_outcomes": [
+                    {
+                        "strings": ["p_l ambushes the dog the moment the tracks end. With its injury, the dog doesn't put up much of a fight and eventually flees, leaving behind a very proud p_l for having defended c_n all on {PRONOUN/p_l/poss} own from such a vicious creature!"],
+                        "exp_gained": 10,
+                        "frequency": 2
+                    }
+                ],
+                "fail_outcomes": [
+                    {
+                        "strings": ["p_l ambushes the dog the moment the tracks end. With its injury, the dog doesn't put up much of a fight and eventually flees... deeper into c_n territory. Startingly, p_l realizes it's headed straight for camp!"],
+                        "exp_gained": 0,
+                        "frequency": 2,
+                        "options": [
+                            {
+                                "text": "Chase the dog!",
+                                "chance_of_success": 30,
+                                "success_outcomes": [
+                                    {
+                                        "strings": ["p_l races to block the dog's path. Thankfully, the dog isn't very fast with its injury, and p_l skids to a stop in front of it, hissing and spitting to drive it back. Frightened by the confident display, the dog turns tail and flees once more, this time across the border. Once it's gone, p_l lets out a sigh of relief and returns to camp to check on everyone, just in case."],
+                                        "exp_gained": 5,
+                                        "frequency": 20
+                                    }
+                                ],
+                                "fail_outcomes": [
+                                    {
+                                        "strings": ["p_l races to block the dog's path, but {PRONOUN/p_l/poss} {VERB/p_l/isn't/aren't} fast enough. The dog runs straight into camp, but thankfully, it's quickly chased right back out by the other warriors. p_l casts a sheepish grin at said warriors as they turn to face them once the dog is gone. Looks like p_l has some explaining to do..."],
+                                        "exp_gained": 0,
+                                        "frequency": 2,
+                                        "relationship_changes": [
+                                            {
+                                                "cats_to": ["p_l"],
+                                                "cats_from": ["clan"],
+                                                "mutual": false,
+                                                "values": ["trust", "respect"],
+                                                "amount": -15,
+                                                "log": {
+                                                    "cats_from": "cat_from was disappointed when cat_to brought a dog into camp."
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "strings": ["p_l races to block the dog's path. Thankfully, the dog isn't very fast with its injury, and {PRONOUN/p_l/subject} skids to a stop in front of it, hissing and spitting to drive it back. However, the dog apparently realizes it's much bigger and stronger than {PRONOUN/p_l/object}, even with its injury. p_l barely makes it out of the encounter alive."],
+                                        "exp_gained": 0,
+                                        "frequency": 2,
+                                        "condition": [
+                                            {
+                                                "cats": [
+                                                    "r_c0"
+                                                ],
+                                                "condition": [
+                                                    "big_bite_injury"
+                                                ],
+                                                "scar_history": "m_c was scarred after being attacked by a dog.",
+                                                "death_history": "m_c died from {PRONOUN/r_c0/poss} injuries after a dog attack."
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "text": "Warn the Clan!",
+                                "chance_of_success": 30,
+                                "success_outcomes": [
+                                    {
+                                        "strings": ["p_l races to warn the Clan before the dog can make it to camp. Thankfully, the dog is rather slow due to its injury, and p_l is able to yowl out a warning in time for the other warriors to prepare."],
+                                        "exp_gained": 5,
+                                        "frequency": 2
+                                    }
+                                ],
+                                "fail_outcomes": [
+                                    {
+                                        "strings": ["p_l races to warn the Clan before the dog can make it to camp, but {PRONOUN/p_l/poss} {VERB/p_l/isn't/aren't} fast enough. The dog runs straight into camp, but thankfully, it's quickly chased right back out by the other warriors. p_l casts a sheepish grin at said warriors as they turn to face them once the dog is gone. Looks like p_l has some explaining to do..."],
+                                        "exp_gained": 0,
+                                        "frequency": 2,
+                                        "relationship_changes": [
+                                            {
+                                                "cats_to": ["p_l"],
+                                                "cats_from": ["clan"],
+                                                "mutual": false,
+                                                "values": ["trust", "respect"],
+                                                "amount": -15,
+                                                "log": {
+                                                    "cats_from": "cat_from was disappointed when cat_to brought a dog into camp."
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "strings": ["p_l races to warn the Clan before the dog can make it to camp. Thankfully, the dog is rather slow due to its injury, and {PRONOUN/p_l/subject} {VERB/p_l/makes/make} it there first. However, the other warriors have all gone on patrol, leaving camp defenseless. p_l fights valiantly to defend the cats unable to fight for themselves and is badly injured in the process."],
+                                        "exp_gained": 0,
+                                        "frequency": 2,
+                                        "condition": [
+                                            {
+                                                "cats": [
+                                                    "r_c0"
+                                                ],
+                                                "condition": [
+                                                    "big_bite_injury"
+                                                ],
+                                                "scar_history": "m_c was scarred after being attacked by a dog.",
+                                                "death_history": "m_c died from {PRONOUN/r_c0/poss} injuries after a dog attack."
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "text": "Befriend the dog.",
+                "chance_of_success": 30,
+                "success_outcomes": [
+                    {
+                        "strings": ["Following the scent trail, p_l finds a large dog huddled nearby, licking an open wound on its leg. p_l feels a stab of pity in {PRONOUN/p_l/poss} chest when {PRONOUN/p_l/subject} {VERB/p_l/notices/notice} its ribs are showing through its pelt, as well."],
+                        "exp_gained": 5,
+                        "frequency": 2,
+                        "options": [
+                            {
+                                "text": "Find herbs.",
+                                "chance_of_success": 30,
+                                "success_outcomes": [
+                                    {
+                                        "strings": ["Despite {PRONOUN/p_l/poss} lack of healing knowledge, p_l manages to scrounge up a few herbs that might be helpful and cautiously approaches the dog with them. Eyeing p_l warily at first, the dog sniffs the herbs and reluctantly accepts the peace offering with a polite wag of its tail. It seems p_l has made a new friend!"],
+                                        "exp_gained": 10,
+                                        "frequency": 2
+                                    }
+                                ],
+                                "fail_outcomes": [
+                                    {
+                                        "strings": ["p_l tries to look for some herbs that might help, but is unable to find anything, and the dog is gone by the time {PRONOUN/p_l/subject} {VERB/p_l/returns/return}."],
+                                        "exp_gained": 0,
+                                        "frequency": 2
+                                    },
+                                    {
+                                        "strings": ["Despite {PRONOUN/p_l/poss} lack of healing knowledge, p_l manages to scrounge up a few herbs that might be helpful and cautiously approaches the dog with them. The dog doesn't seem to understand the gesture, however, and lets out a snarl that startles p_l into fleeing."],
+                                        "exp_gained": 0,
+                                        "frequency": 2
+                                    },
+                                    {
+                                        "strings": ["Despite {PRONOUN/p_l/poss} lack of healing knowledge, p_l manages to scrounge up a few herbs that might be helpful. However, just as {PRONOUN/p_l/subject} is about to give the herbs to the dog, a Clanmate rushes in to chase the dog off, giving p_l a disapproving look once the dog is gone. Looks like p_l has some explaining to do..."],
+                                        "exp_gained": 0,
+                                        "frequency": 2,
+                                        "relationship_changes": [
+                                            {
+                                                "cats_to": ["p_l"],
+                                                "cats_from": ["clan"],
+                                                "mutual": false,
+                                                "values": ["trust", "respect"],
+                                                "amount": -5,
+                                                "log": {
+                                                    "cats_from": "cat_from was disappointed when cat_to gave herbs to a dog."
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "text": "Find prey.",
+                                "chance_of_success": 30,
+                                "success_outcomes": [
+                                    {
+                                        "strings": ["p_l slips away to find the dog something suitable to eat and eventually returns with a plump rabbit. The dog eyes p_l warily at first as {PRONOUN/p_l/subject} approaches cautiously, but after sniffing the prey tentatively, it digs in, tail wagging gratefully. It seems p_l has made a new friend!"],
+                                        "exp_gained": 10,
+                                        "frequency": 2
+                                    }
+                                ],
+                                "fail_outcomes": [
+                                    {
+                                        "strings": ["p_l slips away to find the dog something suitable to eat, but is unable to find anything, and the dog is gone by the time {PRONOUN/p_l/subject} {VERB/p_l/returns/return}."],
+                                        "exp_gained": 0,
+                                        "frequency": 2
+                                    },
+                                    {
+                                        "strings": ["p_l slips away to find the dog something suitable to eat and eventually returns with a plump rabbit. The dog doesn't seem to understand the gesture, however, and lets out a snarl at p_l's cautious approach that startles {PRONOUN/p_l/object} into fleeing."],
+                                        "exp_gained": 0,
+                                        "frequency": 2
+                                    },
+                                    {
+                                        "strings": ["p_l slips away to find the dog something suitable to eat and eventually returns with a plump rabbit. However, just as {PRONOUN/p_l/subject} is about to give {PRONOUN/p_l/poss} freshkill to the dog, a Clanmate rushes in to chase the dog off, giving p_l a disapproving look once the dog is gone. Looks like p_l has some explaining to do..."],
+                                        "exp_gained": 0,
+                                        "frequency": 2,
+                                        "relationship_changes": [
+                                            {
+                                                "cats_to": ["p_l"],
+                                                "cats_from": ["clan"],
+                                                "mutual": false,
+                                                "values": ["trust", "respect"],
+                                                "amount": -5,
+                                                "log": {
+                                                    "cats_from": "cat_from was disappointed when cat_to gave prey to a dog."
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "fail_outcomes": [
+                    {
+                        "strings": ["p_l follows the scent trail all the way along the border, but the dog is no longer there."],
+                        "exp_gained": 0,
+                        "frequency": 2
+                    },
+                    {
+                        "strings": ["Following the scent trail, p_l finds a large dog tearing into the remains of what must've been its most recent freshkill. Suddenly, the dog's head snaps up, and p_l barely has time to react before the dog starts bolting towards {PRONOUN/p_l/object}."],
+                        "exp_gained": 0,
+                        "frequency": 2,
+                        "options": [
+                            {
+                                "text": "Run!",
+                                "chance_of_success": 30,
+                                "success_outcomes": [
+                                    {
+                                        "strings": ["Without a moment's hesitation, p_l turns tail and flees in the opposite direction, leading the dog away from c_n territory. After a long-winded chase, {PRONOUN/p_l/subject} finally {VERB/p_l/manages/manage} to lose the dog and heads back home, tired but happy to still be in one piece."],
+                                        "exp_gained": 5,
+                                        "frequency": 2
+                                    },
+                                    {
+                                        "strings": ["p_l turns tail to flee, but the dog is on {PRONOUN/p_l/object} before {PRONOUN/p_l/subject} {VERB/p_l/gets/get} the chance. The last thing p_l hears is the dog's excited panting, before... nothing...? p_l hesitantly opens {PRONOUN/p_l/poss} eyes to see the dog looming over {PRONOUN/p_l/object}, its tail wagging profusely. It seems p_l has made a new friend...?"],
+                                        "exp_gained": 10,
+                                        "frequency": 2
+                                    }
+                                ],
+                                "fail_outcomes": [
+                                    {
+                                        "strings": ["Without a moment's hesitation, p_l turns tail and flees back toward camp, all while yowling desperately for help. Thankfully, help comes swiftly when another c_n patrol rushes in to chase the dog off. It's a miracle nobody ends up with any injuries, but the other warriors don't seem all too happy with p_l now..."],
+                                        "exp_gained": 0,
+                                        "frequency": 2,
+                                        "relationship_changes": [
+                                            {
+                                                "cats_to": ["p_l"],
+                                                "cats_from": ["clan"],
+                                                "mutual": false,
+                                                "values": ["trust", "respect"],
+                                                "amount": -15,
+                                                "log": {
+                                                    "cats_from": "cat_from was disappointed with cat_to's cowardly behavior when a dog attacked."
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "strings": ["p_l turns tail to flee, but the dog is on {PRONOUN/p_l/object} before {PRONOUN/p_l/subject} {VERB/p_l/gets/get} the chance. p_l barely manages to escape, but not before sustaining significant injury."],
+                                        "exp_gained": 0,
+                                        "frequency": 2,
+                                        "condition": [
+                                            {
+                                                "cats": [
+                                                    "r_c0"
+                                                ],
+                                                "condition": [
+                                                    "big_bite_injury"
+                                                ],
+                                                "scar_history": "m_c was scarred after being attacked by a dog.",
+                                                "death_history": "m_c died from {PRONOUN/r_c0/poss} injuries after a dog attack."
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "text": "Hide!",
+                                "chance_of_success": 30,
+                                "success_outcomes": [
+                                    {
+                                        "strings": ["p_l narrowly dodges the dog's jaws and bolts up the nearest tree, where {PRONOUN/p_l/subject} {VERB/p_l/clings/cling} to the highest branch until the dog is called back home by its housefolk."],
+                                        "exp_gained": 5,
+                                        "frequency": 2
+                                    },
+                                    {
+                                        "strings": ["In {PRONOUN/p_l/poss} panic, p_l is unable to find a hiding spot before the dog is on {PRONOUN/p_l/object}. The last thing p_l hears is the dog's excited panting, before... nothing...? p_l hesitantly opens {PRONOUN/p_l/poss} eyes to see the dog looming over {PRONOUN/p_l/object}, its tail wagging profusely. It seems p_l has made a new friend...?"],
+                                        "exp_gained": 10,
+                                        "frequency": 2
+                                    }
+                                ],
+                                "fail_outcomes": [
+                                    {
+                                        "strings": ["p_l narrowly dodges the dog's jaws and bolts up the nearest tree, where {PRONOUN/p_l/subject} yowls for help while clinging to the highest branch. Thankfully, help comes swiftly when another c_n patrol rushes in to chase the dog off. It's a miracle nobody ends up with any injuries, but the other warriors don't seem all too happy with p_l now..."],
+                                        "exp_gained": 0,
+                                        "frequency": 2,
+                                        "relationship_changes": [
+                                            {
+                                                "cats_to": ["p_l"],
+                                                "cats_from": ["clan"],
+                                                "mutual": false,
+                                                "values": ["trust", "respect"],
+                                                "amount": -15,
+                                                "log": {
+                                                    "cats_from": "cat_from was disappointed with cat_to's cowardly behavior when a dog attacked."
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "strings": ["In {PRONOUN/p_l/poss} panic, p_l is unable to find a hiding spot before the dog is on {PRONOUN/p_l/object}. p_l barely manages to escape, but not before sustaining significant injury."],
+                                        "exp_gained": 0,
+                                        "frequency": 2,
+                                        "condition": [
+                                            {
+                                                "cats": [
+                                                    "r_c0"
+                                                ],
+                                                "condition": [
+                                                    "big_bite_injury"
+                                                ],
+                                                "scar_history": "m_c was scarred after being attacked by a dog.",
+                                                "death_history": "m_c died from {PRONOUN/r_c0/poss} injuries after a dog attack."
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "text": "Fight!",
+                                "chance_of_success": 20,
+                                "success_outcomes": [
+                                    {
+                                        "strings": ["Despite all odds, p_l stands {PRONOUN/p_l/poss} ground and successfully fends the dog off, though not without obtaining a few scrapes and bruises in the scuffle. Once the dog has retreated, p_l even takes its freshkill back home as a prize."],
+                                        "exp_gained": 10,
+                                        "frequency": 2,
+                                        "supply": [
+                                            {
+                                                "type": "freshkill",
+                                                "adjust": "increase_medium"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "fail_outcomes": [
+                                    {
+                                        "strings": ["p_l stands {PRONOUN/p_l/poss} ground against the dog, willing to lay down {PRONOUN/p_l/poss} life for c_n... and that's exactly what happens."],
+                                        "exp_gained": 0,
+                                        "frequency": 2,
+                                        "death": [
+                                            {
+                                                "cats": [
+                                                    "p_l"
+                                                ],
+                                                "history": "m_c was killed by a dog."
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]   
+    },
+    {
         "event_id": "Gen_bord_balancing_boringborder",
         "types": [
             "border"
