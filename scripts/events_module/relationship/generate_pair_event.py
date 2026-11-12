@@ -44,7 +44,6 @@ def trigger_interaction(
         main_cat.status.group_ID != other_cat.status.group_ID
     ):
         return False
-
     # no interacting with self
     if main_cat == other_cat:
         return False

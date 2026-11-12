@@ -140,7 +140,9 @@ def _new_thought(
                 if ensured_id
                 else None
             )
-            used_thoughts.add(chosen_thought_group.event_id)
+
+            if not ensured_id:
+                used_thoughts.add(chosen_thought_group.event_id)
 
             chosen_thought_group = deepcopy(chosen_thought_group)
             # specifically "is not None" so that index 0 isn't picked up as a NoneType
@@ -173,6 +175,8 @@ def _get_other_cat_for_thought(
     if not cat_list:
         return None
 
+    other_cat = choice(cat_list)
+
     # sometimes cats can think about a dead cat
     thinking_of_dead_cat = getrandbits(4) == 1
 
@@ -203,22 +207,8 @@ def _get_other_cat_for_thought(
                 break
 
             other_cat = choice(cat_list)
-            if other_cat.ID != main_cat.ID:
-                return other_cat
-        return None
 
-    valid = [
-        other_cat
-        for other_cat in cat_list
-        if other_cat.ID != main_cat.ID
-        and (not other_cat.dead or thinking_of_dead_cat)
-        and main_cat.relationships.get(other_cat.ID)
-        and main_cat.relationships[other_cat.ID].total_relationship_value != 0
-        and not other_cat.status.is_lost()
-        and other_cat.status.group_ID == main_cat.status.group_ID
-    ]
-
-    return choice(valid) if valid else None
+    return other_cat
 
 
 def _load_allowed_thoughts(thought_type: CatThought, main_cat: Cat, ageup=False):

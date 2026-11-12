@@ -1,29 +1,5 @@
 [
     {
-        "event_id": "leader_alive_kits",
-        "strings": [
-            "Has recently picked up the scent of mischievous kits in {PRONOUN/m_c/poss} den...",
-            "Is pondering the next mentors for the kits of the Clan",
-            "Thinks about who should mentor new apprentices",
-            "Bats a moss-ball back to r_c when it hits {PRONOUN/m_c/object}, chuckling at the wide-eyed kit",
-            "Is looking over the kits, pleased the Clan is thriving",
-            "Is visiting the nursery to check on the kits, the future of the Clan",
-            "Promised rowdy kits to calm down in exchange of a story about {PRONOUN/m_c/poss} battles",
-            "With imaginary wounds, was dramatically defeated by a swarm of powerful kittens",
-            "Noticing sneaky kits in {PRONOUN/m_c/poss} den"
-        ],
-        "involved_cats": {
-            "r_c": {
-                "status": [
-                    "kitten"
-                ],
-                "group": [
-                    "-afterlife"
-                ]
-            }
-        }
-    },
-    {
         "event_id": "gen_leader",
         "strings": [
             "Is hoping for a sign from StarClan",
@@ -299,7 +275,9 @@
         "involved_cats": {
             "m_c": {
                 "stat": {
-                    "trait": ["bloodthirsty"]
+                    "trait": [
+                        "bloodthirsty"
+                    ]
                 }
             }
         }

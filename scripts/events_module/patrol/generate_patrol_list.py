@@ -7,19 +7,13 @@ from scripts.config import get_config
 from scripts.events_module.patrol.patrol_event import PatrolEvent
 from scripts.game_structure import game, constants
 from scripts.game_structure.localization import load_lang_resource
-from scripts.game_structure.game.switches import (
-    Switch,
-    switch_get_value,
-)
 
 loaded_events: dict[str, list[PatrolEvent]] = {}
 
 
 def get_patrol_list(
     patrol_type: str,
-    other_clan_rep: Optional[
-        Literal["hostile", "ally", "neutral", "tense", "amicable"]
-    ] = None,
+    other_clan_rep: Optional[Literal["hostile", "ally", "neutral"]] = None,
     outsider_rep: Optional[Literal["hostile", "welcoming", "neutral"]] = None,
     clan = None,
 ) -> list[PatrolEvent]:
@@ -44,35 +38,12 @@ def get_patrol_list(
     biome = biome.casefold()
     season = game.clan.current_season.casefold()
 
-    if patrol_category == "clangen":
-        # TYPE PATROL
-        biome = (
-            game.clan.biome
-            if not game.clan.override_biome
-            else game.clan.override_biome
-        )
-        biome = biome.casefold()
-        season = game.clan.current_season.casefold()
+    # get specific type
+    if patrol_type == "herb_gathering":
+        # only one that doesn't match its path sadly
+        patrol_type = "med"
 
-        # get specific type
-        if patrol_type == "herb_gathering":
-            # only one that doesn't match its path sadly
-            patrol_type = "med"
-
-        possible_patrols.extend(
-            _get_all_patrols_of_type(patrol_type, biome, path, season)
-        )
-    elif patrol_category == "lifegen":
-        possible_patrols.extend(
-            _load_file(f"{path}lifegen/{game.clan.your_cat.status.rank}.json")
-        )
-        possible_patrols.extend(_load_file(f"{path}lifegen/general.json"))
-    elif patrol_category in {"df", "date"}:
-        possible_patrols.extend(
-            _load_file(f"{path}lifegen/{patrol_category}.json")
-        )
-    else:
-        raise ValueError(f"Unknown patrol category: {patrol_category}")
+    possible_patrols.extend(_get_all_patrols_of_type(patrol_type, biome, path, season))
 
     # OTHER CLAN
     # LG: no other clan patrols if there are no other clans
@@ -94,9 +65,6 @@ def get_patrol_list(
         if get_clan_setting("disasters"):
             possible_patrols.extend(_load_file(f"{path}disaster.json"))
 
-            # DISASTERS
-            if get_clan_setting("disasters"):
-                possible_patrols.extend(_load_file(f"{path}disaster.json"))
     return possible_patrols
 
 
@@ -183,11 +151,12 @@ def _load_file(path: str) -> list[PatrolEvent]:
     Loads and returns the patrol events from a json file at the given path
     """
     if path not in loaded_events.keys():
+        loaded_events[path] = []
         try:
-            events = [PatrolEvent(**p) for p in load_lang_resource(path)]
-        except FileNotFoundError as exc:
-            raise FileNotFoundError(f"Patrol file {path} not found!") from exc
-        loaded_events[path] = events
+            for p in load_lang_resource(path):
+                loaded_events[path].append(PatrolEvent(**p))
+        except FileNotFoundError:
+            raise Exception(f"Patrol file {path} not found!")
 
     return loaded_events[path].copy()
 

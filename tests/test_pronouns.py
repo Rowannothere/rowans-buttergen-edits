@@ -102,11 +102,6 @@ def _test():
         replacement_dict[f"r_c:{x}"] = _r
     # ---
 
-    # LG
-    for x in range(0, 11):
-        replacement_dict[f"r_c:{x}"] = _r
-    # ---
-
     for root, _, files in os.walk("resources"):
         for file in files:
             if "lifegen_events" in root and "lifegen_events\\NEW" not in root:

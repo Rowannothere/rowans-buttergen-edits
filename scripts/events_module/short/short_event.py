@@ -19,10 +19,6 @@ from scripts.clan_package.get_clan_cats import find_alive_cats_with_rank
 from scripts.clan_package.settings import get_clan_setting
 from scripts.clan_resources.point_of_interest import get_poi_from_constraints
 from scripts.config import get_config
-from scripts.events_module.future.prep_and_trigger import prep_future_event
-from scripts.events_module.relationship import relation_events
-from scripts.game_structure import localization, game
-from scripts.game_structure.game.settings import game_setting_get
 from scripts.events_module.event_information import EventInformation
 from scripts.game_structure.game.settings import game_setting_get
 from scripts.events_module.consequences import (
@@ -245,7 +241,6 @@ class ShortEvent:
         """
         Handles the execution of this event.
         :param other_clan: the object for the other clan involved in this event
-        :param clan: the object for the current clan
         """
         # LG: the default used to be game.clan, which is only read once at import (when it's None)
         if clan is None:
@@ -494,7 +489,6 @@ class ShortEvent:
         """
         handles adding new cats to the clan
         :param other_clan: the object for the other clan involved in event
-        :param clan: the object for the current clan
         """
         # LG: the default used to be game.clan, which is only read once at import (when it's None)
         if clan is None:
@@ -800,8 +794,6 @@ class ShortEvent:
         """
         handles assigning histories
         """
-        if clan is None:
-            clan = game.clan
         for block in self.history:
             # main_cat's history
             if "m_c" in block["cats"]:

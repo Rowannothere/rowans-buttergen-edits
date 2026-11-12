@@ -27,7 +27,6 @@ from scripts.events_module.pregnancy.create_kits import get_kits, get_amount_of_
 from scripts.events_module.pregnancy.check_parents import handle_outside_parent
 from scripts.events_module.text_adjust import event_text_adjust, process_text
 from scripts.game_structure import game
-from scripts.cat.microservices.conditions import get_ill
 
 
 def handle_one_moon_pregnant(cat: Cat, clan):
@@ -846,5 +845,3 @@ def _handle_affair_discovery_breakup(cheating_cat: Cat, mate_cat: Cat):
                 clan=cheating_cat.status.group_ID,
             )
         )
-        if randint(1, 5) == 1:
-            get_ill(mate_cat, "heartbroken")

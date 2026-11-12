@@ -8,6 +8,3 @@ class Standing(Enum):
     NOT_LEFT = "-left"
     NOT_LOST = "-lost"
     NOT_EXILED = "-exiled"
-
-    SHUNNED = "shunned"
-    NOT_SHUNNED = "-exiled"

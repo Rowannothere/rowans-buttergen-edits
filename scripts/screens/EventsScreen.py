@@ -80,7 +80,6 @@ class EventsScreen(Screens):
     relation_events = ""
     health_events = ""
     other_clans_events = ""
-    lifegen_events = ""
     misc_events = ""
     display_events = []
     tabs = [
@@ -117,11 +116,6 @@ class EventsScreen(Screens):
         self.cat_profile_buttons = []
         self.involved_cat_container = None
         self.involved_cat_buttons = []
-        self.current_clan = None
-        self.choose_group_button = None
-        self.choose_group_buttons = {}
-        self.living_groups_container = None
-        self.choose_living_dropdown = None
 
         # LIFEGEN -----------------------
         self.fave_filter_elements = {}
@@ -598,7 +592,6 @@ class EventsScreen(Screens):
                     "left_target": self.clan_info["season"],
                 },
             )
-        
         self.timeskip_button = UISurfaceImageButton(
             ui_scale(pygame.Rect((248, 223) if game.clan.clancount != 'multiclan' else (195, 223), (180, 30))),
             # BUTTERGEN: weeks when skipping by weeks
@@ -768,132 +761,6 @@ class EventsScreen(Screens):
         if switch_get_value(Switch.continue_after_death):
             self.death_button.show()
 
-        height = 32
-
-        self.fave_filter_elements["cat_icon"] = UIImageButton(
-            ui_scale(pygame.Rect((30, 287), (25, 25))),
-            "",
-            object_id="#faves_dropdown",
-            container=self.event_screen_container,
-            manager=MANAGER,
-        )
-
-        self.fave_filter_elements["yourcat_filter"] = UIImageButton(
-            ui_scale(pygame.Rect((30, 287 - height), (25, height))),
-            "",
-            object_id="#yourcat_filter",
-            manager=MANAGER,
-            container=self.event_screen_container,
-        )
-        self.fave_filter_elements["fave_group_1"] = UIImageButton(
-            ui_scale(pygame.Rect((30, 287 + height - 5), (25, height))),
-            "",  # dont ask me whats going on with the math here ^^ idfk
-            object_id="#fave_filter_1",
-            manager=MANAGER,
-            container=self.event_screen_container,
-        )
-        self.fave_filter_elements["fave_group_2"] = UIImageButton(
-            ui_scale(pygame.Rect((30, 287 + height * 2 - 5), (25, height))),
-            "",
-            object_id="#fave_filter_2",
-            manager=MANAGER,
-            container=self.event_screen_container,
-        )
-        self.fave_filter_elements["fave_group_3"] = UIImageButton(
-            ui_scale(pygame.Rect((30, 287 + height * 3 - 5), (25, height))),
-            "",
-            object_id="#fave_filter_3",
-            manager=MANAGER,
-            container=self.event_screen_container,
-        )
-        self.fave_filter_elements["yourcat_filter_selected"] = UIImageButton(
-            ui_scale(pygame.Rect((30, 287 - height), (25, height))),
-            "",
-            object_id="#yourcat_filter_selected",
-            manager=MANAGER,
-            container=self.event_screen_container,
-        )
-        self.fave_filter_elements["fave_group_1_selected"] = UIImageButton(
-            ui_scale(pygame.Rect((30, 287 + height - 5), (25, height))),
-            "",
-            object_id="#fave_filter_1_selected",
-            manager=MANAGER,
-            container=self.event_screen_container,
-        )
-        self.fave_filter_elements["fave_group_2_selected"] = UIImageButton(
-            ui_scale(pygame.Rect((30, 287 + height * 2 - 5), (25, height))),
-            "",
-            object_id="#fave_filter_2_selected",
-            manager=MANAGER,
-            container=self.event_screen_container,
-        )
-        self.fave_filter_elements["fave_group_3_selected"] = UIImageButton(
-            ui_scale(pygame.Rect((30, 287 + height * 3 - 5), (25, height))),
-            "",
-            object_id="#fave_filter_3_selected",
-            manager=MANAGER,
-            container=self.event_screen_container,
-        )
-
-        if self.faith_toggle is True:
-            icon = Icon.CAT_HEAD
-        else:
-            icon = Icon.STARCLAN
-        self.faith_toggle_button = UISurfaceImageButton(
-            ui_scale(pygame.Rect((30, 440), (25, 25))),
-            icon,
-            get_button_dict(ButtonStyles.ICON, (25, 25)),
-            object_id="@buttonstyles_icon",
-            starting_height=1,
-            container=self.event_screen_container,
-            manager=MANAGER,
-        )
-        if self.current_display != "relationships":
-            self.faith_toggle_button.hide()
-
-        # lifegen continue after death button
-        self.death_button = UIImageButton(
-            ui_scale(pygame.Rect((700, 218), (34, 34))),
-            "",
-            object_id="#warrior",
-            tool_tip_text="Revive",
-            manager=MANAGER,
-        )
-        self.death_button.hide()
-
-        if switch_get_value(Switch.continue_after_death):
-            self.death_button.show()
-
-        self.save_button.reset_save()
-
-        if game.clan.clancount == "multiclan":
-            if not self.current_clan:
-                self.current_clan = game.clan.group_ID
-
-            clan_names = [game.clan.name] + [
-                clan.name for clan in game.clan.all_other_clans
-            ]
-
-            curr_clan = next(
-                (
-                clan
-                for clan in game.clan.all_other_clans
-                if clan.group_ID == self.current_clan
-                ),
-                game.clan,
-            )
-
-            self.choose_living_dropdown = UIDropDown(
-                pygame.Rect((500, 220), (190, 34)),
-                parent_text="Clan",
-                item_list=clan_names,
-                manager=MANAGER,
-                container=self.event_screen_container,
-                parent_reflect_selection=True,
-                starting_selection=[curr_clan.name],
-                starting_height=10,
-            )
-        
         self.full_event_display_container = pygame_gui.core.UIContainer(
             ui_scale(pygame.Rect((45, 266), (700, 700))),
             starting_height=1,

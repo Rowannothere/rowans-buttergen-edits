@@ -104,16 +104,8 @@
         ],
         "involved_cats": {
             "m_c": {
-                "status": [
-                    "apprentice",
-                    "mediator apprentice",
-                    "medicine cat apprentice",
-                    "warrior",
-                    "mediator",
-                    "medicine cat",
-                    "deputy",
-                    "leader",
-                    "elder"
+                "age": [
+                    "-kitten"
                 ]
             }
         }
@@ -125,19 +117,6 @@
             "Thought {PRONOUN/m_c/subject} spotted r_c while wandering around earlier"
         ],
         "involved_cats": {
-            "m_c": {
-                "status": [
-                    "apprentice",
-                    "mediator apprentice",
-                    "medicine cat apprentice",
-                    "warrior",
-                    "mediator",
-                    "medicine cat",
-                    "deputy",
-                    "leader",
-                    "elder"
-                ]
-            },
             "r_c": {
                 "status": [
                     "any"
@@ -181,19 +160,7 @@
             "Hopes {PRONOUN/m_c/poss} siblings are doing okay"
         ],
         "involved_cats": {
-            "m_c": {
-                "status": [
-                    "apprentice",
-                    "mediator apprentice",
-                    "medicine cat apprentice",
-                    "warrior",
-                    "mediator",
-                    "medicine cat",
-                    "deputy",
-                    "leader",
-                    "elder"
-                ]
-            }
+            "r_c": {}
         },
         "relationship_constraint": [
             {

@@ -1,5 +1,5 @@
 from typing import Dict
-from random import randint
+
 import i18n
 import pygame.transform
 import pygame_gui.elements
@@ -25,7 +25,6 @@ from ..clan_package.settings import get_clan_setting
 from ..game_structure.game.switches import switch_set_value, switch_get_value, Switch
 from ..game_structure.screen_settings import MANAGER
 from ..ui.generate_box import BoxStyles, get_box
-from scripts.cat.microservices.conditions import get_ill
 from ..ui.generate_button import get_button_dict, ButtonStyles
 from ..ui.icon import Icon
 from ..ui.windows.cruel_locked_action import CruelLockedAction
@@ -471,8 +470,6 @@ class ChooseMateScreen(Screens):
 
         else:
             self.the_cat.unset_mate(self.selected_cat, user_initiated_breakup=True)
-            if randint(1, 5) == 1:
-                get_ill(self.selected_cat, "heartbroken")
 
     def update_both(self):
         """Updates both the current cat and selected cat info."""

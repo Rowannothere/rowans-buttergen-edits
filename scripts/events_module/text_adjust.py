@@ -55,11 +55,6 @@ def pronoun_repl(m, cat_pronouns_dict, raise_exception=False, clan=None):
         return m.group(0)
     # ---
 
-    # LG
-    if m.group(0) == "{cap_insert}":
-        return m.group(0)
-    # ---
-
     inner_details = m.group(1).split("/")
     out = None
 
@@ -832,7 +827,6 @@ def ceremony_text_adjust(main_cat_trait: str, old_name: str, text: str, random_h
     Handles the small ceremony-specific text adjustments. This being the random honors and the old name.
     """
     # get random honor!
-    # lg edited a bit
     if "r_h" in text:
         if random_honor is None:
             try:

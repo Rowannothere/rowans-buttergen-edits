@@ -16,9 +16,6 @@ from scripts.cat_relations.cat_handle_funcs import (
     init_all_relationships,
 )
 from scripts.config import get_config
-from scripts.events_module.pregnancy.create_kits import get_kits
-from scripts.cat_relations.cat_handle_funcs import init_all_relationships
-
 
 # pylint: enable=line-too-long
 import traceback
@@ -65,6 +62,7 @@ from scripts.events_module.ceremony.perform_ceremony import (
 )
 
 from scripts.events_module.generate_events import GenerateEvents, generate_events
+from scripts.events_module.focus import handle_focus
 from scripts.events_module.outsider import outsider_events
 from scripts.events_module.patrol.patrol import Patrol
 from scripts.events_module.relationship import relation_events
@@ -164,17 +162,6 @@ from scripts.lifegen_utility import (
     get_your_cat_group_count,
 )
 
-from scripts.events_module.filter_random_cats import choose_random_cats
-
-from scripts.lifegen_utility import (
-    get_cluster,
-    check_achievements,
-    get_your_cat_group_count,
-)
-from scripts.events_module.relationship.crossclan_event_generation import (
-    handle_crossclan_relationships,
-)
-
 logger = logging.getLogger(__name__)
 
 
@@ -227,7 +214,7 @@ class BirthType(Enum):
 
 
 all_events = {}
-new_cat_invited = set ()
+new_cat_invited = False
 WAR_TXT = None
 war_lang = None
 CEREMONY_TXT = None
@@ -267,7 +254,7 @@ def _one_moon_impl():
     game.mediated = []
     game.told_story = []
     switch_set_value(Switch.saved_clan, False)
-    new_cat_invited.clear()
+    new_cat_invited = False
     relation_events.clear_trigger_dict()
     Patrol.used_patrols["normal"].clear()
     Patrol.used_patrols["romance"].clear()
@@ -440,9 +427,6 @@ def _one_moon_impl():
         elif cat.status.group.is_any_clan_group() or cat.status.group.is_afterlife():
             one_moon_cat(cat, cat.status.fetch_clan_object(game.clan))
         cat.pelt.rebuild_sprite = True
-
-    if game.clan.clancount == "multiclan":
-        handle_crossclan_relationships()
 
     # keeping this commented out till disasters are more polished
     # disaster_events.handle_disasters()
@@ -792,95 +776,6 @@ def _one_moon_impl():
     ]
     if game.clan.leader:
         checks[3] = game.clan.leader.ID
-
-    lifegen_events = load_lifegen_events()
-    if game.clan.your_cat.status.alive_in_your_cat_group:
-        if game.clan.your_cat.moons == 0:
-            generate_birth_event()
-        elif game.clan.your_cat.moons < 6:
-            generate_kit_events()
-        elif game.clan.your_cat.status.is_outsider:
-            # Outsiders (kittypet/loner/rogue) don't get Clan ceremonies
-            # show a short message when they reach a new age
-            if game.clan.your_cat.moons in (6, 12, 120):
-                generate_outsider_age_ceremony()
-            else:
-                generate_lifegen_events()
-        elif game.clan.your_cat.moons == 6:
-            generate_app_ceremony()
-        elif game.clan.your_cat.status.rank.is_any_apprentice_rank():
-            generate_lifegen_events()
-        elif (
-            game.clan.your_cat.status.rank
-            in (CatRank.WARRIOR, CatRank.MEDICINE_CAT, CatRank.MEDIATOR, CatRank.QUEEN)
-            and not game.clan.your_cat.w_done
-            and not game.clan.your_cat.status.is_shunned()
-        ):
-            generate_ceremony()
-        elif (
-            game.clan.your_cat.status.rank != CatRank.ELDER
-            and game.clan.your_cat.moons != 119
-        ):
-            generate_lifegen_events()
-        elif (
-            game.clan.your_cat.moons == 119
-            and game.clan.your_cat.status.alive_in_player_clan
-            and not game.clan.your_cat.status.is_shunned()
-        ):
-            if "retire" not in switch_get_value(Switch.windows_dict):
-                switch_append_list_value(Switch.windows_dict, "retire")
-        elif (
-            game.clan.your_cat.moons == 120
-            and game.clan.your_cat.status.rank == CatRank.ELDER
-            and game.clan.your_cat.status.alive_in_player_clan
-            and not game.clan.your_cat.status.is_shunned()
-        ):
-            generate_elder_ceremony()
-        elif game.clan.your_cat.status.rank == CatRank.ELDER:
-            generate_lifegen_events()
-
-        if game.clan.your_cat.moons >= 12:
-            if not game.clan.your_cat.status.is_shunned():
-                check_gain_app(checks)
-            check_gain_mate(checks)
-            check_gain_kits(checks)
-            if not game.clan.your_cat.status.is_shunned():
-                check_retire()
-
-        if (
-            not int(random.random() * 10)
-            and game.clan.your_cat.status.rank != CatRank.NEWBORN
-        ):
-            gain_acc()
-
-    elif game.clan.your_cat.dead and game.clan.your_cat.dead_for == 0:
-        generate_death_event()
-    elif game.clan.your_cat.dead:
-        generate_lifegen_events()
-
-    # LIFEGEN
-    # murdered dict clears after six moons of no murder attempts
-    if "moon" in game.clan.murdered:
-        if game.clan.age - game.clan.murdered["moon"] >= 6:
-            game.clan.murdered = {}
-
-    game.clan.affair = False
-    game.clan.exile_return = False
-
-    generate_dialogue_focus()
-    checks = [
-        len(game.clan.your_cat.apprentice),
-        len(game.clan.your_cat.mate),
-        len(game.clan.your_cat.inheritance.get_blood_kits())
-        if game.clan.your_cat.inheritance
-        else 0,
-        None,
-    ]
-    if game.clan.leader:
-        checks[3] = game.clan.leader.ID
-    if game.clan.clancount == "multiclan":
-        for other_clan in game.clan.all_other_clans:
-            check_and_promote_deputy(other_clan)
 
     # Resort
     if switch_get_value(Switch.sort_type) != "id":
@@ -3331,9 +3226,6 @@ def one_moon_cat(cat, clan):
     -if the cat was not injured or ill, then they will do all of the above *and* trigger misc events, acc events,
     and new cat events
     """
-    if clan is None:
-        clan = game.clan
-
     if cat.faded:
         return
 
@@ -3948,11 +3840,6 @@ def invite_new_cats(cat, clan=None):
     if clan is None:
         clan = game.clan
     global new_cat_invited
-    if clan is None:
-        clan = game.clan
-
-    if game.clan is None:
-        return
 
     if game.clan is None:
         return
@@ -4017,9 +3904,9 @@ def invite_new_cats(cat, clan=None):
     if (
         not int(random.random() * chance)
         and not cat.age.is_baby()
-        and clan.group_ID not in new_cat_invited
+        and not new_cat_invited
     ):
-        new_cat_invited.add(clan.group_ID)
+        new_cat_invited = True
 
         create_short_event(
             event_type="new_cat",

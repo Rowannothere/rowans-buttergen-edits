@@ -25,6 +25,7 @@
         "involved_cats": {
             "m_c": {
                 "age": [
+                    "young adult",
                     "adult",
                     "senior adult",
                     "senior"
@@ -35,6 +36,7 @@
                     "rogue"
                 ],
                 "age": [
+                    "young adult",
                     "adult",
                     "senior adult",
                     "senior"

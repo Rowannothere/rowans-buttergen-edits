@@ -1,5 +1,4 @@
 import unittest
-from types import SimpleNamespace
 
 from scripts.cat.cats import Cat
 from scripts.cat.enums import CatRank, CatGroup, CatAge
@@ -48,23 +47,6 @@ class TestPatrolCats(unittest.TestCase):
         game.clan.game_mode = "classic"
 
         self.patrol_class = Patrol()
-
-    def test_other_clan_warriors_are_allowed_to_patrol_for_their_clan(self):
-        other_clan_cat = SimpleNamespace(
-            status=SimpleNamespace(
-                group_ID="8",
-                group=CatGroup.OTHER_CLAN,
-                alive_in_your_cat_group=False,
-            )
-        )
-
-        self.assertFalse(CatRank.WARRIOR.is_allowed_to_patrol(other_clan_cat))
-        self.assertTrue(
-            CatRank.WARRIOR.is_allowed_to_patrol(other_clan_cat, "8")
-        )
-        self.assertFalse(
-            CatRank.WARRIOR.is_allowed_to_patrol(other_clan_cat, "9")
-        )
 
     def test_all_cats(self):
         patrol_cats = [

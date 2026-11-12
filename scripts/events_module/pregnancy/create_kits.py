@@ -53,8 +53,6 @@ def get_kits(
     if clan is None:
         clan = game.clan
     all_kitten = []
-    if creating_your_siblings:
-        all_kitten = [game.clan.your_cat]
     if not adoptive_parents:
         adoptive_parents = []
 
@@ -67,12 +65,6 @@ def get_kits(
 
     blood_parent = None
     blood_parent2 = None
-
-    if cat and not other_cat:
-        other_cat = get_biological_parent(cat)
-
-    if parent_known is None:
-        parent_known = False
 
     ##### SELECT BACKSTORY #####
     if not backkit:
@@ -150,7 +142,7 @@ def get_kits(
             kits_amount = 1
 
     #############################
-    
+
     #### GENERATE THE KITS ######
     identical = False
     i = 0
@@ -530,7 +522,7 @@ def get_kits(
                     choice(get_newborn_strings()[f"{rel_type}_log"]),
                     main_cat=c,
                     random_cat=kit,
-                    clan=kit.status.fetch_clan_object(game.clan),
+                    clan=game.clan,
                 ),
             )
 

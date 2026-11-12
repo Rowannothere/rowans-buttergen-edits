@@ -23,12 +23,3 @@ class MinMaxStatusDictKey(Enum):
     elder = "elder"
     df = "df"
     patrol_cats = "patrol_cats"
-
-    # LG
-    kitten = "kitten"
-    mediator = "mediator"
-    queen = "queen"
-    mediator_apprentice = "mediator apprentice"
-    queens_apprentice = "queen's apprentice"
-    elder = "elder"
-    df = "df"

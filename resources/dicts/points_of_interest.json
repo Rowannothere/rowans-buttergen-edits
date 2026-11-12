@@ -27,7 +27,7 @@
     "moon_cave": {
         "category": "moonplace",
         "biome": ["any"],
-        "tags": ["cave", "rocks"]
+        "tags": ["cave", "rocks", "maze"]
     },
     "moon_mothermouth": {
         "category": "moonplace",
@@ -52,7 +52,7 @@
     "terrain_sunningrocks": {
         "category": "terrain",
         "biome": ["any"],
-        "tags": ["rocks"]
+        "tags": ["rocks", "high_ground"]
     },
     "terrain_well": {
         "category": "terrain",
@@ -82,7 +82,7 @@
     "terrain_hugeboulder": {
         "category": "terrain",
         "biome": ["forest"],
-        "tags": ["rocks", "prey:ground", "covered"]
+        "tags": ["rocks", "prey:ground", "high_ground"]
     },
     "terrain_waterfall": {
         "category": "terrain",

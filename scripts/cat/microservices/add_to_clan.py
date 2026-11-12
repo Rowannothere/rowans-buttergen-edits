@@ -18,7 +18,7 @@ def add_to_clan(cat, clan):
 
     cat.status.add_to_group(new_group_ID=clan, age=cat.age)
 
-    if group_ID == game.clan.group_ID:
+    if game.clan:
         game.clan.add_cat(cat)
 
 def add_dependents_to_clan(cat: "Cat", clan, add_kits=True) -> List[str]:

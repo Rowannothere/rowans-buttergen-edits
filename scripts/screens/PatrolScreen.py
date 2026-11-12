@@ -7,9 +7,7 @@ import pygame_gui
 from pygame_gui.core import ObjectID
 
 from scripts.cat.cats import Cat
-from pygame_gui.core import ObjectID
 from scripts.events_module.patrol.patrol import Patrol, get_patrol_temperament
-from scripts.ui.elements.dropdown_container import UIDropDownContainer
 from scripts.game_structure import game
 from scripts.ui.elements.dropdown_container import UIDropDownContainer
 from ..events_module.patrol.enums import PatrolChoice
@@ -560,70 +558,6 @@ class PatrolScreen(Screens):
             self.choose_living_dropdown.show()
         self.show_mute_buttons()
         self.show_menu_buttons()
-
-        if not self.current_clan or self.current_clan.group_ID == game.clan.group_ID:
-            self.current_clan = game.clan
-        self.update_heading_text(self.current_clan.name)
-        if game.clan.clancount == 'multiclan':
-            self.event_screen_container = pygame_gui.core.UIContainer(
-                ui_scale(pygame.Rect((0, 100), (800, 300))),
-                starting_height=1,
-                manager=MANAGER,
-            )
-            self.choose_group_button = UISurfaceImageButton(
-                ui_scale(pygame.Rect((510, 0), (190, 34))),
-                "screens.list.choose_group",
-                get_button_dict(ButtonStyles.DROPDOWN, (190, 34)),
-                object_id="@buttonstyles_dropdown",
-                manager=MANAGER,
-                starting_height=1,
-                container=self.event_screen_container,
-            )
-
-            self.living_groups_container = pygame_gui.elements.UIAutoResizingContainer(
-                ui_scale(pygame.Rect((510, 32), (0, 0))),
-                object_id="#choose_group_container",
-                manager=MANAGER,
-                starting_height=1,
-                container=self.event_screen_container,
-            )
-            self.living_groups_container.change_layer(10)
-            self.choose_group_buttons[game.clan.name] = UISurfaceImageButton(
-                ui_scale(pygame.Rect((0, 0), (190, 34))),
-                game.clan.name,
-                get_button_dict(ButtonStyles.DROPDOWN, (190, 34)),
-                container=self.living_groups_container,
-                object_id=ObjectID(
-                    class_id="@buttonstyles_dropdown", object_id=None),
-                starting_height=2,
-                manager=MANAGER,
-            )
-            y_pos = 32
-            for clan in game.clan.all_other_clans:
-                self.choose_group_buttons[clan.name] = UISurfaceImageButton(
-                    ui_scale(pygame.Rect((0, y_pos), (190, 34))),
-                    clan.name,
-                    get_button_dict(ButtonStyles.DROPDOWN, (190, 34)),
-                    container=self.living_groups_container,
-                    object_id=ObjectID(
-                        class_id="@buttonstyles_dropdown", object_id=None),
-                    starting_height=2,
-                    manager=MANAGER,
-                )
-                y_pos += 32
-
-            self.choose_living_dropdown = UIDropDownContainer(
-                self.living_groups_container.relative_rect,
-                container=self.event_screen_container,
-                object_id="#choose_living_dropdown",
-                starting_height=1,
-                parent_button=self.choose_group_button,
-                child_button_container=self.living_groups_container,
-                manager=MANAGER,
-            )
-
-            self.choose_living_dropdown.close()
-            self.choose_living_dropdown.show()
 
         if (
             self.in_progress_data is not None

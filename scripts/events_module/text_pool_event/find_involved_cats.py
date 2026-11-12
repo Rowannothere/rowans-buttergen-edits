@@ -9,7 +9,10 @@ from scripts.events_module.event_filters import (
     check_rel_constraint_groups,
     cat_for_event,
 )
-from scripts.events_module.parameter_dicts import InvolvedCatDict
+from scripts.events_module.parameter_dicts import (
+    InvolvedCatDict,
+    RelationshipConstraintDict,
+)
 from scripts.events_module.patrol.patrol_event import PatrolEvent
 from scripts.events_module.text_pool_event.text_pool_event import TextPoolEvent
 from scripts.events_module.patrol.create_new_cat import updated_find_clan_cats
@@ -49,11 +52,13 @@ def find_cats(
     can_give_condition = hasattr(event, "condition")
     can_give_accessory = hasattr(event, "gain_accessory")
 
+    relationship_constraints = event.relationship_constraint
+
     # just an initial relationship check to catch things like patrol_cats
-    if involved_cats and event.relationship_constraint:
+    if involved_cats and relationship_constraints:
         if not all(
             check_rel_constraint_groups(block, temp_involved_cats)
-            for block in event.relationship_constraint
+            for block in relationship_constraints
         ):
             return empty
 
@@ -221,7 +226,7 @@ def find_cats(
         new_involved_cat = _find_involved_cat(
             abbr,
             possible_cats,
-            relationship_constraint=event.relationship_constraint,
+            relationship_constraint=relationship_constraints,
             cat_constraints=constraints,
             temp_involved_cats=temp_involved_cats,
             other_clan=other_clan,

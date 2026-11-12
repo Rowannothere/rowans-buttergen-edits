@@ -161,7 +161,9 @@
             "m_c doesn't feel ready to be a parent to this {insert}. But {PRONOUN/m_c/subject} {VERB/m_c/promise/promises} to the tiny flailing limbs by {PRONOUN/m_c/poss} side that {PRONOUN/m_c/subject}'ll do {PRONOUN/m_c/poss} best. {PRONOUN/m_c/subject/CAP} {VERB/m_c/swear/swears} on StarClan itself.",
             "No one knows who m_c has had {PRONOUN/m_c/poss} {insert} with, but {PRONOUN/m_c/subject} {VERB/m_c/seem/seems} very happy watching over {PRONOUN/m_c/poss} little offspring in the nursery.",
             "Whenever someone asks whether m_c will be alright raising {PRONOUN/m_c/poss} {insert} alone, {PRONOUN/m_c/subject} just {VERB/m_c/smile/smiles} and {VERB/m_c/reply/replies} that everything is going to work out fine.",
-            "A {insert}! m_c welcomes them happily, and seems unperturbed by the lack of a partner in the nursery with {PRONOUN/m_c/object}."
+            "A {insert}! m_c welcomes them happily, and seems unperturbed by the lack of a partner in the nursery with {PRONOUN/m_c/object}.",
+            "The Clan is happy to see m_c with {PRONOUN/m_c/poss} brand new {insert} in the nursery, but no one quite seems to know who the other parent is.",
+            "Nobody has been able to get answers from m_c about who the other parent of {PRONOUN/m_c/poss} new {insert} is."
         ],
         "two_parents": [
             "m_c had a {insert} with r_c.",
@@ -218,7 +220,7 @@
             "m_c waits for r_c to meet their new {insert} in the nursery. But day turns to night, and when the sun rises again, it's clear r_c wants nothing to do with m_c or the {insert}."
         ],
         "affair": [
-            "The newly arrived {insert} that m_c has just given birth to looks suspiciously like r_c. ",
+            "The newly arrived {insert} that m_c has just given birth to looks suspiciously like r_c.",
             "No one wants to ruin such a happy occasion, but... it doesn't take a genius to notice how m_c's {insert} looks suspiciously like r_c...",
             "Ever since the birth, rumor's gone around that m_c's {insert} belongs to r_c and, while no one wants to confirm anything, no one really has to when the evidence is mewling right there...",
             "Everyone in the Clan can see that m_c's {insert} clearly looks like r_c... rc_mate has been glaring at {PRONOUN/r_c/object} and m_c ever since the {insert} was born.",
@@ -269,11 +271,15 @@
             "m_c's eyes meet r_c's at the entrance to the healer's den, exchanging a secret glance. mc_mate coos over the {insert}, none the wiser to the affair."
         ],
         "affair_mated_samesex": [
-            "mc_mate looks over m_c's new {insert} with mixed feelings. On one paw, m_c did cheat on {PRONOUN/mc_mate/object} with r_c, but at the same time, {PRONOUN/mc_mate/subject} can help m_c raise this {insert} together."
+            "mc_mate looks over m_c's new {insert} with mixed feelings. It's not the litter's fault... but why did m_c cheat on {PRONOUN/mc_mate/object} with r_c? Could it be that {PRONOUN/mc_mate/subject} {VERB/mc_mate/weren't/wasn't} a good enough mate?",
+            "mc_mate can't understand why m_c would ever cheat on {PRONOUN/mc_mate/object}. They could've raised a family together, but the {insert} {PRONOUN/m_c/subject} had with r_c is now there to taunt mc_mate with what could've been.",
+            "m_c swears on StarClan that {PRONOUN/m_c/poss} {insert} is mc_mate's, despite the obvious. mc_mate can't believe {PRONOUN/m_c/subject} would lie to {PRONOUN/mc_mate/poss} face. The {insert} is clearly r_c's.",
+            "m_c and mc_mate could've adopted kits one day. But m_c's newly born {insert} is clearly not mc_mate's. They're r_c's — and all mc_mate can do is sit there in disbelief as {PRONOUN/mc_mate/subject} {VERB/mc_mate/process/processes} that {PRONOUN/mc_mate/subject}{VERB/mc_mate/'ve/'s} been cheated on."
         ],
         "affair_mated_dead_mate": [
             "mc_mate was such a wonderful cat, deserving of being a parent, even after death... so why does m_c's {insert} look more like r_c instead?",
-            "This was supposed to be a bittersweet moment, m_c birthing {PRONOUN/m_c/poss} new {insert}, a last gift from mc_mate. Except, this {insert} isn't mc_mate's at all... they're r_c's."
+            "This was supposed to be a bittersweet moment, m_c birthing {PRONOUN/m_c/poss} new {insert}, a last gift from mc_mate. Except, this {insert} isn't mc_mate's at all... They're r_c's.",
+            "mc_mate was going to live on in m_c's new {insert}. But when they're born, the bittersweet moment is soured by the realization they look too much like r_c for it to just be coincidence."
         ],
         "death": [
             "Later, as the healer wails with m_c's blood streaked through their pelt and a warrior comes to move the body for the vigil, no one knows what to do with the {insert}.",
@@ -298,7 +304,7 @@
             "m_c wasn't expecting this birth to be so intensely painful.",
             "Though everyone says giving birth is difficult, m_c feels like this one has been worse than most.",
             "This will all be worth it, m_c promises {PRONOUN/m_c/self} as the pains of afterbirth rock {PRONOUN/m_c/poss} exhausted and bleeding body.",
-            "m_c chokes down the herbs given to {PRONOUN/m_c/object}, retching at the taste but knowing {PRONOUN/m_c/subject} {VERB/m_c/need/needs} them to stop the blood loss. ",
+            "m_c chokes down the herbs given to {PRONOUN/m_c/object}, retching at the taste but knowing {PRONOUN/m_c/subject} {VERB/m_c/need/needs} them to stop the blood loss.",
             "m_c wonders if {PRONOUN/m_c/poss} body will ever recover from the painful birth and blood loss.",
             "There were painful complications, but m_c just about pulled through."
         ],
@@ -320,7 +326,9 @@
         ],
         "lead_death": [
             "m_c lost one of {PRONOUN/m_c/poss} nine lives, but gave birth to a {insert}.",
-            "Although m_c gave birth to a {insert}, it came at the cost of one of {PRONOUN/m_c/poss} nine lives."
+            "Although m_c gave birth to a {insert}, it came at the cost of one of {PRONOUN/m_c/poss} nine lives.",
+            "The birth of m_c's {insert} cost {PRONOUN/m_c/object} one of {PRONOUN/m_c/poss} nine lives, but {PRONOUN/m_c/subject} {VERB/m_c/assert/asserts} that it was worth it.",
+            "m_c's newly born {insert} is fine and healthy, but m_c {PRONOUN/m_c/self} wasn't so lucky. {PRONOUN/m_c/subject/CAP} lost one of {PRONOUN/m_c/poss} nine lives from the birth."
         ]
     }
 }

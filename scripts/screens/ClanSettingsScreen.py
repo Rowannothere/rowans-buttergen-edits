@@ -375,8 +375,6 @@ class ClanSettingsScreen(Screens):
         mediator_apprentices = 0
         queens = 0
         mediators = 0
-        queens_apprentices = 0
-        queens = 0
         elders = 0
         kits = 0
         cats_outside = 0
@@ -397,8 +395,6 @@ class ClanSettingsScreen(Screens):
                 else:
                     ur += 1
                 continue
-
-            living_cats += 1
 
             if cat.status.is_outsider:
                 cats_outside += 1
@@ -423,10 +419,6 @@ class ClanSettingsScreen(Screens):
                 queens += 1
             elif cat.status.rank == CatRank.MEDIATOR:
                 mediators += 1
-            elif cat.status.rank == CatRank.QUEENS_APPRENTICE:
-                queens_apprentices += 1
-            elif cat.status.rank == CatRank.QUEEN:
-                queens += 1
             elif cat.status.rank == CatRank.ELDER:
                 elders += 1
             elif cat.status.rank.is_baby():
@@ -451,8 +443,6 @@ class ClanSettingsScreen(Screens):
                 "queens": str(queens),
                 "mediatorapps": str(mediator_apprentices),
                 "elders": str(elders),
-                "queens": str(queens),
-                "queensapps": str(queens_apprentices),
                 "kits": str(kits),
                 "faded": str(faded_cats),
             },

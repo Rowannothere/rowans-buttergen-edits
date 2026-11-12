@@ -1,8 +1,6 @@
 import i18n
-import os
 
-import ujson
-import i18n
+from scripts.game_structure.constants import HERBS
 
 
 class Herb:

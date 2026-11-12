@@ -77,14 +77,14 @@ def save_faded_cats(clanname, cat_class: Type["Cat"], game: "Game"):
             continue
         inter_cat = cat_class.all_cats[cat]
 
-            # Add ID to list of faded cats.
-            faded_ids.append(cat)
+        # Add ID to list of faded cats.
+        faded_ids.append(cat)
 
-            # If they have a mate, break it up
-            if inter_cat.mate:
-                for mate_id in inter_cat.mate:
-                    if mate_id in cat_class.all_cats:
-                        cat_class.all_cats[mate_id].unset_mate(inter_cat)
+        # If they have a mate, break it up
+        if inter_cat.mate:
+            for mate_id in inter_cat.mate:
+                if mate_id in cat_class.all_cats:
+                    cat_class.all_cats[mate_id].unset_mate(inter_cat)
 
         # If they have parents, add them to their parents "faded offspring" list:
         for x in inter_cat.get_parents():
@@ -102,15 +102,15 @@ def save_faded_cats(clanname, cat_class: Type["Cat"], game: "Game"):
                 + "\n--------------------------------------------------------------------------\n"
             )
 
-            # SAVE TO ITS OWN LITTLE FILE. This is a trimmed-down version for relation keeping only.
-            cat_data = inter_cat.get_save_dict(faded=True)
-            cat_path = fade_cat_dir / f"{cat}.json"
-            safe_save(cat_path, cat_data)
+        # SAVE TO ITS OWN LITTLE FILE. This is a trimmed-down version for relation keeping only.
+        cat_data = inter_cat.get_save_dict(faded=True)
+        cat_path = fade_cat_dir / f"{cat}.json"
+        safe_save(cat_path, cat_data)
 
-            # Remove the cat from the active cats lists
-            game.clan.remove_cat(
-                cat
-            )  # todo: when catdirectory is added, this dependency injection can be removed
+        # Remove the cat from the active cats lists
+        game.clan.remove_cat(
+            cat
+        )  # todo: when catdirectory is added, this dependency injection can be removed
 
     cat_to_fade = []
 

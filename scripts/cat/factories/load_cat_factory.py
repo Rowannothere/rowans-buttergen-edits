@@ -61,11 +61,6 @@ class LoadCatFactory(BaseCatFactory):
             previous_mates=kwargs.get("previous_mates", []),
         )
 
-        heritage = HeritageDict(
-            parent1_known=kwargs.get("parent1_known", True),
-            parent2_known=kwargs.get("parent2_known", True),
-        )
-
         mentorship = MentorshipDict(
             mentor=kwargs["mentor"],
             former_mentor=kwargs.get("former_mentor", []),

@@ -45,7 +45,6 @@ class EventInformation:
             self.types = []
 
         self.cat_dict = cat_dict if cat_dict else {}
-        self.clans_involved = list(clans_involved) if clans_involved else []
 
         if isinstance(cats_involved, str):
             self.cats_involved = []
@@ -83,8 +82,6 @@ class EventInformation:
             "types": self.types,
             "cats_involved": self.cats_involved,
             "cat_dict": cat_dict,
-            "clan": self.clan,
-            "clans_involved": self.clans_involved,
         }
 
     @staticmethod

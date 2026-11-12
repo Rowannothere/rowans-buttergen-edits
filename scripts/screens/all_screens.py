@@ -40,7 +40,6 @@ from .enums import GameScreen
 from .make_clan_screens.ChooseCampScreen import ChooseCampScreen
 from .make_clan_screens.ChooseCardsScreen import ChooseCardsScreen
 from .make_clan_screens.ChooseCatsScreen import ChooseCatsScreen
-from .make_clan_screens.ChooseClancountScreen import ChooseClancountScreen
 from .make_clan_screens.ChooseModeScreen import ChooseModeScreen
 from .make_clan_screens.ChooseClancountScreen import ChooseClancountScreen
 from .make_clan_screens.ChooseNameScreen import ChooseNameScreen
