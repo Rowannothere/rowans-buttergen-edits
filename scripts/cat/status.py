@@ -424,6 +424,7 @@ class Status:
                         CatRank.MEDIATOR_APPRENTICE,
                         CatRank.QUEEN_APPRENTICE,
                         CatRank.MEDICINE_APPRENTICE,
+                        CatRank.QUEENS_APPRENTICE,
                     ],
                     weights=[6, 1, 1, 2],
                 )[0]

@@ -268,6 +268,10 @@ class Clan:
             ]
         )
 
+    @group_ID.setter
+    def group_ID(self, value):
+        pass
+
     @property
     def name(self):
         return i18n.t("general.clan", name=self.prefix)
@@ -1457,6 +1461,7 @@ class Clan:
         # game.clan.med_cat_predecessors = clan_data["med_cat_predecessors"]
         # game.clan.med_cat_number = clan_data["med_cat_number"]
         game.clan.instructor.assign_thought(CatThought.IS_GUIDE)
+        game.clan.demon.assign_thought(CatThought.IS_DF_GUIDE)
 
         # check for symbol
         if "clan_symbol" in clan_data:
@@ -1524,6 +1529,59 @@ class Clan:
                             get_config("clan_creation.starting_clan_relation")[0],
                             get_config("clan_creation.starting_clan_relation")[1],
                         )
+                    )
+        # LG
+        # MOVED HERE
+        if clan_data.get("used_group_IDs"):
+            game.used_group_IDs = clan_data["used_group_IDs"]
+
+            # LG
+            # correct for new lifegen groups
+            if game.used_group_IDs["5"] != CatGroup.ROGUE_GROUP:
+                game.used_group_IDs["5"] = CatGroup.ROGUE_GROUP
+            if game.used_group_IDs["6"] != CatGroup.LONER_GROUP:
+                game.used_group_IDs["6"] = CatGroup.LONER_GROUP
+            if game.used_group_IDs["7"] != CatGroup.HOUSEHOLD:
+                game.used_group_IDs["7"] = CatGroup.HOUSEHOLD
+
+            # fix clan IDs. so otherclans with 5, 6, or 7 as their id will move down the list
+            # to make room for the above ones ^^
+            count = 0
+            for other_clan in game.clan.all_other_clans:
+                count += 1
+                if (
+                    other_clan.group_ID in game.used_group_IDs
+                    and game.used_group_IDs[other_clan.group_ID] != other_clan
+                ):
+                    # generate the new ID. adds to the last number in the existing list (7)
+                    new_group_id = 7 + count
+                    other_clan.group_ID = str(new_group_id)
+
+                    # now add to game used IDs
+                    game.used_group_IDs.update({str(new_group_id): CatGroup.OTHER_CLAN})
+
+            self.convert_group_IDs()
+            # ---
+
+            for ID in game.used_group_IDs:
+                game.used_group_IDs[ID] = CatGroup(game.used_group_IDs[ID])
+        # ---
+
+        for other_clan in game.clan.all_other_clans:
+            for existing_clan in game.clan.all_other_clans:
+                if other_clan is existing_clan:
+                    continue    
+
+                if existing_clan.group_ID not in other_clan.relations:
+                    other_clan.relations[existing_clan.group_ID] = randint(
+                        get_config("clan_creation.starting_clan_relation")[0],
+                        get_config("clan_creation.starting_clan_relation")[1],
+                    )
+            if game.clan.group_ID not in other_clan.relations:
+                other_clan.relations[game.clan.group_ID] = randint(
+                    get_config("clan_creation.starting_clan_relation")[0],
+                    get_config("clan_creation.starting_clan_relation")[1],
+                )
 
         # LG
         # MOVED HERE
@@ -2372,6 +2430,7 @@ class OtherClan:
         ID: str = 0
     ):
         self.group_ID = ID
+        self.clancount = clancount
         if not self.group_ID:
             self.group_ID = game.get_free_group_ID(CatGroup.OTHER_CLAN)
         game.clan.other_clan_IDs.append(self.group_ID)
@@ -2439,6 +2498,10 @@ class OtherClan:
             if chosen_symbol
             else clan_symbol_sprite(self, return_string=True)
         )
+        self.leader = Cat.all_cats.get(leader)
+        self.leader_lives = leader_lives if self.leader else 0
+        self.deputy = Cat.all_cats.get(deputy)
+        self.medicine_cat = Cat.all_cats.get(medicine_cat)
 
         self.instructor = Cat.all_cats.get(instructor)
         self.leader = Cat.all_cats.get(leader)
@@ -2564,7 +2627,7 @@ class OtherClan:
 
     @property
     def name(self):
-        return i18n.t("general.clan", name=self.prefix)
+        return f"{self.prefix}Clan"
 
     @name.setter
     def name(self, value):

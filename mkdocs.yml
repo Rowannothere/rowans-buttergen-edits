@@ -1,8 +1,8 @@
-site_name: ClanGen Documentation
-site_url: https://clangen.io/clangen-docs/
-repo_url: https://github.com/ClanGenOfficial/clangen
-repo_name: ClanGenOfficial/clangen
-edit_uri: https://github.com/ClanGenOfficial/clangen/edit/development/docs/
+site_name: LifeGen Documentation
+site_url: https://mods.clangen.io/lifegen-docs/
+repo_url: https://github.com/sedgestripe/clangen
+repo_name: sedgestripe/clangen
+edit_uri: https://github.com/sedgestripe/clangen/tree/LifeGen-dev/docs
 nav:
   - Welcome:
     - index.md
@@ -61,44 +61,35 @@ nav:
         - dev/writing/localization.md
         - dev/writing/advanced-documentation.md
     - Art:
-        - Cat Sprites:
-            - dev/art/cat-sprites/cat-sprites.md
-            - dev/art/cat-sprites/adding-new-sprites.md
-            - dev/art/cat-sprites/palette-maps.md
-            - dev/art/cat-sprites/pelt-recipes-and-more.md
-            - dev/art/cat-sprites/pelt-parts-visual-guide.md
-        - dev/art/index.md
-        - dev/art/cruel-season-cards.md
-        - dev/art/patrol-sprites.md
-        - dev/art/clan-symbols.md
-        - dev/art/camp-backgrounds.md
-    - Audio:
-        - dev/audio/index.md
-
+      - lifegen-features/art/favorite-stars.md
+      - lifegen-features/art/patrol-sprites.md
+    - Code:
+      - lifegen-features/code/queen's-activity.md
+    - lifegen-features/references.md
+    - lifegen-features/index.md
+  - LifeGen Catalog:
+    - lifegen-catalog/releases-catalog.md
+    - lifegen-catalog/upcoming.md
+    - lifegen-catalog/index.md
+  - Tech Help Documentation:
+    - tech-help-documentation/index.md
+    - tech-help-documentation/bug-catalog.md
+    - Installing:
+      - tech-help-documentation/installing/application.md
+      - tech-help-documentation/installing/source.md
   - User Guides:
+    - Save file Editing:
+      - user-guides/save-file-editing/lifegen-sfe-additions.md
+    - Modding Preparation:
+      - user-guides/modding-preparation/github-desktop.md
+      - user-guides/modding-preparation/creating-releases.md
+      - user-guides/modding-preparation/index.md
     - user-guides/index.md
-    - user-guides/removing-palette-maps.md
-    - Save File Editing:
-      - user-guides/save-file-editing/sfe.md
-      - user-guides/save-file-editing/clan_cats.md
-      - user-guides/save-file-editing/clan_json.md
-      - user-guides/save-file-editing/history.md
-      - user-guides/save-file-editing/conditions.md
-      - user-guides/save-file-editing/relations.md
-      - user-guides/save-file-editing/future-events.md
-    - Tech Help:
-      - user-guides/tech-help/installing-uv.md
-      - user-guides/tech-help/backups.md
   - Contributing to the Wiki:
       - contributing/index.md
       - contributing/documentation-resources.md
-  - Policy:
-      - policy/index.md
-      - policy/assets.md
-      - policy/names.md
   - Development Blog:
       - blog/index.md
-
 
 theme:
   name: material
@@ -153,7 +144,7 @@ theme:
         icon: material/weather-night
         name: Switch to system preference
 extra:
-  homepage: https://clangen.io/
+  homepage: https://mods.clangen.io/LifeGen/download
 extra_css:
   - stylesheets/extra.css
 
@@ -172,6 +163,7 @@ markdown_extensions:
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.inlinehilite
+  - attr_list
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
@@ -195,8 +187,8 @@ plugins:
   - search
   - git-committers:
       enabled: !ENV [GIT_COMMITTERS_ENABLED, False]
-      repository: ClanGenOfficial/clangen
-      branch: development
+      repository: sedgestripe/clangen
+      branch: LifeGen-dev
   - git-revision-date-localized:
       enable_creation_date: true
       type: timeago

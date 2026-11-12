@@ -113,7 +113,10 @@ def check_for_ceremony(main_cat: Cat, clan):
     """
     Checks if a cat needs to undergo a ceremony, then handles everything pertaining to that ceremony.
     :param main_cat: The cat object that must be checked for a potential ceremony
+    :param clan: The clan to check for ceremony eligibility
     """
+    if clan is None:
+        clan = game.clan
 
     # Protection check, to ensure "None" cats won't cause a crash.
     if not main_cat or main_cat.dead:
@@ -255,12 +258,14 @@ def check_and_promote_deputy(clan):
     """
     Checks if a new deputy needs to be appointed, and appoints them if necessary.
     """
+    if clan is None:
+        clan = game.clan
+
     if (
         clan.deputy
         and clan.deputy.status.group_ID == clan.group_ID
         and clan.deputy.status.rank != CatRank.ELDER
     ):
-        # don't need a new deputy
         return
 
     if not get_clan_setting("deputy") and clan == game.clan:
@@ -509,8 +514,11 @@ def _is_suitable_medcat_app(cat, clan) -> bool:
     """
     Determines whether this cat will become a medicine cat
     :param cat: A kitten preparing for apprenticeship ceremony
+    :param clan: The clan to which the cat belongs
     :return: True if the kitten should be a medcat, False otherwise
     """
+    if clan is None:
+        clan = game.clan
     # assign chance to become med app depending on current med cat and traits
     chance = get_config("roles.base_medicine_app_chance")  # 41
     logger.info("Medcat app %s starting chance: %d", str(cat.name), chance)

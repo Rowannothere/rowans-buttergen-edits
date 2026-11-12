@@ -450,6 +450,41 @@ class History:
             SkillPath.CLAIRVOYANT: ["predicting the future"],
             SkillPath.PROPHET: ["understanding prophecies"],
             SkillPath.GHOST: ["connecting to the afterlife"],
+            # LG
+            SkillPath.EXPLORER: ["exploring unknown areas"],
+            SkillPath.TRACKER: ["tracking down scents"],
+            SkillPath.ARTISAN: ["decorating dens"],
+            SkillPath.GUARDIAN: ["guarding the camp"],
+            SkillPath.TUNNELER: ["tunneling"],
+            SkillPath.NAVIGATOR: ["navigating unknown territory"],
+            SkillPath.SONG: ["using their voice"],
+            SkillPath.GRACE: ["watching where they step"],
+            SkillPath.CLEAN: ["keeping themself tidy"],
+            SkillPath.INNOVATOR: ["solving problems"],
+            SkillPath.COMFORTER: ["comforting others"],
+            SkillPath.MATCHMAKER: ["matchmaking"],
+            SkillPath.THINKER: ["thinking outside of the box"],
+            SkillPath.COOPERATIVE: ["being a team player"],
+            SkillPath.SCHOLAR: ["learning new things"],
+            SkillPath.TIME: ["managing their time"],
+            SkillPath.TREASURE: ["finding gifts"],
+            SkillPath.FISHER: ["fishing"],
+            SkillPath.LANGUAGE: ["using their words"],
+            SkillPath.SLEEPER: ["self-care"],
+            SkillPath.GARDENER: ["taking care of plants"],
+            SkillPath.DARK: ["connecting to the Dark Forest"],
+            # Kittypet-unique
+            SkillPath.TWOLEGCARE: ["getting along with Twolegs"],
+            SkillPath.CHARMER: ["charming others"],
+            SkillPath.SHOWCAT: ["looking their best"],
+            # Loner-unique
+            SkillPath.WANDERER: ["traveling long distances"],
+            SkillPath.SCAVENGER: ["scavenging for resources"],
+            SkillPath.SURVIVOR: ["surviving hardship"],
+            # Rogue-unique
+            SkillPath.BRAWLER: ["brawling"],
+            SkillPath.INTIMIDATOR: ["intimidating others"],
+            SkillPath.AMBUSHER: ["laying ambushes"],
         }
 
         for _queen in self.queen_influence["skill"]:

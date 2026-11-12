@@ -4,7 +4,7 @@ import logging
 import random
 import statistics
 from os.path import exists as path_exists
-from random import choice, randint, choices, sample
+from random import choice, randint, choices, sample, shuffle
 from typing import List, Tuple, Optional, Union, Literal, TypedDict
 
 import pygame
@@ -24,6 +24,7 @@ from scripts.events_module.consequences import gather_cat_objects
 from scripts.events_module.event_filters import (
     check_relationship_value,
     get_personality_compatibility,
+    event_for_cat,
 )
 from scripts.events_module.filter_random_cats import choose_random_cats
 from scripts.events_module.patrol.enums import PatrolChoice, PatrolOutcome
@@ -122,6 +123,7 @@ class Patrol:
         Handles all the initial patrol setup, returns the prepared patrol intro text.
         :param patrol_cats: All cats that have been chosen for this patrol
         :param patrol_type: Type of patrol
+        :param clan: The clan to which the patrol belongs
         """
         self.debug_patrol_id = get_config("patrol_generation.debug_ensure.patrol_id")
 
@@ -130,7 +132,7 @@ class Patrol:
         self.clan = game.clan if clan.group_ID == game.clan.group_ID else next(filter(lambda c: clan.group_ID == c.group_ID, game.clan.all_other_clans), game.clan)
         # Add cats
         self._add_patrol_cats(patrol_cats)
-
+        self.clan = game.clan if clan.group_ID == game.clan.group_ID else next(filter(lambda c: clan.group_ID == c.group_ID, game.clan.all_other_clans), game.clan)
         # The patrol group can't change once it's set out, so this is fixed for the rest of the patrol
         self.temperament = get_patrol_temperament(
             self.patrol_cats, self.involved_cats.get("p_l")
@@ -162,6 +164,26 @@ class Patrol:
                 self.patrol_event.poi.get("category"),
                 clan=self.clan.group_ID
             )
+
+        # LG
+        if switch_get_value(Switch.patrol_category) != "clangen":
+            count = 0
+            for cat_obj in self.involved_cats["patrol_cats"]:
+                if cat_obj == self.involved_cats["p_l"]:
+                    continue
+                print("Adding", cat_obj.name, "as", f"r_c{count}")
+                self.involved_cats[f"r_c{count}"] = cat_obj
+                count += 1
+
+            for abbr, cat in self.patrol_event.chosen_lifegen_cats.items():
+                if abbr not in self.involved_cats:
+                    print("Lifegen Cat:", abbr, cat.name)
+                    self.involved_cats[abbr] = cat
+        # ---
+
+        print("Involved Cats:", self.involved_cats)
+        print("Event random cats:", self.patrol_event.random_cats)
+        print("Event chosen random cats:", self.patrol_event.chosen_lifegen_cats)
 
         # Return text adjusted patrol intro
         return event_text_adjust(
@@ -519,6 +541,7 @@ class Patrol:
         possible_patrols: List[PatrolEvent],
         patrol_type: str,
     ) -> PatrolEvent:
+        print("Filtering for:", patrol_type)
         # GET POSSIBLE PATROLS
         # filter for type initially
         possible_patrols = [
@@ -546,6 +569,8 @@ class Patrol:
         print(
             f"Total Number of Possible Patrols | normal: {len(normal_patrols)}, romantic: {len(romantic_patrols)} "
         )
+
+        patrol_ids = [p.event_id for p in normal_patrols + romantic_patrols]
 
         # GET PATROL
         chosen_patrol: Optional[PatrolEvent] = None
@@ -725,15 +750,48 @@ class Patrol:
         self.involved_cats = involved_cats
         return chosen_patrol
 
-    @staticmethod
+    # @staticmethod
     def _check_patrol_type(
-        patrol: PatrolEvent, patrol_type: str, is_debug_patrol: bool
+        self, patrol: PatrolEvent, patrol_type: str, is_debug_patrol: bool
     ) -> bool:
         # CHECK PATROL TYPE
-        if patrol_type not in patrol.types:
-            if is_debug_patrol:
-                print("DEBUG: requested patrol does not meet constraints (patrol type)")
-            return False
+        if switch_get_value(Switch.patrol_category) == "clangen":
+            # we dgaf about patrol types
+            if patrol_type not in patrol.types:
+                if is_debug_patrol:
+                    print(
+                        "DEBUG: requested patrol does not meet constraints (patrol type)"
+                    )
+                return False
+        else:
+            # this sucks
+            if "shunned" in patrol.tags and not game.clan.your_cat.status.is_shunned():
+                return False
+            if not "shunned" in patrol.tags and game.clan.your_cat.status.is_shunned():
+                return False
+            if game.clan.your_cat.status.group == CatGroup.DARK_FOREST:
+                if "df_lifegen" not in patrol.tags:
+                    return False
+            elif game.clan.your_cat.status.group == CatGroup.UNKNOWN_RESIDENCE:
+                if "ur_lifegen" not in patrol.tags:
+                    return False
+            elif game.clan.your_cat.status.group == CatGroup.STARCLAN:
+                if "sc_lifegen" not in patrol.tags:
+                    return False
+            else:
+                if "df_lifegen" in patrol.tags:
+                    return False
+                if "ur_lifegen" in patrol.tags:
+                    return False
+                if "sc_lifegen" in patrol.tags:
+                    return False
+
+        # ? idk
+        if switch_get_value(Switch.patrol_category) != "clangen":
+            lg_cats = self.get_lifegen_patrol_cats(patrol)
+            if not lg_cats:
+                return False
+            patrol.chosen_lifegen_cats = lg_cats
 
         return True
 
@@ -785,7 +843,7 @@ class Patrol:
         chosen_success, self.outcome_cats[PatrolOutcome.SUCCESS] = get_valid_event(
             primary_cat=self.involved_cats["p_l"],
             involved_cats=self.involved_cats,
-            interactable_cats=self.involved_cats["patrol_cats"],
+            interactable_cats=[c for c in self.involved_cats["patrol_cats"]],
             possible_events=success_outcomes,
             clan=self.clan,
             other_clan=self.other_clan,
@@ -824,7 +882,11 @@ class Patrol:
         chosen_failure, self.outcome_cats[PatrolOutcome.FAILURE] = get_valid_event(
             primary_cat=self.involved_cats["p_l"],
             involved_cats=self.involved_cats,
-            interactable_cats=self.involved_cats["patrol_cats"],
+            interactable_cats=[
+                c
+                for c in self.involved_cats["patrol_cats"]
+                if c != self.involved_cats["p_l"]
+            ],
             possible_events=fail_outcomes,
             clan=self.clan,
             other_clan=self.other_clan,
@@ -995,6 +1057,11 @@ class Patrol:
         """Returns both the chosen outcome, and a boolean that's True if success, and False if failure."""
 
         patrol_size = len(self.patrol_cats)
+        # lg fuckery
+        if patrol_size == 0:
+            print("self.patrol_cats is empty?", self.patrol_cats)
+            patrol_size = 1
+        # ---
         total_exp = sum([x.experience for x in self.patrol_cats])
         path = (
             "patrol_generation.classic_difficulty_modifier"
@@ -1259,3 +1326,28 @@ class Patrol:
                 return pygame.image.load(f"{april_fools_root_dir}{file_name}.png")
 
         return pygame.image.load(f"{root_dir}{file_name}.png")
+
+    def get_lifegen_patrol_cats(self, patrol):
+        return_dict = {}
+        test_cats = Cat.all_cats_list.copy()
+
+        for abbrev in patrol.random_cats:
+            shuffle(test_cats)
+            found_cat = None
+            for i in test_cats:
+                if not event_for_cat(
+                    cat_info=patrol.random_cats[abbrev],
+                    cat=i,
+                    p_l=self.involved_cats["p_l"],
+                ):
+                    continue
+                found_cat = i
+                break
+            # LG TODO fix
+            if not found_cat:
+                found_cat = random.choice(
+                    find_alive_cats_with_rank(Cat, [CatRank.WARRIOR])
+                )
+            return_dict[abbrev] = found_cat
+
+        return return_dict

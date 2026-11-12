@@ -26,12 +26,13 @@ def get_other_clan(clan_name):
 def change_clan_relations(clan, other_clan, difference):
     """
     will change the Clan's relation with other clans according to the difference parameter.
+    old two arguement calls still default to player Clan
     """
     # grab the relation value for that clan
     clan_relations = game.clan.get_relations(clan, other_clan)
     # change the value
     clan_relations += difference
-    # making sure it doesn't exceed the bounds
+
     if clan_relations > 30:
         clan_relations = 30
     elif clan_relations < 0:
@@ -39,6 +40,7 @@ def change_clan_relations(clan, other_clan, difference):
     # setting it in the Clan save
     game.clan.set_relations(clan, other_clan, clan_relations)
 
+    game.clan.set_relations(clan, other_clan, clan_relations)
 
 def change_clan_reputation(difference, clan):
     """

@@ -16,6 +16,7 @@ from scripts.ui.scale import ui_scale
 class CatToggleWindow(GameWindow):
     """This window allows the user to edit various cat behavior toggles"""
 
+    FAITH_LOCK_ORDER = ["flexible", "starclan", "dark forest", "neutral"]
     cat_toggles = [
         "prevent_fading",
         "prevent_kits",
@@ -127,6 +128,17 @@ class CatToggleWindow(GameWindow):
                 "windows.prevent_fading_tooltip_guide"
             )
             self.checkboxes["prevent_fading"].disable()
+
+        # LG
+        self.checkboxes["no_faith"] = UICheckbox(
+            (22, 0),
+            container=self,
+            anchors={
+                "top_target": self.checkboxes["prevent_romance"],
+            },
+            tool_tip_text=f"windows.no_faith_tooltip",
+            check=self.the_cat.lock_faith,
+        )
 
     def process_event(self, event):
         if event.type == pygame_gui.UI_BUTTON_START_PRESS:

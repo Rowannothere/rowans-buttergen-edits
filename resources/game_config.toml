@@ -247,10 +247,7 @@ dev_tools = false
       trust = 20
 
   [mates.breakup]
-    # the chance for a break up to happen after an affair has been discovered
-    # any number lower than this decreases the likelyhood of a break up
-    affair_breakup_chance = 0.8
-    
+
     # intial chance of breakup
     [mates.breakup.initial_chance]
       threshold = 120
@@ -294,14 +291,7 @@ dev_tools = false
         romance = -20
         comfort = -10
         respect = 10
-      [mates.breakup.reactions.affair_discovery_mate_reaction]
-        romance = -50
-        trust = -30
-        like = -40
-      [mates.breakup.reactions.affair_discovery_other_mate_reaction]
-        romance = -50
-        trust = -30
-        like = -40
+
 
 [new_cat]
   # number of welcoming events to add when a new cat joins
@@ -734,6 +724,16 @@ dev_tools = false
   warrior = 5000
   elder = 400
 
+[roles.become_med_chances]
+  # LG: 1/chance that a cat will switch to a medicine cat. rolls every moon, so keep it high.
+  warrior = 5000
+  elder = 400
+
+[roles.become_queen_chances]
+  # LG: 1/chance that a cat will switch to a queen. rolls every moon, so keep it high.
+  warrior = 5000
+  elder = 400
+
 [lost_cat]
   # 1/chance that a lost cat will return on their own
   rejoin_chance = 20
@@ -782,8 +782,9 @@ dev_tools = false
   # by default the first string will be used (index 0)
   debug_ensure_thought_index = 0
 
+
 [patrol_generation]
-  # modifies success rate based on game mode. higher = more difficult.
+   # modifies success rate based on game mode. higher = more difficult.
   difficulty_modifier = 2.5
   classic_difficulty_modifier = 1
 
@@ -823,7 +824,7 @@ dev_tools = false
   # forces specified event to occur regardless of if requirements are met
   debug_override_requirements = false
 
-  # forces the code to find events with the given frequency, frequency can be a number from 1-4
+  # forces the given frequency, frequency can be a number from 1-4
   debug_override_frequency = 0
 
   # modifies the likelihood of moonskip events that effect relationships between Clans. 
@@ -1406,21 +1407,20 @@ dev_tools = false
 
   [focus.raid_other_clans]
     # how much prey each working warrior(leader/deputy) will gather
-    prey_amounts = [0, 1, 2]
-    prey_weights = [3, 4, 1]
+    prey_warrior = 3
 
-    # how much herb each working warrior will gather
-    herb_amounts = [0, 1, 2]
-    herb_weights = [8, 2, 1]
+    # how much herb each working medicine cat will gather
+    herb_medicine = 4
 
     # injury chance of each warrior(leader/deputy) or medicine cat to get injured
-    injury_chance = 18
+    injury_chance_warrior = 18
+    "injury_chance_medicine cat" = 33
 
-    # the more clans that are raided the more likely it is to get injured
+    # the more clan which are raided the more likely it is to get injured
     chance_increase_per_clan = 3
 
     # amount of decrease; Clan relation is between 0 and 30, so the number should be small
-    relation = -3
+    relation = 3
 
     # list of injuries which can occur and to which distribution
     # INFO: current sum of injuries is 100 - for easier understanding it should stay the same
@@ -1705,6 +1705,8 @@ dev_tools = false
           "apprentice",
           "queen apprentice",
           "mediator apprentice",
+          "queen",
+          "queen's apprentice",
           "warrior",
           "queen",
           "mediator",

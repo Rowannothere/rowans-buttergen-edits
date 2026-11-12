@@ -90,5 +90,6 @@ def _handle_event(
         event_involved_cats=involved_cats,
         clan=clan,
         other_clan=other_clan,
+        clan=main_cat.status.fetch_clan_object(game.clan),
     )
     return processed_text

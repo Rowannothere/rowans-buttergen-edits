@@ -36,8 +36,7 @@
             "senior adult": 0,
             "senior": 0
         },
-        "illness_infectiousness": [
-        ],
+        "illness_infectiousness": [],
         "risks": [
             {
                 "name": "an infected wound",
@@ -79,8 +78,7 @@
             "senior adult": 0,
             "senior": 0
         },
-        "illness_infectiousness": [
-        ],
+        "illness_infectiousness": [],
         "risks": [
             {
                 "name": "sore",
@@ -117,8 +115,7 @@
             "senior adult": 0,
             "senior": 0
         },
-        "illness_infectiousness": [
-        ],
+        "illness_infectiousness": [],
         "risks": [
             {
                 "name": "sore",
@@ -156,8 +153,7 @@
             "senior adult": 0,
             "senior": 0
         },
-        "illness_infectiousness": [
-        ],
+        "illness_infectiousness": [],
         "risks": [
             {
                 "name": "sore",
@@ -197,8 +193,7 @@
             "senior adult": 0,
             "senior": 0
         },
-        "illness_infectiousness": [
-        ],
+        "illness_infectiousness": [],
         "risks": [
             {
                 "name": "an infected wound",
@@ -257,8 +252,7 @@
             "senior adult": 0,
             "senior": 0
         },
-        "illness_infectiousness": [
-        ],
+        "illness_infectiousness": [],
         "risks": [
             {
                 "name": "an infected wound",
@@ -306,8 +300,7 @@
             "senior adult": 60,
             "senior": 30
         },
-        "illness_infectiousness": [
-        ],
+        "illness_infectiousness": [],
         "risks": [
             {
                 "name": "whitecough",
@@ -528,9 +521,9 @@
             "senior adult": 0,
             "senior": 0
         },
-        "illness_infectiousness": [
-        ],
-        "risks": [{
+        "illness_infectiousness": [],
+        "risks": [
+            {
                 "name": "failing eyesight",
                 "chance": 80
             }
@@ -554,8 +547,7 @@
             "senior adult": 0,
             "senior": 0
         },
-        "illness_infectiousness": [
-        ],
+        "illness_infectiousness": [],
         "risks": [
             {
                 "name": "blind",
@@ -581,8 +573,7 @@
             "senior adult": 0,
             "senior": 0
         },
-        "illness_infectiousness": [
-        ],
+        "illness_infectiousness": [],
         "risks": [
             {
                 "name": "deaf",
@@ -632,8 +623,7 @@
             "senior adult": 0,
             "senior": 0
         },
-        "illness_infectiousness": [
-        ],
+        "illness_infectiousness": [],
         "risks": [
             {
                 "name": "joint pain",
@@ -667,8 +657,7 @@
             "senior adult": 0,
             "senior": 0
         },
-        "illness_infectiousness": [
-        ],
+        "illness_infectiousness": [],
         "risks": [
             {
                 "name": "seizure",
@@ -701,8 +690,7 @@
             "senior adult": 0,
             "senior": 0
         },
-        "illness_infectiousness": [
-        ],
+        "illness_infectiousness": [],
         "risks": [
             {
                 "name": "running nose",
@@ -730,8 +718,7 @@
             "senior adult": 0,
             "senior": 0
         },
-        "illness_infectiousness": [
-        ],
+        "illness_infectiousness": [],
         "risks": [
             {
                 "name": "headache",
@@ -757,8 +744,7 @@
             "senior adult": 0,
             "senior": 0
         },
-        "illness_infectiousness": [
-        ],
+        "illness_infectiousness": [],
         "risks": [
             {
                 "name": "constant nightmares",
@@ -794,8 +780,7 @@
             "senior adult": 0,
             "senior": 0
         },
-        "illness_infectiousness": [
-        ],
+        "illness_infectiousness": [],
         "risks": [
             {
                 "name": "grief stricken",
@@ -832,8 +817,7 @@
             "senior adult": 0,
             "senior": 0
         },
-        "illness_infectiousness": [
-        ],
+        "illness_infectiousness": [],
         "risks": [
             {
                 "name": "severe headache",

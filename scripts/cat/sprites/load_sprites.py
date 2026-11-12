@@ -513,6 +513,7 @@ class Sprites:
             self.WHITE_VITILIGO_DATA,
             self.TORTIE_DATA,
             self.SCAR_DATA,
+            self.SCAR_MISSING_PART_DATA,
             self.PLANT_DATA,
             self.WILD_DATA,
             self.COLLAR_DATA,

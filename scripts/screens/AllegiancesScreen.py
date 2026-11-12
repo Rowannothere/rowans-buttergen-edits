@@ -22,7 +22,7 @@ from scripts.ui.elements.allegiances_cat_button import AllegiancesCat
 from scripts.ui.elements.surface_image_button import UISurfaceImageButton
 from scripts.ui.elements.dropdown_container import UIDropDownContainer
 from ..ui.elements.modified_scrolling_container import UIModifiedScrollingContainer
-
+from scripts.ui.elements.dropdown import UIDropDown
 
 class AllegiancesScreen(Screens):
     allegiance_list = []
@@ -64,6 +64,19 @@ class AllegiancesScreen(Screens):
                 self.menu_button_pressed(event)
                 self.mute_button_pressed(event)
 
+            if selected_name == game.clan.name:
+                self.selected_clan = game.clan
+            else:
+                self.selected_clan = next(
+                    (
+                        clan
+                        for clan in game.clan.all_other_clans
+                        if clan.name == selected_name
+                    ),
+                    game.clan,
+                )
+            self.exit_screen()
+            self.screen_switches()
     def on_use(self):
         super().on_use()
 
@@ -310,6 +323,11 @@ class AllegiancesScreen(Screens):
 
     def get_allegiances_text(self):
         """Determine Text. Ouputs list of tuples."""
+
+        if self.selected_clan == game.clan:
+            selected_group_ID = CatGroup.PLAYER_CLAN_ID
+        else:
+            selected_group_ID = self.selected_clan.group_ID
 
         living_cats = [
             i for i in Cat.all_cats.values() if i.status.group_ID == self.current_clan.group_ID and i.moons >= 0

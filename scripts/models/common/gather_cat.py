@@ -74,7 +74,7 @@ class GatherCatEnum(Enum):
 class GatherCat(RootModel):
     root: Union[
         GatherCatEnum,
-        Annotated[str, StringConstraints(pattern=r"^-?n_c:[0-9]+$")],
+        Annotated[str, StringConstraints(pattern=r"^(n_c:|r_c:|o_c)[0-9]+$")],
         Annotated[str, StringConstraints(pattern=r"^-?(n_c|r_c|s_c)[0-9]+$")],
         # LG: new cats, random cats in LifeGen patrols (r_c:X) and other patrol cats (o_cX)
         Annotated[str, StringConstraints(pattern=r"^-?(n_c:|r_c:|o_c)[0-9]+$")],

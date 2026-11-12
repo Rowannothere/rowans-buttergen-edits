@@ -6,8 +6,7 @@ import i18n
 from scripts.cat.conditions.permanent_condition import PermanentCondition
 from scripts.cat.enums import CatGroup
 from scripts.cat.skills import SkillPath
-from scripts.clan_resources.herb.herb import Herb
-from scripts.game_structure.constants import HERBS
+from scripts.clan_resources.herb.herb import Herb, HERBS
 from scripts.clan_resources.herb.herb_effects import HerbEffect
 from scripts.clan_resources.supply import Supply
 from scripts.config import get_config
@@ -72,7 +71,53 @@ class HerbSupply:
         # med den log for current moon
         self.log = []
 
-        self.disable_random: bool = False
+    @property
+    def active_key(self) -> str:
+        """The supply group key now (player clan or outsider group)."""
+        return (
+            self.OUTSIDE_GROUP_KEY
+            if self._mc_outside_group() is not None
+            else self.PLAYER_CLAN_KEY
+        )
+
+    @property
+    def storage(self) -> dict:
+        """The stored-herb dict for the currently active group."""
+        return self._storage_groups[self.active_key]
+
+    @storage.setter
+    def storage(self, value):
+        self._storage_groups[self.active_key] = value
+
+    @property
+    def collected(self) -> dict:
+        """this-moon collected-herb dict for the currently active group."""
+        return self._collected_groups[self.active_key]
+
+    @collected.setter
+    def collected(self, value):
+        self._collected_groups[self.active_key] = value
+
+    def _load_supply(self, herb_supply: dict):
+        if self.PLAYER_CLAN_KEY in herb_supply or self.OUTSIDE_GROUP_KEY in herb_supply:
+            for group_key in (self.PLAYER_CLAN_KEY, self.OUTSIDE_GROUP_KEY):
+                group_data = herb_supply.get(group_key) or {}
+                for herb, amounts in group_data.get("storage", {}).items():
+                    self._storage_groups[group_key][herb] = [int(i) for i in amounts]
+                for herb, amount in group_data.get("collected", {}).items():
+                    self._collected_groups[group_key][herb] = int(amount)
+        elif "storage" in herb_supply or "collected" in herb_supply:
+            for herb, amounts in herb_supply.get("storage", {}).items():
+                self._storage_groups[self.PLAYER_CLAN_KEY][herb] = [
+                    int(i) for i in amounts
+                ]
+            for herb, amount in herb_supply.get("collected", {}).items():
+                self._collected_groups[self.PLAYER_CLAN_KEY][herb] = int(amount)
+        else:
+            for herb, amounts in herb_supply.items():
+                self._storage_groups[self.PLAYER_CLAN_KEY][herb] = [
+                    int(i) for i in amounts
+                ]
 
     @property
     def active_key(self) -> str:
@@ -587,10 +632,8 @@ class HerbSupply:
                 continue
 
             # chance to find an herb is based on its rarity
-            if randint(1, rarity) == 1 or self.disable_random:
-                if self.disable_random:
-                    quantity_modifier = quantity_modifier
-                elif rarity in (5, 6):
+            if randint(1, rarity) == 1:
+                if rarity in (5, 6):
                     quantity_modifier = quantity_modifier / 2
                 elif rarity in (1, 2):
                     quantity_modifier += 1

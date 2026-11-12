@@ -35,9 +35,19 @@
     {
         "event_id": "dead_kit_to_dead_other_kit_df",
         "strings": [
-            "Huddled up close to r_c",
+            "Is huddled up close to r_c",
             "Is comforting r_c despite {PRONOUN/m_c/poss} own fear",
-            "Is being comforted by r_c"
+            "Is being comforted by r_c",
+            "Is playing hide-n-seek with r_c in the thick shadows of the Dark Forest",
+            "Jumps on top of r_c, wrestling with {PRONOUN/r_c/object} until they both fall into the mud",
+            "Makes r_c play as {PRONOUN/m_c/poss} loyal deputy while {PRONOUN/m_c/subject} {VERB/m_c/get/gets} to be the terrible Tigerstar",
+            "Still plays pretend with r_c",
+            "Hopes that r_c doesn't leave {PRONOUN/m_c/object}",
+            "Accidentally hurt r_c while playing",
+            "Hurts r_c while playing and claims it was an accident",
+            "Knows r_c doesn't have a nest to hide thorns in",
+            "Is sparring with r_c, despite neither knowing how to fight",
+            "Is trying to make r_c feel warm again despite being cold {PRONOUN/m_c/self}"
         ],
         "involved_cats": {
             "r_c": {

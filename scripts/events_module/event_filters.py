@@ -570,6 +570,10 @@ def event_for_cat(
     func_lookup = {
         "age": _check_cat_age,
         "status": _check_cat_status,
+        # LG
+        # we use rank lol. i suck
+        "rank": _check_cat_status,
+        # ---
         "past_status": _check_cat_status_history,
         "stat": _check_cat_stat,  # TODO: should eventually replace "trait" and "skill"
         "trait": _check_cat_trait,
@@ -663,6 +667,27 @@ def _check_cat_name(cat, name_check: dict) -> bool:
         return False
 
     return True
+
+
+def _check_cat_residence(cat, residences: list) -> bool:
+    # lifegen
+    # this would be better in group but im in too deep now........
+
+    if not residences:
+        return True
+
+    res_dict = {
+        "sc": CatGroup.STARCLAN,
+        "ur": CatGroup.UNKNOWN_RESIDENCE,
+        "df": CatGroup.DARK_FOREST,
+    }
+    found_res = False
+    for r in res_dict:
+        if r in residences:
+            if cat.status.group == res_dict[r]:
+                found_res = True
+                break
+    return found_res
 
 
 def _check_cat_exp(cat, current_exp: list[str]) -> bool:
@@ -768,6 +793,10 @@ def _check_cat_status(cat, statuses: list) -> bool:
     ):
         return True
 
+    if "df_trainee" in statuses:
+        if not cat.joined_df:
+            return False
+
     is_exclusionary = _check_for_exclusionary_value(statuses)
 
     if is_exclusionary:
@@ -780,6 +809,11 @@ def _check_cat_status(cat, statuses: list) -> bool:
         or ("guide" in statuses and cat in [game.clan.instructor]+[clan.instructor for clan in game.clan.all_other_clans])
     ):
         return False
+
+    # LG
+    if "df_trainee" in statuses:
+        if cat.joined_df:
+            return False
 
     return is_exclusionary
 
@@ -1656,14 +1690,14 @@ def _get_cats_from_group(
                     c
                     for c in cat_list
                     if c.status.group
-                    != already_involved_cats[cat_to_match].status.group
+                    == already_involved_cats[cat_to_match].status.group
                 ]
             else:
                 cat_list = [
                     c
                     for c in cat_list
                     if c.status.group
-                    == already_involved_cats[cat_to_match].status.group
+                    != already_involved_cats[cat_to_match].status.group
                 ]
             remaining_tags.remove(tag)
 

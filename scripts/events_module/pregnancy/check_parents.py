@@ -25,6 +25,7 @@ from scripts.events_module.event_filters import (
 )
 from scripts.events_module.thoughts.generate_thoughts import get_new_thought
 from scripts.config import get_config
+from scripts.events_module.consequences import create_new_cat
 
 def cat_is_amab(cat):
     return (('Y' in cat.phenotype.sexgene and cat.phenotype.sex != "molly") or cat.phenotype.sex == "tom")
@@ -153,6 +154,20 @@ def check_second_parent(cat: Cat, second_parent: Cat) -> tuple[bool, bool]:
 
         return True, False, second_parent_copy
 
+def get_biological_parent(cat: Cat):
+    """
+    # Creates a biological parent for a cat if they don't have one. 
+    This is used for cats that are adopted or have no known parents.
+    Also used for cats that are the result of other clan relations, or outsiders and loners.
+    """
+    same_sex_birth_allowed = get_clan_setting("same sex birth")
+    possible_parents = [
+            possible_parent
+            for possible_parent in Cat.all_cats_list
+            if possible_parent.is_potential_mate(cat, ignore_outsider_status=True)
+            and (same_sex_birth_allowed or possible_parent.gender != cat.gender)
+            and possible_parent.ID not in cat.mate
+        ]
 
 def get_second_parent(cat, clan):
     """
@@ -474,6 +489,8 @@ def handle_outside_parent(cat, clan, amount=0, background_category= "1"):
 
     return [outside_parent, backkit]
 
+    # if function reaches this point, having kits is possible
+  
 
 def _determine_highest_romantic_relation(
     cat: Cat,

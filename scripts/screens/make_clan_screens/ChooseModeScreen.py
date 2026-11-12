@@ -34,7 +34,7 @@ class ChooseModeScreen(MakeClanScreenBase):
         super().screen_switches()
 
         # Reset variables
-        if not switch_get_value(Switch.possible_cats):
+        if switch_get_value(Switch.possible_cats):
             switch_set_value(
                 Switch.possible_cats,
                 create_example_cats(

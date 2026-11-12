@@ -31,6 +31,33 @@ class Outcome(BaseTextPoolEvent):
         MISSING,
         description="Used to add constraints for the various involved cats.",
     )
+    # LG
+    stat_residence: Union[List[str], MISSING] = Field(
+        MISSING, description="Dead residence the stat cat must be a part of."
+    )
+    stat_cluster: Union[List[str], MISSING] = Field(
+        MISSING, description="Cluster the stat cat must be a part of."
+    )
+    stat_faith: Union[List[int], MISSING] = Field(
+        MISSING, description="Faith range the stat cat must be a part of."
+    )
+    murder: Union[List[dict], MISSING] = Field(
+        MISSING, description="Indicates which cats will be murdered and by who."
+    )
+    accessory: Union[List[dict], MISSING] = Field(
+        MISSING, description="Indicates accessories gained from the outcome."
+    )
+    faith_effects: Union[List[dict], MISSING] = Field(
+        MISSING, description="Indicates faith effects given."
+    )
+    convert: Union[List[str], MISSING] = Field(
+        MISSING, description="Indicates which cats were converted to the Dark Forest."
+    )
+    faith_effect: Union[List[dict], MISSING] = Field(
+        MISSING, description="Indicates faith effects caused by the outcome."
+    )
+    # ---
+
     required_cat_types: Union[
         Dict[MinMaxStatusDictKey, Tuple[int, int]], MISSING
     ] = Field(

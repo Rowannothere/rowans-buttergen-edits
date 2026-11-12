@@ -70,6 +70,9 @@ from scripts.events_module.event_filters import get_personality_compatibility
 
 from scripts.lifegen_utility import get_cluster
 
+from scripts.lifegen_utility import get_cluster
+from scripts.events_module.event_information import EventInformation
+
 import scripts.game_structure.screen_settings
 from scripts.clan_package.get_clan_cats import find_alive_cats_with_rank
 
@@ -159,6 +162,9 @@ class Cat:
         (133, "competent"), (164, "skilled"), (195, "proficient"), (226, "advanced"), (258, "expert"),
         (289, "adept"), (320, "master"), (321, "grandmaster"),
     )
+
+    _living_clan_cache = None  # Optional[List[Cat]]
+    _living_clan_cache_len = -1
 
     _living_clan_cache = None  # Optional[List[Cat]]
     _living_clan_cache_len = -1
@@ -306,6 +312,29 @@ class Cat:
         self.permanent_conditions: list[PermanentCondition] = []
         self.healed_condition = None
         self.leader_death_heal = None
+
+        # LIFEGEN
+        self.w_done = False
+        self.talked_to = False
+        self.insulted = False
+        self.flirted = False
+        self.joined_df = False
+        self.revives = 0
+        self.courage = 0
+        self.compassion = 0
+        self.intelligence = 0
+        self.empathy = 0
+        self.did_activity = False
+        self.df_mentor = None
+        self.df_apprentices = []
+        self.faith = randint(-3, 3)
+        self.connected_dialogue = {}
+        self.lock_faith = "flexible"
+        self.df_join_moon = 0
+        self.df_patrols = 0
+        self.graduated_df = False
+        self.backstory_str = ""
+        # --------->
 
         # LIFEGEN
         self.w_done = False
@@ -739,7 +768,7 @@ class Cat:
         """
         return not self.dead
 
-    def die(self, body: bool = True, grief_allowed: bool = True):
+    def die(self, body: bool = True, grief_allowed: bool = True, clan=None):
         """Kills cat.
         :param body: defaults to True, use this to mark if the body was recovered so
         that grief messages will align with body status
@@ -2096,6 +2125,7 @@ class Cat:
         for_love_interest: bool = False,
         age_restriction: bool = True,
         first_cousin_mates: bool = False,
+        ignore_outsider_status: bool = False,
         ignore_no_mates: bool = False,
         outsider=False,
     ):

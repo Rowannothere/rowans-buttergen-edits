@@ -36,6 +36,7 @@ from scripts.events import update_afterlife_temper
 from scripts.events_module.text_adjust import (
     event_text_adjust,
     adjust_list_text,
+    pronoun_repl,
     shorten_text_to_fit,
     adjust_list_text,
     process_text,
@@ -899,12 +900,11 @@ class ProfileScreen(Screens):
 
         self.placeholder_tab_3 = UISurfaceImageButton(
             ui_scale(pygame.Rect((400, 622), (176, 30))),
-            "",
+            "faith",
             get_button_dict(ButtonStyles.PROFILE_MIDDLE, (176, 30)),
             object_id="@buttonstyles_profile_middle",
             manager=MANAGER,
         )
-        self.placeholder_tab_3.disable()
 
         self.accessories_tab_button = UISurfaceImageButton(
             ui_scale(pygame.Rect((576, 622), (176, 30))),
@@ -955,6 +955,8 @@ class ProfileScreen(Screens):
         self.dangerous_tab_button.kill()
         self.backstory_tab_button.kill()
         self.conditions_tab_button.kill()
+        if self.your_tab:
+            self.your_tab.kill()
         self.placeholder_tab_3.kill()
         if self.your_tab:
             self.your_tab.kill()
@@ -1420,13 +1422,30 @@ class ProfileScreen(Screens):
             # NEWLINE ----------
 
         # PARENTS
-        all_parents = [Cat.fetch_cat(i) for i in the_cat.get_parents()]
-        if all_parents:
+        display_parents = []
+        if the_cat.parent1:
+            if the_cat.parent1_known:
+                display_parents.append(str(Cat.fetch_cat(the_cat.parent1).name))
+            else:
+                display_parents.append("Unknown")
+
+        if the_cat.parent2:
+            if the_cat.parent2_known:
+                display_parents.append(str(Cat.fetch_cat(the_cat.parent2).name))
+            else:
+                display_parents.append("Unknown")
+
+        for adoptive_parent in the_cat.adoptive_parents:
+            if adoptive_parent not in [the_cat.parent1, the_cat.parent2]:
+                display_parents.append(str(Cat.fetch_cat(adoptive_parent).name))
+            
+        
+        if display_parents:
             output += "\n"
             output += i18n.t(
                 "screens.profile.parent_label",
-                count=len(all_parents),
-                parents=adjust_list_text([str(cat.name) for cat in all_parents]),
+                count=len(display_parents),
+                parents=adjust_list_text(display_parents),
             )
 
         # MATE
@@ -1514,6 +1533,12 @@ class ProfileScreen(Screens):
             output += "\n"
         elif the_cat.status.is_exiled():
             output += f"<font color='#FF0000'>{i18n.t('general.exiled', count=1)} {exiled_name}</font>"
+            # NEWLINE ----------
+            output += "\n"
+        elif the_cat.status.is_shunned():
+            output += (
+                f"<font color='#FF0000'>{i18n.t('general.shunned', count=1)}</font>"
+            )
             # NEWLINE ----------
             output += "\n"
         elif the_cat.status.is_shunned():
@@ -3647,6 +3672,91 @@ class ProfileScreen(Screens):
                 self.gift_accessory_button.enable()
             else:
                 self.gift_accessory_button.disable()
+
+            if switch_get_value(Switch.request_apprentice):
+                self.request_apprentice_button.disable()
+
+        elif self.open_tab == "your tab":
+            self.have_kits_button = UISurfaceImageButton(
+                ui_scale(pygame.Rect((402, 580), (172, 36))),
+                "have kits",
+                get_button_dict(ButtonStyles.LADDER_MIDDLE, (172, 36)),
+                object_id="@buttonstyles_ladder_middle",
+                starting_height=2,
+                tool_tip_text="You will be more likely to have kits the next moon.",
+                manager=MANAGER,
+                anchors={"bottom_target": self.your_tab},
+            )
+            self.have_kits_button.disable()
+            if (
+                check_if_can_have_kits(cat=self.the_cat)
+                and self.the_cat.status.alive_in_player_clan
+                and not switch_get_value(Switch.have_kits)
+            ):
+                self.have_kits_button.enable()
+
+            self.request_apprentice_button = UISurfaceImageButton(
+                ui_scale(pygame.Rect((402, 544), (172, 36))),
+                "request apprentice",
+                get_button_dict(ButtonStyles.LADDER_MIDDLE, (172, 36)),
+                object_id="@buttonstyles_ladder_middle",
+                starting_height=2,
+                tool_tip_text="You will be more likely to receive an apprentice.",
+                manager=MANAGER,
+                anchors={"bottom_target": self.have_kits_button},
+            )
+
+            self.request_apprentice_button.disable()
+            if (
+                self.the_cat.status.rank
+                in (
+                    CatRank.LEADER,
+                    CatRank.DEPUTY,
+                    CatRank.WARRIOR,
+                    CatRank.MEDIATOR,
+                    CatRank.MEDICINE_CAT,
+                    CatRank.QUEEN,
+                )
+                and self.the_cat.status.alive_in_player_clan
+            ):
+                self.request_apprentice_button.enable()
+
+            self.gift_accessory_button = UISurfaceImageButton(
+                ui_scale(pygame.Rect((402, 508), (172, 36))),
+                "give a gift",
+                get_button_dict(ButtonStyles.LADDER_MIDDLE, (172, 36)),
+                object_id="@buttonstyles_ladder_middle",
+                starting_height=2,
+                manager=MANAGER,
+                anchors={"bottom_target": self.request_apprentice_button},
+            )
+            if (
+                self.the_cat.moons > 0
+                and not self.the_cat.dead
+                and not self.the_cat.status.is_outsider
+                and len(self.cat_inventory) > 0
+            ):
+                self.gift_accessory_button.enable()
+            else:
+                self.gift_accessory_button.disable()
+
+            self.your_faith_button = UISurfaceImageButton(
+                ui_scale(pygame.Rect((402, 472), (172, 36))),
+                "faith",
+                get_button_dict(ButtonStyles.LADDER_TOP, (172, 36)),
+                object_id="@buttonstyles_ladder_top",
+                starting_height=2,
+                manager=MANAGER,
+                anchors={"bottom_target": self.gift_accessory_button},
+            )
+            if (
+                not self.the_cat.age.is_baby()
+                and not self.the_cat.dead
+                and not self.the_cat.status.is_outsider
+            ):
+                self.your_faith_button.enable()
+            else:
+                self.your_faith_button.disable()
 
             if switch_get_value(Switch.request_apprentice):
                 self.request_apprentice_button.disable()

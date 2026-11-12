@@ -13,6 +13,7 @@
         "living_group": "%{group} %{rank}",
         "past_no_group": "past %{rank}",
         "past_group": "past %{group} %{rank}",
+        "daylight_warrior": "%{group} daylight %{rank}",
         "lives": {
             "one": "1 life",
             "many": "%{count} lives"
@@ -52,6 +53,10 @@
         "queen": {
             "one": "queen",
             "many": "queens"
+        },
+        "queen's apprentice": {
+            "one": "queen's apprentice",
+            "many": "queen's apprentices"
         },
         "queen/pregnant": {
             "one": "queen/pregnant cat",
@@ -106,6 +111,10 @@
         "exiled": {
             "one": "exiled from",
             "many": "exiled from"
+        },
+        "shunned": {
+            "one": "shunned",
+            "many": "shunned"
         },
         "lost": "lost",
         "mate": {
@@ -229,6 +238,7 @@
         "had_condition_for": "has had this condition for %{moons}",
         "had_injury_for": "has been hurt for %{moons}",
         "pregnant_for": "has been pregnant for %{moons}",
+        "guilty_for": "has been troubled for %{moons}",
         "recovering_from_birth_for": "has been recovering for %{moons}",
         "sick": "sick",
         "injured": "injured",

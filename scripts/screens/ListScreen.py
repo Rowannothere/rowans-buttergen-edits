@@ -829,6 +829,24 @@ class ListScreen(Screens):
             group = self.current_group
             first_temper, second_temper = next(filter(lambda c: c.name == self.selected_clan, game.clan.all_other_clans), game.clan).temperament
 
+        elif self.current_group == "starclan":
+            group = i18n.t("general.starclan")
+            first_temper, second_temper = game.starclan.temperament
+
+        else:
+            other_clan = next(
+                (
+                    clan
+                    for clan in game.clan.all_other_clans
+                    if clan.name == self.current_group
+                ),
+                None,
+            )
+
+            if other_clan:
+                group = other_clan.name
+                first_temper, second_temper = other_clan.temperament
+        
         first = i18n.t(f"screens.leader_den.{first_temper}")
         second = i18n.t(f"screens.leader_den.{second_temper}")
         temper = i18n.t(

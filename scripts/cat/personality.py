@@ -52,6 +52,9 @@ class Personality:
             # Trait-given init
             self.trait = trait
             _tr = trait_type_dict[self.trait]
+        if trait2 and trait2 in trait_type_dict:
+            self.trait2 = trait2
+            _tr2 = trait_type_dict[self.trait2]
 
         if trait2 and trait2 in trait_type_dict:
             self.trait2 = trait2

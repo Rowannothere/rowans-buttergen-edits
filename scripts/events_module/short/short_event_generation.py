@@ -146,6 +146,7 @@ def create_short_event(
             excluded_events=future_event.excluded_events if future_event else None,
             ignore_subtyping=future_event.negate_subtyping if future_event else None,
             reduction_avoidance_chance=avoidance_chance,
+            clan=clan,
         )
         if not chosen_event:
             # we'll see if any more common events are available
@@ -374,6 +375,7 @@ def filter_events(
     excluded_events: list = None,
     ignore_subtyping: bool = False,
     reduction_avoidance_chance: int = 1,
+    clan=None,
 ) -> Tuple[Optional[ShortEvent], Optional[Cat]]:
     """
     Filters possible events to find an event that fits the given requirements
