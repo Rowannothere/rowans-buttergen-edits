@@ -449,6 +449,12 @@ class ProfileScreen(Screens):
             ):
                 self.the_cat.insulted = True
                 self.affect_relationship("insult")
+                # BUTTERGEN: insulting another Clan's cat sours that Clan a little
+                from scripts import outsiders
+
+                other_clan = outsiders.clan_of(self.the_cat) if outsiders.on() else None
+                if other_clan:
+                    game.clan.set_relations(game.clan, other_clan, None, -1)
                 switch_set_value(Switch.talk_category, "insult")
                 self.change_screen(GameScreen.TALK)
             elif (
@@ -538,6 +544,11 @@ class ProfileScreen(Screens):
                 self.change_screen(GameScreen.FAMILY_TREE)
             elif event.ui_element == self.see_relationships_button:
                 self.change_screen(GameScreen.RELATIONSHIP)
+            elif event.ui_element == getattr(self, "try_kits_button", None):
+                from scripts.events_module.pregnancy import try_for_kits
+
+                try_for_kits.start(self.the_cat)
+                self.update_disabled_buttons_and_text()
             elif event.ui_element == self.choose_mate_button:
                 if not get_config("mates.allow_mating"):
                     CruelLockedAction()
@@ -1800,13 +1811,8 @@ class ProfileScreen(Screens):
                         ): "You may attend the half-moon gathering every six moons"
                     }
                 )
-            # BUTTERGEN: your cat can ask to join another Clan by a task (honor system step 9)
-            from scripts.honor import switching
-
-            if self.the_cat == game.clan.your_cat and switching.you_can_ask():
-                work_button_dict.update(
-                    {("switch_clan", "#exile_return_button"): "Ask to join another Clan"}
-                )
+            # BUTTERGEN: asking to join another Clan (honor system step 9) is in the dangerous tab,
+            # in the leave the Clan window
         elif self.the_cat.status.is_exiled(CatGroup.PLAYER_CLAN_ID):
             work_button_dict.update(
                 {
@@ -2977,7 +2983,7 @@ class ProfileScreen(Screens):
             self.condition_data[f"name_{con}"] = pygame_gui.elements.UITextBox(
                 con["name"],
                 ui_scale(pygame.Rect((0, 0), (120, -1))),
-                #                object_id="#text_box_30_horizcenter",
+                object_id="#text_box_30_horizcenter",
                 container=self.condition_data[f"bg_{con}"],
                 manager=MANAGER,
                 anchors={"centerx": "centerx"},
@@ -2989,7 +2995,7 @@ class ProfileScreen(Screens):
             self.condition_data[f"desc_{con}"] = pygame_gui.elements.UITextBox(
                 con["details"],
                 details_rect,
-                #                object_id="#text_box_22_horizcenter",
+                object_id="#text_box_22_horizcenter",
                 container=self.condition_data[f"bg_{con}"],
                 manager=MANAGER,
                 anchors={"centerx": "centerx", "top_target": self.condition_data[f"name_{con}"]},
@@ -3227,33 +3233,42 @@ class ProfileScreen(Screens):
         else:
             self.open_tab = "relations"
             self.family_tree_button = UISurfaceImageButton(
-                ui_scale(pygame.Rect((50, 450), (172, 36))),
+                ui_scale(pygame.Rect((50, 450), (172, 34))),
                 "screens.profile.family_tree",
-                get_button_dict(ButtonStyles.LADDER_TOP, (172, 36)),
+                get_button_dict(ButtonStyles.LADDER_TOP, (172, 34)),
                 object_id="@buttonstyles_ladder_top",
                 starting_height=2,
                 manager=MANAGER,
             )
             self.change_adoptive_parent_button = UISurfaceImageButton(
-                ui_scale(pygame.Rect((50, 486), (172, 36))),
+                ui_scale(pygame.Rect((50, 484), (172, 34))),
                 "screens.profile.adoptive_parents",
-                get_button_dict(ButtonStyles.LADDER_MIDDLE, (172, 36)),
+                get_button_dict(ButtonStyles.LADDER_MIDDLE, (172, 34)),
                 object_id="@buttonstyles_ladder_middle",
                 starting_height=2,
                 manager=MANAGER,
             )
             self.see_relationships_button = UISurfaceImageButton(
-                ui_scale(pygame.Rect((50, 522), (172, 36))),
+                ui_scale(pygame.Rect((50, 518), (172, 34))),
                 "screens.profile.relationships",
-                get_button_dict(ButtonStyles.LADDER_MIDDLE, (172, 36)),
+                get_button_dict(ButtonStyles.LADDER_MIDDLE, (172, 34)),
                 object_id="@buttonstyles_ladder_middle",
                 starting_height=2,
                 manager=MANAGER,
             )
             self.choose_mate_button = UISurfaceImageButton(
-                ui_scale(pygame.Rect((50, 558), (172, 36))),
+                ui_scale(pygame.Rect((50, 552), (172, 34))),
                 "screens.profile.mate",
-                get_button_dict(ButtonStyles.LADDER_BOTTOM, (172, 36)),
+                get_button_dict(ButtonStyles.LADDER_MIDDLE, (172, 34)),
+                object_id="@buttonstyles_ladder_middle",
+                starting_height=2,
+                manager=MANAGER,
+            )
+            # BUTTERGEN: any cat with a mate can try for kits
+            self.try_kits_button = UISurfaceImageButton(
+                ui_scale(pygame.Rect((50, 586), (172, 34))),
+                "try for kits",
+                get_button_dict(ButtonStyles.LADDER_BOTTOM, (172, 34)),
                 object_id="@buttonstyles_ladder_bottom",
                 starting_height=2,
                 manager=MANAGER,
@@ -3526,6 +3541,17 @@ class ProfileScreen(Screens):
                 self.choose_mate_button.disable()
             else:
                 self.choose_mate_button.enable()
+            # BUTTERGEN: try for kits
+            from scripts.events_module.pregnancy import try_for_kits
+
+            left = try_for_kits.moons_left(self.the_cat)
+            if left:
+                self.try_kits_button.set_text(f"trying for kits ({left})")
+                self.try_kits_button.disable()
+            elif try_for_kits.can_try(self.the_cat):
+                self.try_kits_button.enable()
+            else:
+                self.try_kits_button.disable()
 
         # Roles Tab
         elif self.open_tab == "roles":
@@ -3920,6 +3946,8 @@ class ProfileScreen(Screens):
             self.family_tree_button.kill()
             self.see_relationships_button.kill()
             self.choose_mate_button.kill()
+            if getattr(self, "try_kits_button", None):
+                self.try_kits_button.kill()
             self.change_adoptive_parent_button.kill()
         elif self.open_tab == "roles":
             self.manage_roles.kill()
@@ -4295,6 +4323,11 @@ class ProfileScreen(Screens):
     def validate_talk(self, cat_to, cat_from):
         if cat_to.moons < 0:
             return False
+        # BUTTERGEN: cats from other Clans and outsiders the player's cat has met (multi clan mode)
+        from scripts import outsiders
+
+        if not cat_to.dead and not cat_from.dead and outsiders.can_talk(cat_to, cat_from):
+            return True
         if cat_to.dead:
             if not cat_from.dead:
                 # newborns are too young to hold a conversation with the dead

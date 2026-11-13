@@ -99,6 +99,8 @@ class Patrol:
         self.patrol_event: Optional[PatrolEvent] = None
         self.debug_patrol_id: str = ""
         self.other_clan = None
+        # BUTTERGEN: the real friend in a friend patrol (friend_patrols.py)
+        self.friend = None
         self.clan = game.clan
         self.temperament: tuple[str, str] = ("", "")
         self.is_med_patrol = False
@@ -142,6 +144,10 @@ class Patrol:
         # Find valid patrol
         self._load_patrols_and_set_patrol(patrol_type)
         self.available_options = self.patrol_event.options
+        # BUTTERGEN: friend patrols use a real cat the player's cat has met
+        from scripts import friend_patrols
+
+        friend_patrols.setup(self)
         self._create_needed_cats()
 
         # LG: track which patrol categories the player's cat has gone on this moon
@@ -166,7 +172,7 @@ class Patrol:
         # Return text adjusted patrol intro
         return event_text_adjust(
             Cat,
-            choice(self.patrol_event.intro_strings),
+            friend_patrols.intro(self) or choice(self.patrol_event.intro_strings),
             involved_cat_dict=self.involved_cats,
             clan=self.clan,
             other_clan=self.other_clan,
@@ -187,11 +193,12 @@ class Patrol:
                 )
                 # BUTTERGEN: honor step 10, turning a temptation down counts
                 from scripts.honor import patrols as honor_patrols
+                from scripts import friend_patrols
 
                 return (
                     event_text_adjust(
                         Cat,
-                        choice(self.patrol_event.decline_strings),
+                        friend_patrols.decline(self) or choice(self.patrol_event.decline_strings),
                         involved_cat_dict=self.involved_cats,
                         clan=self.clan,
                         other_clan=self.other_clan,
@@ -425,6 +432,11 @@ class Patrol:
             clan=self.clan,
         )
 
+        # BUTTERGEN: friend patrols need a friend in multi clan mode
+        from scripts import friend_patrols
+
+        patrol_list = [p for p in patrol_list if friend_patrols.allowed(p, self)]
+
         # INFORM -NOT PRESENT-
         patrol_ids = [patrol.event_id for patrol in patrol_list]
         if self.debug_patrol_id and self.debug_patrol_id not in patrol_ids:
@@ -634,6 +646,12 @@ class Patrol:
         your_cat = game.clan.your_cat
         category = switch_get_value(Switch.patrol_category)
         is_shunned = your_cat.status.is_shunned()
+
+        # BUTTERGEN: friend patrols need a friend in multi clan mode
+        from scripts import friend_patrols
+
+        if not friend_patrols.allowed(patrol, self):
+            return False
 
         if category == "lifegen":
             afterlife_tags = {
@@ -906,6 +924,8 @@ class Patrol:
         chosen_outcome, success = self.calculate_success(
             success_outcome, fail_outcome, selected_option
         )
+        # BUTTERGEN: the friend's text, and the friend is the one who joins
+        from scripts import friend_patrols
 
         # LG
         if switch_get_value(Switch.patrol_category) == "date":
@@ -973,6 +993,20 @@ class Patrol:
                 processed_text,
             )
         )
+
+        # BUTTERGEN: running into another Clan, the player's cat may meet one of its cats
+        from scripts import outsiders
+
+        final_results.extend(outsiders.after_patrol(self, processed_text, self.patrol_cats))
+
+        # BUTTERGEN: the player's cat and the cats in the outcome grow closer
+        from scripts import patrol_bonds
+
+        patrol_bonds.after_patrol(
+            self, chosen_outcome,
+            self.outcome_cats[PatrolOutcome.SUCCESS if success else PatrolOutcome.FAILURE], success,
+        )
+        friend_patrols.after_outcome(self, chosen_outcome, success)
 
         # Run the chosen outcome
         result = (
