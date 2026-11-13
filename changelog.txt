@@ -5,6 +5,7 @@ A development build, so keep a copy of your saves folder before playing.
 New:
 - Exploring patrols (multi clan mode): a new patrol button takes your cat and up to 2 willing Clanmates onto another Clan's land or outside the Clans. They might get caught by a patrol and have to face one of its cats, run into a lone cat, or meet kittypets, loners and rogues they can talk to afterward
 - Crossing into another Clan's land is a new minor misdeed: the cats who came along can keep it, hold it over your cat or report it, and getting caught means it comes out
+- The "have kits" and "try for kits" buttons now say why they're grayed out when hovered (too young, had kits recently and how many moons are left, no mate, and so on), and warn when a mate had kits too recently to have more yet
 
 Fixes:
 - The game no longer crashes when an event names the leader or deputy while the Clan doesn't have one
