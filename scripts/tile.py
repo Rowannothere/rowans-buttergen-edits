@@ -10,7 +10,7 @@ from scripts.events_module.text_adjust import event_text_adjust
 from scripts.cat.cats import Cat
 from scripts.territory import territory_class
 from scripts.clan_resources.point_of_interest import (
-    get_pois_by_category
+    get_poi_save_dict
 )
 
 class TerritoryTile():
@@ -134,11 +134,10 @@ class TerritoryTile():
                 )
                 name = "<b>" + name.title() + "</b>"
             else:
-                poi_names = get_pois_by_category(self.poi)
                 name = event_text_adjust(
                     Cat,
                     "POI",
-                    chosen_poi=poi_names[0] if poi_names else self.poi
+                    chosen_poi=get_poi_save_dict()[self.poi][0]
                 )
                 name = "<b>" + name.title() + "</b>"
         elif self.camp:

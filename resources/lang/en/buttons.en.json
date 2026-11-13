@@ -52,7 +52,6 @@
         "sprite_image_scaled": "scaled",
         "keep_cards": "keep",
         "replace_cards": "replace",
-        "confirm": "confirm",
-        "view_map": "view map"
+        "confirm": "confirm"
     }
 }

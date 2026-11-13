@@ -23,7 +23,6 @@ from .LeaderDenScreen import LeaderDenScreen
 from .ListScreen import ListScreen
 from .MedDenScreen import MedDenScreen
 from .MediationScreen import MediationScreen
-from .MapScreen import MapScreen
 from .PatrolScreen import PatrolScreen
 from .ProfileScreen import ProfileScreen
 from .RelationshipScreen import RelationshipScreen
@@ -99,7 +98,6 @@ def rebuild_all_screens():
         GameScreen.WARRIOR_DEN: WarriorDenScreen,
         GameScreen.LEADER_DEN: LeaderDenScreen,
         GameScreen.EVENTS: EventsScreen,
-        GameScreen.MAP_SCREEN: MapScreen,
         GameScreen.SETTINGS: SettingsScreen,
         GameScreen.CLAN_SETTINGS: ClanSettingsScreen,
         GameScreen.START: StartScreen,

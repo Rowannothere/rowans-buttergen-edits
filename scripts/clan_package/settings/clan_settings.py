@@ -90,8 +90,6 @@ def reset_loaded_clan_settings():
         clan_settings[setting] = values[0]
         setting_lists[setting] = values
 
-    clan_settings["map_interaction"] = {}
-
 
 # Init Settings
 clan_settings = {}

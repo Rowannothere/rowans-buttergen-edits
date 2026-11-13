@@ -26,7 +26,6 @@ class GameScreen(StrEnum):
     LIST = "list_screen"
     EVENTS = "events_screen"
     PATROL = "patrol_screen"
-    MAP_SCREEN = "map_screen"
     ALLEGIANCES = "allegiances_screen"
     CLAN_SETTINGS = "clan_settings_screen"
 

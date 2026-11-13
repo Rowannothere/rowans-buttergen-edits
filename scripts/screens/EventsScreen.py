@@ -43,7 +43,6 @@ from scripts.clan_package.clan_symbols import clan_symbol_sprite
 from scripts.ui.theme import get_text_box_theme
 from scripts.events_module import weekskip
 from scripts.events_module.text_adjust import shorten_text_to_fit
-from scripts.territory import territory_class
 from scripts.ui.scale import (
     ui_scale,
     ui_scale_dimensions,
@@ -114,7 +113,6 @@ class EventsScreen(Screens):
         self.event_display = None
         self.event_display_containers = []
         self.event_display_boxes = []
-        self.open_map_buttons = {}
         self.cat_profile_buttons = []
         self.involved_cat_container = None
         self.involved_cat_buttons = []
@@ -216,14 +214,6 @@ class EventsScreen(Screens):
             event.type == pygame_gui.UI_BUTTON_PRESSED
         ):  # everything else on button press to prevent blinking
             element = event.ui_element
-            for key, button in self.open_map_buttons.items():
-                if element == button:
-                    tile_string = key.split(".", maxsplit=1)[1]
-                    tile = territory_class.get_tile_from_string(tile_string)
-                    if tile:
-                        switch_set_value(Switch.selected_tile, tile)
-                        self.change_screen(GameScreen.MAP_SCREEN)
-                    return
             if element is not None and (element == getattr(self, "honor_choice_badge", None)
                                         or element in getattr(self, "honor_event_buttons", [])):
                 honor_choices.open_window(self)
@@ -1423,7 +1413,6 @@ class EventsScreen(Screens):
         for ele in self.event_display_boxes:
             ele.kill()
         self.event_display_boxes = []
-        self.open_map_buttons = {}
 
         for ele in self.cat_profile_buttons:
             ele.kill()
@@ -1524,15 +1513,10 @@ class EventsScreen(Screens):
             )
             display_element_container.rebuild()
 
-            event_rect = (
-                pygame.Rect((40, 0), (469, -1))
-                if event_object.event_tile
-                else pygame.Rect((0, 0), (509, -1))
-            )
             # TEXT BOX
             display_element_event = pygame_gui.elements.UITextBox(
                 event_object.text,
-                ui_scale(event_rect),
+                ui_scale(pygame.Rect((0, 0), (509, -1))),
                 object_id=get_text_box_theme("#text_box_30_horizleft"),
                 starting_height=1,
                 container=display_element_container,
@@ -1542,19 +1526,6 @@ class EventsScreen(Screens):
             )
 
             self.event_display_boxes.append(display_element_event)
-
-            map_button = None
-            if event_object.event_tile:
-                map_button = UISurfaceImageButton(
-                    ui_scale(pygame.Rect((3, 5), (34, 34))),
-                    Icon.NEWLEAF,
-                    get_button_dict(ButtonStyles.ICON, (34, 34)),
-                    object_id="@buttonstyles_icon",
-                    starting_height=3,
-                    manager=MANAGER,
-                    container=display_element_container,
-                )
-                self.open_map_buttons[f"{i}.{event_object.event_tile}"] = map_button
 
             if event_object.cats_involved:
                 involved_cat_button = IDImageButton(
@@ -1587,15 +1558,20 @@ class EventsScreen(Screens):
                         anchors={"right": "right", "top_target": display_element_event},
                     ))
 
-            event_height = max(
-                display_element_event.get_relative_rect()[3],
-                map_button.get_relative_rect()[3] + ui_scale_value(10)
-                if map_button
-                else 0,
+            display_element_container.set_dimensions(
+                (
+                    default_rect[2],
+                    (
+                        display_element_event.get_relative_rect()[3]
+                        + (
+                            involved_cat_button.get_relative_rect()[3]
+                            + ui_scale_value(10)
+                        )
+                        if event_object.cats_involved
+                        else display_element_event.get_relative_rect()[3]
+                    ),
+                )
             )
-            if event_object.cats_involved:
-                event_height += involved_cat_button.get_relative_rect()[3] + ui_scale_value(10)
-            display_element_container.set_dimensions((default_rect[2], event_height))
 
             anchor = {"top_target": display_element_container}
 

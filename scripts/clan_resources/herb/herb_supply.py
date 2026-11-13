@@ -582,8 +582,6 @@ class HerbSupply:
                 if not game.clan.override_biome
                 else game.clan.override_biome,
                 game.clan.current_season,
-                game.clan.territory_tiles,
-                game.clan,
             )
             if not rarity:
                 continue

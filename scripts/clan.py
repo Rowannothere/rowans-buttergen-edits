@@ -52,10 +52,6 @@ from scripts.clan_resources.point_of_interest import (
     PoiType,
     clear_pois,
 )
-from scripts.create_territory import generate_territories, set_strength
-from scripts.territory import territory_class
-from scripts.tile import TerritoryTile
-from scripts.war import War
 from scripts.config import get_config
 from scripts.events_module.future.future_event import FutureEvent
 from scripts.events_module.generate_events import OngoingEvent
@@ -83,9 +79,6 @@ from scripts.events_module.consequences import create_new_cat
 from scripts.clan_package.get_clan_cats import get_possible_mates
 
 logger = logging.getLogger(__name__)
-
-with open("resources/dicts/colour_map.json", "r", encoding="utf-8") as colour_file:
-    COLOURS = ujson.loads(colour_file.read())
 
 
 class Clan:
@@ -129,8 +122,7 @@ class Clan:
         starting_size="small",
         relations={CatGroup.PLAYER_CLAN_ID: {}},
         self_run_init_functions=True,
-        clan_count_mode="",
-        colour="green",
+        clan_count_mode=""
     ):
         """
         :param save_id: The save file name for the Clan, this should not be used for player-facing text beyond the save file screen
@@ -146,7 +138,6 @@ class Clan:
         self.save_id = save_id
         self.name = display_name if display_name else save_id
         self.clancount = clan_count_mode
-        self.colour = colour if colour in COLOURS else "green"
 
         # needs to happen immediately so that any config retrievals will be accurate
         self.cruel_cards: list[str] = cruel_cards if cruel_cards else []
@@ -247,10 +238,7 @@ class Clan:
         self.herb_supply = HerbSupply()
         self.primary_disaster = None
         self.secondary_disaster = None
-        self.territory_tiles: list[TerritoryTile] = []
-        self.war: list[War] = []
-        self._saved_war_data = []
-        self._saved_group_id_remap = {}
+        self.war = {CatGroup.PLAYER_CLAN_ID: {}}
         self.future_events = []
         self.last_focus_change = None
         self.clans_in_focus = []
@@ -436,15 +424,18 @@ class Clan:
                 get_config("clan_creation.starting_clan_relation")[0],
                 get_config("clan_creation.starting_clan_relation")[1],
             )
+            game.clan.war[CatGroup.PLAYER_CLAN_ID][other_clan.group_ID] = {"at_war": False, "duration": 0}
 
         if self.clancount == "multiclan":
             for i, clan in enumerate(game.clan.all_other_clans[:-1]):
+                game.clan.war[clan.group_ID] = {}
                 game.clan.relations[clan.group_ID] = {}
                 for o_clan in game.clan.all_other_clans[i+1:]:
                     game.clan.relations[clan.group_ID][o_clan.group_ID] = randint(
                         get_config("clan_creation.starting_clan_relation")[0],
                         get_config("clan_creation.starting_clan_relation")[1],
                     )
+                    game.clan.war[clan.group_ID][o_clan.group_ID] = {"at_war": False, "duration": 0}
 
         # remove any already loaded points of interest
         clear_pois()
@@ -453,8 +444,6 @@ class Clan:
         generate_and_add_new_poi(game.clan.biome, PoiType.MOONPLACE)
         for i in range(3):
             generate_and_add_new_poi(game.clan.biome, PoiType.TERRAIN, clan=self.group_ID)
-
-        self.territory_tiles = self.generate_territories_tile_list(generate_territories())
 
         self.save_clan()
         # this has to be done after saving the first time
@@ -1104,7 +1093,6 @@ class Clan:
             "clanage": self.age,
             "weeks": self.weeks,
             "biome": self.biome,
-            "colour": self.colour,
             "camp_bg": self.camp_bg,
             "rogue_group_bg": self.rogue_group_bg,
             "loner_group_bg": self.loner_group_bg,
@@ -1198,7 +1186,7 @@ class Clan:
         # OTHER CLANS
         clan_data["other_clans"] = [i.get_save_data() for i in self.all_other_clans]
 
-        clan_data["war"] = [war.get_war_dict() for war in self.war]
+        clan_data["war"] = self.war
         clan_data["achievements"] = self.achievements
         clan_data["talks"] = self.talks
         clan_data["disaster"] = self.disaster
@@ -1218,10 +1206,6 @@ class Clan:
             self.save_freshkill_pile(game.clan)
 
         safe_save(f"{get_save_dir()}/{self.save_id}/clan.json", clan_data)
-        safe_save(
-            f"{get_save_dir()}/{self.save_id}/territory.json",
-            {tile.tile_string: tile.get_save_dict() for tile in self.territory_tiles},
-        )
 
         if os.path.exists(f"{get_save_dir()}/{self.save_id}clan.json"):
             os.remove(f"{get_save_dir()}/{self.save_id}clan.json")
@@ -1252,166 +1236,11 @@ class Clan:
                 Switch.error_message, "There was an error loading the clan.json"
             )
 
-        if game.clan and game.clan.save_id:
-            game.clan.load_territory_json()
-            game.clan.load_war()
-
         # can't put this in post initialization bc guide isn't made before that func
         self.add_guide_influence()
         load_clan_settings()
 
         return version_info
-
-    def load_territory_json(self):
-        filename = f"{get_save_dir()}/{self.save_id}/territory.json"
-        if os.path.exists(filename):
-            with open(filename, "r", encoding="utf-8") as read_file:
-                territory_data = ujson.loads(read_file.read())
-        else:
-            territory_data = generate_territories()
-
-        group_id_remap = self._saved_group_id_remap
-        if group_id_remap:
-            for tile_data in territory_data.values():
-                owner_id = tile_data.get("owner")
-                if owner_id is not None:
-                    tile_data["owner"] = group_id_remap.get(str(owner_id), owner_id)
-
-        self.territory_tiles = self.generate_territories_tile_list(territory_data)
-
-    def generate_territories_tile_list(self, territory_data):
-        tile_list = []
-        for tile_string, info in territory_data.items():
-            x, y = (int(value) for value in tile_string.split("-", maxsplit=1))
-            owner = territory_class.get_clan_from_ID(info.get("owner"))
-            tile_list.append(
-                TerritoryTile(
-                    x=x,
-                    y=y,
-                    owner=owner,
-                    poi=info.get("poi"),
-                    terrain=info.get("terrain"),
-                    herb=info.get("herb"),
-                    strength=info.get("strength", 0),
-                    camp=info.get("camp", False),
-                    events=info.get("events", []),
-                    history=info.get("history", []),
-                )
-            )
-        return tile_list
-
-    def _resolve_saved_group_id(self, group_id):
-        group_id = str(group_id)
-        group_id = self._saved_group_id_remap.get(group_id, group_id)
-        clans = [game.clan] + game.clan.all_other_clans
-        for clan in clans:
-            if (
-                str(clan.group_ID) == group_id
-                or getattr(clan, "prefix", None) == group_id
-                or str(clan.name) == group_id
-            ):
-                return clan.group_ID
-
-        if group_id == "player_clan":
-            return game.clan.group_ID
-        if group_id.startswith("other_clan"):
-            try:
-                index = int(group_id.removeprefix("other_clan")) - 1
-            except ValueError:
-                return None
-            if 0 <= index < len(game.clan.all_other_clans):
-                return game.clan.all_other_clans[index].group_ID
-        return None
-
-    def load_war(self):
-        saved_wars = self._saved_war_data
-        if saved_wars is None:
-            saved_wars = []
-        if isinstance(saved_wars, dict) and "at_war" in saved_wars:
-            saved_wars = [saved_wars] if saved_wars["at_war"] else []
-            if saved_wars:
-                saved_wars[0] = {
-                    "offense": game.clan.group_ID,
-                    "defense": saved_wars[0].get("enemy"),
-                    "demand": "prey",
-                    "duration": saved_wars[0].get("duration", 0),
-                }
-        elif isinstance(saved_wars, dict):
-            legacy_wars = []
-            for offense_id, opponents in saved_wars.items():
-                if not isinstance(opponents, dict):
-                    continue
-                for defense_id, state in opponents.items():
-                    if isinstance(state, dict) and state.get("at_war"):
-                        legacy_wars.append(
-                            {
-                                "offense": offense_id,
-                                "defense": defense_id,
-                                "demand": "prey",
-                                "duration": state.get("duration", 0),
-                            }
-                        )
-            saved_wars = legacy_wars
-
-        loaded_wars = []
-        seen_pairs = set()
-        for saved_war in saved_wars:
-            if not isinstance(saved_war, dict):
-                logger.warning("Skipping malformed saved war: %r", saved_war)
-                continue
-            offense_id = self._resolve_saved_group_id(saved_war.get("offense"))
-            defense_id = self._resolve_saved_group_id(saved_war.get("defense"))
-            if offense_id is None or defense_id is None or offense_id == defense_id:
-                logger.warning("Skipping a saved war with unknown Clan IDs: %r", saved_war)
-                continue
-
-            pair = frozenset((offense_id, defense_id))
-            if pair in seen_pairs:
-                continue
-            seen_pairs.add(pair)
-
-            demand = saved_war.get("demand") or "territory"
-            if isinstance(demand, str) and "-" in demand:
-                demand_tile = territory_class.get_tile_from_string(demand)
-                if demand_tile is None:
-                    logger.warning("Saved war references missing territory tile %r", demand)
-                    demand = "territory"
-                else:
-                    demand = demand_tile
-
-            loaded_wars.append(
-                War(
-                    offense=offense_id,
-                    defense=defense_id,
-                    demand=demand,
-                    duration=int(saved_war.get("duration", 0)),
-                    progress=int(saved_war.get("progress", 0)),
-                )
-            )
-
-        self.war = loaded_wars
-        self._saved_war_data = []
-
-    def remap_territory_strength(self):
-        demand_tiles = [
-            (war, war.demand.tile_string)
-            for war in self.war
-            if not isinstance(war.demand, str)
-        ]
-        territory_data = {
-            tile.tile_string: {
-                key: value
-                for key, value in tile.get_save_dict().items()
-                if key != "strength"
-            }
-            for tile in self.territory_tiles
-        }
-        self.territory_tiles = []
-        territory_data = set_strength(territory_data)
-        self.territory_tiles = self.generate_territories_tile_list(territory_data)
-
-        for war, tile_string in demand_tiles:
-            war.demand = territory_class.get_tile_from_string(tile_string)
 
     @staticmethod
     def add_guide_influence():
@@ -1548,7 +1377,6 @@ class Clan:
                 if c in constants.CRUEL_CARDS_ALL
             ],
             self_run_init_functions=False,
-            colour=clan_data.get("colour", "green"),
         )
         game.clan.post_initialization_functions()
 
@@ -1658,7 +1486,6 @@ class Clan:
                     medicine_cat=other_clan.get("medicine_cat"),
                     med_cat_predecessors=other_clan.get("med_cat_predecessors", 0),
                     ID=ID,
-                    colour=other_clan.get("colour"),
                 )
                 if "relations" in other_clan:
                     game.clan.relations[CatGroup.PLAYER_CLAN_ID][ID] = int(other_clan["relations"])
@@ -1779,8 +1606,33 @@ class Clan:
         if game.clan.your_cat and game.clan.your_cat.ID not in clan_data["clan_cats"].split(","):
             game.clan.add_cat(game.clan.your_cat)
 
-        game.clan._saved_war_data = clan_data.get("war", [])
-        game.clan._saved_group_id_remap = group_id_remap
+        if "war" in clan_data:
+            if clan_data["war"].get("at_war") is not None:
+                for c in game.clan.all_other_clans:
+                    if c.prefix == clan_data["war"]["enemy"]:
+                        game.clan.war[CatGroup.PLAYER_CLAN_ID][c.group_ID] = {"at_war": True, "duration": clan_data["war"]["duration"]}
+                    else:
+                        game.clan.war[CatGroup.PLAYER_CLAN_ID][c.group_ID] = {"at_war": False, "duration": 0}
+                if game.clan.clancount == "multiclan":
+                    for i, clan in enumerate(game.clan.all_other_clans[:-1]):
+                        game.clan.war[clan.group_ID] = {}
+                        for o_clan in game.clan.all_other_clans[i+1:]:
+                            game.clan.war[clan.group_ID][o_clan.group_ID] = {"at_war": False, "duration": 0}
+            else:
+                if clan_data["war"].get(CatGroup.PLAYER_CLAN_ID):
+                    game.clan.war = self.remap_group_keys(clan_data["war"], group_id_remap)
+                else:
+                    for key in clan_data["war"]:
+                        clan_id = key
+                        if len(key) > 2:
+                            clan_id = CatGroup.PLAYER_CLAN_ID if key == "player_clan" else game.clan.all_other_clans[int(key[-1])-1].group_ID
+                        game.clan.war[clan_id] = {}
+                        for other_key in clan_data["war"][key]:
+                            other_clan_id = other_key
+                            if len(other_key) > 2:
+                                other_clan_id = game.clan.all_other_clans[int(other_key[-1])-1].group_ID
+                            game.clan.war[clan_id][other_clan_id] = clan_data["war"][key][other_key]
+                
 
         game.clan.relations = self.remap_group_keys(game.clan.relations, group_id_remap)
 
@@ -2459,21 +2311,21 @@ class Clan:
         
         game.clan.relations[main_enum][other_enum] = max(0, min(int(value + offset), get_config("reputation.other_clans.relation_cap")))
 
-    def get_current_war(self, other_clan=None):
-        for war in self.war:
-            if war.is_in_war(self, other_clan):
-                return war
-        return None
-
     def get_wars(self, clan):
-        return [
-            war.get_opponent_ID(clan)
-            for war in self.war
-            if war.is_in_war(clan)
-        ]
+        enemies = []
+        for key in game.clan.war:
+            if key == clan:
+                for o_key in game.clan.war[key]:
+                    if game.clan.war[key][o_key]["at_war"]:
+                        enemies.append(o_key)
+            elif game.clan.war[key].get(clan, {"at_war": False})["at_war"]:
+                enemies.append(key)
+        return enemies
 
     def check_war(self, clan, other_clan):
-        return any(war.is_in_war(clan, other_clan) for war in self.war)
+        if match := game.clan.war.get(clan):
+            return match[other_clan]["at_war"]
+        return game.clan.war[other_clan][clan]["at_war"]
 
 
 
@@ -2517,25 +2369,12 @@ class OtherClan:
         deputy_predecessors=0, 
         medicine_cat=None, 
         med_cat_predecessors=0, 
-        ID: str = 0,
-        colour: str = None,
+        ID: str = 0
     ):
         self.group_ID = ID
         if not self.group_ID:
             self.group_ID = game.get_free_group_ID(CatGroup.OTHER_CLAN)
         game.clan.other_clan_IDs.append(self.group_ID)
-        used_colours = {game.clan.colour}
-        used_colours.update(clan.colour for clan in game.clan.all_other_clans)
-        available_colours = [
-            colour_name
-            for colour_name in COLOURS
-            if colour_name != "default" and colour_name not in used_colours
-        ]
-        self.colour = (
-            colour
-            if colour in COLOURS and colour != "default"
-            else choice(available_colours or [key for key in COLOURS if key != "default"])
-        )
 
         self.name = name
         if not self.prefix:  # find name if clan has no name yet
@@ -2723,12 +2562,6 @@ class OtherClan:
     def relations(self, value):
         game.clan.relations[CatGroup.PLAYER_CLAN_ID][self.group_ID] = value
 
-    def get_current_war(self):
-        for war in game.clan.war:
-            if war.is_in_war(self):
-                return war
-        return None
-
     @property
     def name(self):
         return i18n.t("general.clan", name=self.prefix)
@@ -2748,7 +2581,6 @@ class OtherClan:
             "reputation" : self.reputation,
             "temperament" : self.temperament,
             "chosen_symbol": self.chosen_symbol,
-            "colour": self.colour,
             "biome": self.biome,
             "camp_bg": self.camp_bg,
             "instructor": self.instructor.ID if self.instructor else None,

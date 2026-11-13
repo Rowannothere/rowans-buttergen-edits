@@ -55,12 +55,6 @@ from scripts.game_structure.game.settings import game_setting_get
 from scripts.clan_resources.freshkill import FRESHKILL_EVENT_ACTIVE
 from scripts.events_module.event_information import EventInformation
 from scripts.events_module.event_filters import event_for_other_clan
-from scripts.events_module.war_map import (
-    check_war as update_war_map,
-    handle_map_interaction_event,
-    load_other_clan_events,
-    other_clans_territory_wobble,
-)
 from scripts.events_module.ceremony.perform_ceremony import (
     check_for_ceremony,
     trigger_ceremony,
@@ -276,10 +270,7 @@ def _one_moon_impl():
 
         update_afterlife_temper()
         pregnancy_events.increment_pregnancy_age()
-        other_clans_territory_wobble()
-        update_war_map()
-        if get_clan_setting("map_interaction"):
-            handle_map_interaction_event()
+        check_war()
 
     if switch_get_value(Switch.change_group):
         new_group_ID = switch_get_value(Switch.change_group)
@@ -3500,14 +3491,14 @@ def handle_colour_changes(cat, clan):
         types = ["misc"]
         game.cur_events_list.append(EventInformation(event_text, types, involved_cats, clan=clan.group_ID))
 
-def _legacy_load_war_resources():
+def load_war_resources():
     global WAR_TXT, war_lang
     if war_lang == i18n.config.get("locale"):
         return
     WAR_TXT = load_lang_resource("events/war.json")
     war_lang = i18n.config.get("locale")
 
-def _legacy_check_war():
+def check_war():
     """
     interactions with other clans
     """
@@ -3638,9 +3629,6 @@ def _legacy_check_war():
             game.cur_events_list.append(EventInformation(event, ["other_clans"], clan=clan))
             if game.clan.clancount == "multiclan":
                 game.cur_events_list.append(EventInformation(event, ["other_clans"], clan=enemy))
-
-def check_war():
-    update_war_map()
 
 
 def load_ceremonies():
@@ -4743,4 +4731,4 @@ def check_missing_mentors():
         )
 
 
-load_other_clan_events()
+load_war_resources()

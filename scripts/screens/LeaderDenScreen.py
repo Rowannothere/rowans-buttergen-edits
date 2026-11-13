@@ -33,8 +33,6 @@ from scripts.clan_package.get_clan_cats import (
     get_living_clan_cat_count,
 )
 from scripts.clan_package.settings import get_clan_setting
-from scripts.screens.enums import GameScreen
-from scripts.territory import territory_class
 
 
 class LeaderDenScreen(Screens):
@@ -67,14 +65,6 @@ class LeaderDenScreen(Screens):
         self.focus_outsider_button_container = None
         self.focus_outsider_elements = {}
         self.focus_button = {}
-
-        self.map_screen_button = None
-        self.trade_progression_step = 0
-        self.trade_buttons = {}
-        self.trade_dict = {
-            "given": "prey",
-            "recieved": "prey"
-        }
 
         self.other_clan_selection_container = None
         self.other_clan_selection_elements = {}
@@ -131,8 +121,6 @@ class LeaderDenScreen(Screens):
                     event.ui_element.text.replace("screens.leader_den.", "")
                 )
                 self.update_outsider_cats()
-            elif event.ui_element == self.map_screen_button:
-                self.change_screen(GameScreen.MAP_SCREEN)
 
     def screen_switches(self):
         """
@@ -259,14 +247,6 @@ class LeaderDenScreen(Screens):
                     starting_height=2,
                     manager=MANAGER,
                 )
-
-        self.map_screen_button = UISurfaceImageButton(
-            ui_scale(pygame.Rect((232, 75), (130, 30))),
-            "buttons.view_map",
-            get_button_dict(ButtonStyles.SQUOVAL, (130, 30)),
-            object_id="@buttonstyles_squoval",
-            manager=MANAGER
-        )
 
         # FOCUS FRAME - container and inner elements
         self.create_focus_frame()
@@ -399,8 +379,6 @@ class LeaderDenScreen(Screens):
         """
         self.back_button.kill()
         self.help_button.kill()
-        self.map_screen_button.kill()
-
 
         for ele in self.screen_elements:
             self.screen_elements[ele].kill()

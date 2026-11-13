@@ -24,7 +24,6 @@ class EventInformation:
         cats_involved: list | tuple = None,
         cat_dict: dict = None, 
         clan=None,
-        event_tile: str = None,
     ):
         """
         :param text: The event text.
@@ -37,7 +36,6 @@ class EventInformation:
 
         self.text = text
         self.clan = clan
-        self.event_tile = event_tile
 
         if isinstance(types, str):
             self.types = [types]
@@ -78,14 +76,12 @@ class EventInformation:
                 "types": self.types,
                 "cats_involved": self.cats_involved,
                 "cat_dict": cat_dict,
-                "event_tile": self.event_tile,
             }
         return {
             "text": self.text,
             "types": self.types,
             "cats_involved": self.cats_involved,
             "cat_dict": cat_dict,
-            "event_tile": self.event_tile,
         }
 
     @staticmethod
@@ -112,7 +108,6 @@ class EventInformation:
             types=info_dict.get("types", None),
             cats_involved=info_dict.get("cats_involved", None),
             cat_dict=cat_dict,
-            event_tile=info_dict.get("event_tile"),
         )
 
     def __eq__(self, obj):
