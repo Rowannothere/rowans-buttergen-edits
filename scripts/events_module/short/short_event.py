@@ -554,6 +554,14 @@ class ShortEvent:
                 self.text = self.text + " " + extra_text
                 extra_text = None
 
+        # BUTTERGEN: if the player's cat is in it, the other Clans' cats it brings in count as met
+        from scripts import outsiders
+
+        outsiders.note_event(
+            [self.main_cat, self.random_cat] + [c for cats in self.new_cats if isinstance(cats, list) for c in cats],
+            self.text,
+        )
+
         # Check to see if any young litters joined with alive parents.
         # If so, see if recovering from birth condition is needed and give the condition
         for possible_kittens in self.new_cats:
