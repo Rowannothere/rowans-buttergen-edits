@@ -10,6 +10,7 @@ Fixes:
 - The game no longer crashes when an event names the leader or deputy while the Clan doesn't have one
 - The "Make your choice" button on an event no longer hides under the name buttons, and the event now shows every cat the choice is about
 - Moon events where your cat runs into a cat from another Clan now count as meeting them, like Gatherings and border patrols do
+- Picking a cat in the cat editor no longer crashes the game
 
 <strong>Buttergen v0.4-dev.11</strong>
 
