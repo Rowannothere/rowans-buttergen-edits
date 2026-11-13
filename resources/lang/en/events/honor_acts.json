@@ -112,6 +112,14 @@
             "m_c finds a cat from o_c_n trespassing and lets them leave without a word."
         ]
     },
+    "cross_border": {
+        "you": [
+            "You crossed into o_c_n's land, just to see what was there."
+        ],
+        "others": [
+            "m_c crossed into o_c_n's land."
+        ]
+    },
     "markers_lapse": {
         "you": [
             "You're meant to renew the border markers, but it's cold and far, and you turn back halfway."

@@ -11,6 +11,7 @@
         "hunt_border": ["hunted on o_c_n's land", "hunted on o_c_n's land"],
         "let_trespasser": ["let a trespasser from o_c_n go", "let a trespasser from o_c_n go"],
         "markers_lapse": ["let the o_c_n border markers go stale", "let the o_c_n border markers go stale"],
+        "cross_border": ["crossed into o_c_n's land", "crossed into o_c_n's land"],
         "disobey_mentor": ["disobeyed {PRONOUN/m_c/poss} mentor", "disobeyed your mentor"],
         "app_eat_first": ["ate before hunting for the elders", "ate before hunting for the elders"],
         "hide_sign": ["kept a sign from StarClan secret", "kept a sign from StarClan secret"],

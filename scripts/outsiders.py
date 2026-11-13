@@ -235,6 +235,10 @@ def on_skip(full_moon: bool):
         return
     if full_moon:
         gathering()
+    # the exploring patrol: Clans that caught c_n cats on their land complain
+    from scripts import explore_patrol
+
+    explore_patrol.on_skip()
     # met cats who are gone, or long forgotten, drop off the list
     from scripts.cat.cats import Cat
 

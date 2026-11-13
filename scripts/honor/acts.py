@@ -52,6 +52,8 @@ ACTS = {
     "hunt_border": brk("serious", WARRIORS, (HUNGER,), other_clan=True),
     "let_trespasser": brk("minor", WARRIORS, (LONGING,), other_clan=True),
     "markers_lapse": brk("minor", WARRIORS, (RESTLESS,), other_clan=True),
+    # Other Clans step 1: only from the exploring patrol, never a temptation
+    "cross_border": brk("minor", frozenset(), (RESTLESS,), other_clan=True),
     "renew_markers": fol(WARRIORS, other_clan=True),
     "feed_elders": fol(WARRIORS, other="elder"),
     "keep_vigil": fol(WARRIORS),

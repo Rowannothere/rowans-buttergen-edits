@@ -72,6 +72,8 @@ def _test():
         "y_c": _r,
         # BUTTERGEN: the friend in friend patrols
         "f_c": _r,
+        # BUTTERGEN: the cat met on an exploring patrol
+        "e_c": _r,
         "parent": _r,
         "parent1": _r,
         "parent2": _r,

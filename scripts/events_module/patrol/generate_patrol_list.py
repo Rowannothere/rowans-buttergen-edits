@@ -94,6 +94,8 @@ def get_lifegen_patrol_list(patrol_category: str) -> list[PatrolEvent]:
         return _load_file(f"{path}df.json")
     if patrol_category == "date":
         return _load_file(f"{path}date.json")
+    if patrol_category == "explore":
+        return _load_file(f"{path}explore.json")
 
     rank = game.clan.your_cat.status.rank
     if rank == CatRank.KITTEN:

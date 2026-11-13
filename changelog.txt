@@ -2,6 +2,10 @@
 
 A development build, so keep a copy of your saves folder before playing.
 
+New:
+- Exploring patrols (multi clan mode): a new patrol button takes your cat and up to 2 willing Clanmates onto another Clan's land or outside the Clans. They might get caught by a patrol and have to face one of its cats, run into a lone cat, or meet kittypets, loners and rogues they can talk to afterward
+- Crossing into another Clan's land is a new minor misdeed: the cats who came along can keep it, hold it over your cat or report it, and getting caught means it comes out
+
 Fixes:
 - The game no longer crashes when an event names the leader or deputy while the Clan doesn't have one
 - The "Make your choice" button on an event no longer hides under the name buttons, and the event now shows every cat the choice is about
