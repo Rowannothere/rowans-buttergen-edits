@@ -979,6 +979,14 @@ class EventsScreen(Screens):
         # determine whether we need a scrollbar
         scrollbar_needed = len(button_pressed.ids) > 2
 
+        # BUTTERGEN: a long name list fills the whole row, so the choice button hides while it's open
+        for btn in getattr(self, "honor_event_buttons", []):
+            btn.show()
+        if scrollbar_needed and self.open_involved_cat_button != button_pressed:
+            for btn in getattr(self, "honor_event_buttons", []):
+                if btn.row is button_pressed.parent_element:
+                    btn.hide()
+
         # Check if the button you pressed doesn't have its cat profile buttons currently displayed.
         # if it does, clear the cat profile buttons
         if self.open_involved_cat_button == button_pressed:
@@ -1521,6 +1529,10 @@ class EventsScreen(Screens):
 
             self.event_display_boxes.append(display_element_event)
 
+            # BUTTERGEN: the choice line lists every cat it's about (older saves only had your cat)
+            if event_object is choice_event:
+                event_object.cats_involved = honor_choices._moments()._choice_cats(honor_choices.pending())
+
             if event_object.cats_involved:
                 involved_cat_button = IDImageButton(
                     catbutton_rect,
@@ -1539,18 +1551,19 @@ class EventsScreen(Screens):
                 )
                 self.involved_cat_buttons.append(involved_cat_button)
                 if event_object is choice_event:
-                    choice_rect = ui_scale(pygame.Rect((0, 0), (150, 30)))
-                    choice_rect.topright = ui_scale_offset((-50, 7))
-                    self.honor_event_buttons.append(UISurfaceImageButton(
-                        choice_rect,
+                    # left side of the row, so the name buttons that open on the right don't cover it
+                    choice_button = UISurfaceImageButton(
+                        ui_scale(pygame.Rect((5, 7), (150, 30))),
                         honor_choices.texts()["event_button"],
                         get_button_dict(ButtonStyles.SQUOVAL, (150, 30)),
                         object_id="@buttonstyles_squoval",
                         starting_height=3,
                         container=display_element_container,
                         manager=MANAGER,
-                        anchors={"right": "right", "top_target": display_element_event},
-                    ))
+                        anchors={"left": "left", "top_target": display_element_event},
+                    )
+                    choice_button.row = display_element_container
+                    self.honor_event_buttons.append(choice_button)
 
             display_element_container.set_dimensions(
                 (

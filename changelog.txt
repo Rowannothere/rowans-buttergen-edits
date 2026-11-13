@@ -4,6 +4,7 @@ A development build, so keep a copy of your saves folder before playing.
 
 Fixes:
 - The game no longer crashes when an event names the leader or deputy while the Clan doesn't have one
+- The "Make your choice" button on an event no longer hides under the name buttons, and the event now shows every cat the choice is about
 
 <strong>Buttergen v0.4-dev.11</strong>
 
