@@ -15,6 +15,7 @@ Fixes:
 - Cat maker: the pseudo-merle markings no longer change when picking an eye color or size (they stay until Random cat)
 - The solo hunting patrol where a cat gets stuck in a Twoleg trap now really takes that cat (nobody was taken)
 - The Dark Forest dream patrol about a lost StarClan spirit no longer picks a living cat (in multi clan, a cat from another Clan): the spirit is a real Dark Forest cat
+- Fixed a crash on moon skip when a lost or exiled cat died whose old mentor had faded
 
 <strong>Buttergen v0.4-dev.11</strong>
 
