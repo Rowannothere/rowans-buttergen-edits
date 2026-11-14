@@ -13,6 +13,7 @@ Fixes:
 - Moon events where your cat runs into a cat from another Clan now count as meeting them, like Gatherings and border patrols do
 - Picking a cat in the cat editor no longer crashes the game
 - Cat maker: the pseudo-merle markings no longer change when picking an eye color or size (they stay until Random cat)
+- The solo hunting patrol where a cat gets stuck in a Twoleg trap now really takes that cat (nobody was taken)
 
 <strong>Buttergen v0.4-dev.11</strong>
 
