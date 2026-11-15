@@ -1,13 +1,24 @@
 name: PyInstaller build
 
+# Windows exe builds. Every push to dev, stable or exe-build makes a build under Actions
+# (downloadable through nightly.link); a version tag also puts the zip on that tag's release page.
 on:
+  workflow_dispatch:
   push:
+    branches:
+      - dev
+      - stable
+      - exe-build
+    tags:
+      - "v*"
     paths-ignore:
       - ".github/workflows/build-docs.yml"
       - "docs/**"
       - "docs-resources/**"
       - "mkdocs.yml"
       - "Dockerfile"
+      - "README.md"
+      - "readme-images/**"
 
 permissions:
   contents: write
@@ -17,33 +28,17 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-22.04
-            artifact_name: Lifegen_Linux64_glibc2.35+.tar.xz
-            python_version: "3.12"
-            python_arch: "x64"
-            itch_channel: linux64_glibc_235
-            api_artifact_name: linux2.35
-
           - os: windows-latest
-            artifact_name: Lifegen_Win64_Windows10+.zip
+            artifact_name: Buttergen_Win64
             python_version: "3.12"
             python_arch: "x64"
-            itch_channel: win64_10
-            api_artifact_name: win10+
-            
-          - os: macos-15-intel
-            artifact_name: Lifegen_macOS64.dmg
-            python_version: "3.12"
-            python_arch: "x64"
-            itch_channel: osx64
-            api_artifact_name: macOS
-            
+          # Linux and macOS later (macOS needs someone with a Mac to test):
+          # - os: ubuntu-22.04
+          #   artifact_name: Buttergen_Linux64
+          # - os: macos-15-intel
+          #   artifact_name: Buttergen_macOS64
+
     runs-on: ${{ matrix.os }}
-    if: ${{ !startsWith(github.ref, 'ref/heads/release') }}
-    env:
-      gpg_private_key: ${{ secrets.PACKAGESIGNKEY }}
-      gpg_private_key_passphrase: ${{ secrets.PACKAGESIGNKEYPASSPHRASE }}
-      update_api_push_token: ${{ secrets.UPDATE_API_DEPLOY_KEY }}
     defaults:
       run:
         shell: bash -l {0}
@@ -59,160 +54,37 @@ jobs:
         with:
           python-version: ${{ matrix.python_version }}
           architecture: ${{ matrix.python_arch }}
-      - name: Install build dependencies (Ubuntu)
-        if: startsWith(matrix.os, 'ubuntu')
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential zlib1g-dev
-      - name: Install build dependencies (macOS)
-        if: startsWith(matrix.os, 'macos')
-        run: |
-          brew install zlib
       - name: Install Visual Studio Build Tools (Windows)
         if: startsWith(matrix.os, 'windows')
         uses: microsoft/setup-msbuild@v3
-      - name: Set up cargo cache (Windows)
-        if: startsWith(matrix.os, 'windows')
-        uses: actions/cache@v6
-        continue-on-error: false
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: ${{ runner.os }}-cargo-
-      - name: install dependencies
+      - name: Install dependencies
         run: uv sync --group build --extra discord
+      # A self-built bootloader gets fewer antivirus false positives than the stock one.
+      # Same version as uv.lock, and --no-sync below so uv doesn't put the stock one back.
       - name: Build PyInstaller bootloader
         run: |
-          git clone https://github.com/pyinstaller/pyinstaller.git
-          cd pyinstaller
-          git checkout v6.11.0
-          cd bootloader
+          PYI_VERSION=$(uv run --no-sync python -c "import PyInstaller; print(PyInstaller.__version__)")
+          git clone --depth 1 --branch "v$PYI_VERSION" https://github.com/pyinstaller/pyinstaller.git
+          cd pyinstaller/bootloader
           python ./waf all
           cd ../../
-          uv pip install -e pyinstaller
-      - name: Configure dev
-        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
-        run: |
-          echo "VERSION_NUMBER=${{ github.sha }}" >> $GITHUB_ENV
-          echo "RELEASE_CHANNEL=${{ vars.DEVELOPMENT_RELEASE_CHANNEL }}" >> $GITHUB_ENV
-      - name: Configure release
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          echo "VERSION_NUMBER=${{ github.ref_name }}" >> $GITHUB_ENV
-          echo "RELEASE_CHANNEL=${{ vars.STABLE_RELEASE_CHANNEL }}" >> $GITHUB_ENV
-      - name: Write version file
-        run: |
-          echo "[DEFAULT]" > version.ini
-          echo "version_number=${{ env.VERSION_NUMBER }}" >> version.ini
-          echo "release_channel=${{ env.RELEASE_CHANNEL }}" >> version.ini
-          echo "upstream=${{ github.repository }}" >> version.ini
-      - name: Build self-updater binary (Windows)
-        if: startsWith(matrix.os, 'windows')
-        run: |
-          cd self_updater
-          cargo build --release
-          cp target/release/self_updater.exe ../resources/
-      - name: Run PyInstaller (Development)
-        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
-        run: uv run pyinstaller Clangen.spec
-        env:
-          IS_RELEASE: 0
-      - name: Run PyInstaller (Release)
-        if: ${{ startsWith(github.ref, 'refs/tags/') }}
-        run: uv run pyinstaller Clangen.spec
+          uv pip install ./pyinstaller
+      # version.ini stays as it is in the repo: the exe reports the branch's own version and
+      # update channel.
+      - name: Run PyInstaller
+        run: uv run --no-sync pyinstaller Clangen.spec
         env:
           IS_RELEASE: 1
-      - name: Create archive (Linux)
-        if: startsWith(matrix.os, 'ubuntu')
-        run: tar -caf ${{ matrix.artifact_name }} -C dist Lifegen
-      - name: Create archive (Windows)
-        if: startsWith(matrix.os, 'windows')
-        shell: powershell
-        run: |
-          cp dist/Lifegen/_internal/.itch.toml dist/ 
-          tar.exe -a -c -f ${{ matrix.artifact_name }} -C dist Lifegen .itch.toml
-      - name: Create DMG (macOS)
-        if: startsWith(matrix.os, 'macos')
-        run: |
-          rm -r dist/Lifegen
-          uv sync --group mac-build
-          uv run dmgbuild -s appdmg.py "Lifegen" ${{ matrix.artifact_name }}
       - uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.artifact_name }}
-          path: ${{ matrix.artifact_name }}
-      - name: Import GPG key
-        id: import_gpg
-        uses: crazy-max/ghaction-import-gpg@v7
-        if: ${{ env.gpg_private_key != '' && env.gpg_private_key_passphrase != '' }}
-        with:
-          gpg_private_key: ${{ secrets.PACKAGESIGNKEY }}
-          passphrase: ${{ secrets.PACKAGESIGNKEYPASSPHRASE }}
-      - name: Upload artifact to API
-        if: ${{ env.update_api_push_token != '' && (github.ref == 'refs/heads/Lifegen-dev' || startsWith(github.ref, 'refs/tags/')) }}
-        run: |
-          if [[ "${{ matrix.os }}" == "macos-13" ]]; then
-            zip ${{ matrix.artifact_name }}.zip ./${{ matrix.artifact_name }}
-            gpg --output ${{ matrix.artifact_name }}.zip.sig --detach-sig -a ${{ matrix.artifact_name }}.zip
-            BUNDLE_NAME="${{ matrix.artifact_name }}.zip"
-          else
-            gpg --output ${{ matrix.artifact_name }}.sig --detach-sig -a ${{ matrix.artifact_name }}
-            BUNDLE_NAME="${{ matrix.artifact_name }}"
-          fi
-          curl -X 'POST' \
-            'https://clangen.io/api/v1/Update/Channels/${{ env.RELEASE_CHANNEL }}/Releases/${{ env.VERSION_NUMBER }}/Appoint' \
-            -H 'X-API-Key: ${{ secrets.UPDATE_API_DEPLOY_KEY }}' \
-            -H 'accept: */*'
-          curl -X 'PUT' \
-            'https://clangen.io/api/v1/Update/Channels/${{ env.RELEASE_CHANNEL }}/Releases/${{ env.VERSION_NUMBER }}/Artifacts/${{ matrix.api_artifact_name }}' \
-            -H 'X-API-Key: ${{ secrets.UPDATE_API_DEPLOY_KEY }}' \
-            -H 'accept: */*' \
-            -H 'Content-Type: multipart/form-data' \
-            -F "fileBundle=@${BUNDLE_NAME}" \
-            -F "fileBundle=@${BUNDLE_NAME}.sig" \
-            --http1.1
-      - name: Set up butler
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: jdno/setup-butler@v1
-      - name: Upload build to itch.io
-        env:
-          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
-        if: startsWith(github.ref, 'refs/tags/') && env.BUTLER_API_KEY != ''
-        run: |
-          if [[ "${{ matrix.os }}" == "macos-13" ]]; then
-            butler push ${{ matrix.artifact_name }} sablesteel/clan-gen-fan-edit:${{ matrix.itch_channel }} --userversion "${{ env.VERSION_NUMBER }}"
-          else
-            butler push ${{ matrix.artifact_name }} sablesteel/clan-gen-fan-edit:${{ matrix.itch_channel }} --userversion "${{ env.VERSION_NUMBER }}"
-          fi
+          path: dist/
+      - name: Zip for the release page
+        if: startsWith(github.ref, 'refs/tags/') && startsWith(matrix.os, 'windows')
+        shell: powershell
+        run: Compress-Archive -Path dist/Buttergen -DestinationPath ${{ matrix.artifact_name }}.zip
       - name: Release
         uses: softprops/action-gh-release@v3
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: ${{ matrix.artifact_name }}
-
-  confirm_release:
-    runs-on: ubuntu-22.04
-    if: ${{ vars.USE_UPDATE_API != '' && (github.ref == 'refs/heads/Lifegen-dev' || startsWith(github.ref, 'refs/tags/')) }}
-    needs: build
-    steps:
-      - name: Configure dev
-        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
-        run: |
-          echo "VERSION_NUMBER=${{ github.sha }}" >> $GITHUB_ENV
-          echo "RELEASE_CHANNEL=${{ vars.DEVELOPMENT_RELEASE_CHANNEL }}" >> $GITHUB_ENV
-      - name: Configure release
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          echo "VERSION_NUMBER=${{ github.ref_name }}" >> $GITHUB_ENV
-          echo "RELEASE_CHANNEL=${{ vars.STABLE_RELEASE_CHANNEL }}" >> $GITHUB_ENV
-      - name: Confirm release
-        run: |
-          curl -X 'POST' \
-            'https://clangen.io/api/v1/Update/Channels/${{ env.RELEASE_CHANNEL }}/Releases/${{ env.VERSION_NUMBER }}/Confirm' \
-            -H 'X-API-Key: ${{ secrets.UPDATE_API_DEPLOY_KEY }}' \
-            -H 'accept: */*'
+          files: ${{ matrix.artifact_name }}.zip
