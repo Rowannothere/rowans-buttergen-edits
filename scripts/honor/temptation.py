@@ -310,17 +310,25 @@ def act_once(cat, full_moon: bool):
     return do_act(cat, key, other, oc)
 
 
-def on_skip(full_moon: bool):
-    """called once every skip (every moon, or every week with weekskip)"""
+def on_skip_start(full_moon: bool):
+    """called before the cats' moons, so a sentence counts in this skip's ceremonies (a cat who
+    loses the Clan's trust doesn't get an apprentice in the same skip)"""
     if not game.clan:
         return
     # step 5: a choice nobody made last skip is made by your cat
-    from scripts.honor import choices, judgment, witness
+    from scripts.honor import choices, judgment
 
     choices.on_skip_start()
     # step 4: misdeeds that came out before this skip are judged at the full moon
-
     judgment.on_skip(full_moon)
+
+
+def on_skip(full_moon: bool):
+    """called once every skip (every moon, or every week with weekskip), after the cats' moons"""
+    if not game.clan:
+        return
+    from scripts.honor import witness
+
     # step 7: secret healer mates can come out
     if full_moon:
         from scripts.honor import healer

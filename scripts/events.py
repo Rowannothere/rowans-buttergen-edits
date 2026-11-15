@@ -405,6 +405,16 @@ def _one_moon_impl():
     #     handle_disaster(disaster_text[game.clan.disaster], resource=disaster_text)
     # ---
 
+    # BUTTERGEN: honor judgments before the cats' moons, so sentences count in this skip's ceremonies
+    try:
+        from scripts.honor import temptation
+
+        temptation.on_skip_start(full_moon)
+    except Exception:  # pylint: disable=broad-except
+        import traceback
+
+        traceback.print_exc()
+
     Cat.begin_moon_cache()
 
     other_clan_cats = [c for c in Cat.all_cats_list if c.status.is_other_clancat]
