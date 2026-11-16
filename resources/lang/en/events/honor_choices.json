@@ -101,7 +101,7 @@
         "raise": "You curl around your newborn kits. Whatever the Clan says, they're yours."
     },
     "witness": {
-        "prompt": "You saw m_c [act]. What do you do?",
+        "prompt": "You saw that m_c [act]. What do you do?",
         "options": ["Tell r_c", "Keep it to yourself", "Talk to m_c"],
         "options_leader": ["Tell the deputy and the senior warriors", "Keep it to yourself", "Talk to m_c"],
         "options_as_leader": ["Deal with it at the full moon", "Keep it to yourself", "Talk to m_c"],

@@ -18,6 +18,7 @@ Fixes:
 - Fixed a crash on moon skip when a lost or exiled cat died whose old mentor had faded
 - A cat who loses the Clan's trust at a full moon no longer gets an apprentice in that same moon
 - Starting relationships: cats were all treated as siblings (so everyone liked everyone, even with randomized relationships on); only real siblings are now
+- Elders and queens no longer get in trouble for eating before their turn (they eat first anyway), and the choice line reads "You saw that ... ate before their turn"
 
 <strong>Buttergen v0.4-dev.11</strong>
 
