@@ -10,7 +10,7 @@ import pygame_gui
 from scripts.cat import save_load
 from scripts.cat.cats import Cat
 from scripts.clan import Clan
-from scripts.clan_package.settings import load_clan_settings
+from scripts.clan_package.settings import load_clan_settings, save_clan_settings, set_clan_setting
 from scripts.clan_package.clan_names import get_possible_clan_names
 from scripts.config import load_clan_config, get_config
 from scripts.events_module.patrol.patrol import Patrol
@@ -70,6 +70,8 @@ class ClanInfo:
     # LG
     starting_size: str = "small"
     clan_age: str = "new"
+    # BUTTERGEN: the warrior code page's ticks, rule --> followed
+    code_rules: dict = field(default_factory=dict)
     def __getitem__(self, name):
         return getattr(self, name)
 
@@ -93,6 +95,7 @@ class ClanInfo:
 
         self.starting_size = "small"
         self.clan_age = "new"
+        self.code_rules = {}
 
     def clear_cats(self):
         self.leader = None
@@ -121,6 +124,7 @@ class ClanInfo:
 
         self.starting_size = saved_info["starting_size"]
         self.clan_age = saved_info["clan_age"]
+        self.code_rules = saved_info.get("code_rules", {})
 
     def get_dict(self) -> dict:
         """
@@ -142,6 +146,7 @@ class ClanInfo:
             "cruel_cards": self.cruel_cards,
             "starting_size": self.starting_size,
             "clan_age": self.clan_age,
+            "code_rules": self.code_rules,
         }
 
     def no_cats_chosen(self) -> bool:
@@ -295,9 +300,11 @@ class MakeClanScreenBase(Screens):
         if _clan_name_exists(save_id):
             save_id = _generate_unique_clan_name(save_id)
 
+        info = self.clan_info.get_dict()
+        code_rules = info.pop("code_rules", {})
         game.clan = Clan(
             save_id=save_id,
-            **self.clan_info.get_dict(),
+            **info,
         )
         game.clan.create_clan(
             your_cat=self.clan_info.your_cat,
@@ -305,6 +312,11 @@ class MakeClanScreenBase(Screens):
             unborn=True,
             clancount=self.clan_info.clan_count_mode,
         )
+        # BUTTERGEN: create_clan resets the Clan settings, so the warrior code page's ticks go in after
+        if code_rules:
+            for rule, followed in code_rules.items():
+                set_clan_setting(rule, followed)
+            save_clan_settings()
         EventsScreen.current_clan = None
 
         game.cur_events_list.clear()

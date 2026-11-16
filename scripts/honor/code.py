@@ -42,6 +42,17 @@ RULE_OF = {
 }
 
 
+# nothing can break these yet: grayed out on the Clan creation page
+LATER = ("code own clan", "code no needless killing")
+
+
+def starting_rules() -> dict:
+    """the ticks a new Clan starts with (display_settings.toml)"""
+    from scripts.game_structure.constants import DISPLAY_SETTINGS
+
+    return {rule: bool(DISPLAY_SETTINGS["clan"]["code"][rule]) for rule in RULES}
+
+
 def follows(rule: str) -> bool:
     return bool(get_clan_setting(rule, default=True))
 
