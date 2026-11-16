@@ -12,6 +12,10 @@ Changes:
 - The version in the corner shows in full (it was cut to "v0.4-dev")
 - Clearer wording: a leader's secret meeting with another Clan's leader is wrong because it's hidden from the Clan, and the leader challenge no longer claims the warrior code allows it
 
+Fixes:
+- Some patrol outcomes that should injure, kill or lose a cat hit nobody, because the cat was never named in the text. They now pick a cat from the patrol
+- The healer patrol where a spirit answers your cat's call no longer has a living cat join the Clan with a StarClan backstory. Your cat meets a Dark Forest spirit instead
+
 <strong>Buttergen v0.4-dev.12</strong>
 
 A development build, so keep a copy of your saves folder before playing.
