@@ -32,6 +32,10 @@ MEET_ROMANCE = (1, 3)
 THEY_ASK = 0.25
 ASK_BONUS_CAP = 20
 RUMOR_CHANCE = 0.08
+# Gathering crushes: pairs who like each other this much both ways, how many a Gathering, how much
+CRUSH_LIKE = 20
+CRUSH_PAIRS = (1, 3)
+CRUSH_ROMANCE = (2, 5)
 # other cats' choices when nobody asks the player
 OTHERS_SHOWN = 1 / 3
 
@@ -141,8 +145,9 @@ def mate_note(cat, mate) -> str:
     pair = pair_of(cat, mate)
     if not pair:
         return ""
-    other_clan = _clan_of(mate) or _clan_of(cat)
-    name = f"{other_clan.name}Clan" if other_clan else ""
+    # the mate's own Clan: another Clan, or the player's when seen from the other side
+    mate_clan = _clan_of(mate) or (game.clan if _alive_in_clan(mate) else None)
+    name = mate_clan.name if mate_clan else ""
     return texts()["mate_secret" if is_secret(pair) else "mate_known"].replace("%{clan}", name)
 
 
@@ -451,7 +456,36 @@ def on_skip(full_moon: bool):
         if pair.get("met_moon") != game.clan.age and random() < MEET_CHANCE * scale:
             meet(pair)
     if full_moon:
+        gathering_crushes()
         _asks()
+
+
+def gathering_crushes():
+    """a few cats who like a cat from another Clan grow a little fonder at each Gathering"""
+    pairs = []
+    for cat_id in game.clan.clan_cats:
+        home = Cat.fetch_cat(cat_id)
+        if not _alive_in_clan(home) or home.status.rank.is_baby():
+            continue
+        for other_id, rel in home.relationships.items():
+            away = Cat.fetch_cat(other_id)
+            if (away is None or rel.like < CRUSH_LIKE or _stat(away, home, "like") < CRUSH_LIKE
+                    or _clan_of(away) is None or away.ID in home.mate):
+                continue
+            try:
+                if home.is_potential_mate(away):
+                    pairs.append((home, away))
+            except Exception:  # pylint: disable=broad-except
+                continue
+    if not pairs:
+        return []
+    from random import sample
+
+    chosen = sample(pairs, min(len(pairs), randint(*CRUSH_PAIRS)))
+    for home, away in chosen:
+        _change(home, away, romance=randint(*CRUSH_ROMANCE))
+        _change(away, home, romance=randint(*CRUSH_ROMANCE))
+    return chosen
 
 
 def rumor_at_gathering():

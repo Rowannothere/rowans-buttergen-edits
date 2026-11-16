@@ -192,6 +192,8 @@
         "cats_mate": "%{name}'s mate",
         "mate_none": "mate: none",
         "mate_living": "(living)",
+        "favorite_prey": "favorite prey: %{prey}",
+        "disliked_prey": "dislikes: %{prey}",
         "mate_dead": "(dead)",
         "mate_away": "(away)",
         "mate_label": {

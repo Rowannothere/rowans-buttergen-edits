@@ -1509,6 +1509,13 @@ class ProfileScreen(Screens):
                 parents=adjust_list_text([str(cat.name) for cat in all_parents]),
             )
 
+        # BUTTERGEN: favorite and disliked prey (scripts/cat/favorite_prey.py)
+        if not the_cat.dead:
+            from scripts.cat import favorite_prey
+
+            output += "\n" + i18n.t("general.favorite_prey", prey=favorite_prey.favorite(the_cat))
+            output += "\n" + i18n.t("general.disliked_prey", prey=favorite_prey.disliked(the_cat))
+
         # MATE
         if len(the_cat.mate) > 0:
             output += "\n"

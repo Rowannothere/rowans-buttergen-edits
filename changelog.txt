@@ -7,6 +7,8 @@ New:
 - In multi clan mode, every other Clan has its own warrior code, shown at the bottom of its allegiances
 - A warrior code page while making a new Clan, right after the game mode, to pick the rules from the start
 - Romance across borders (multi clan mode): when your cat and a cat from another Clan both fall for each other, you choose: become mates in secret, stay friends, or turn them away. Secret mates can be seen meeting, and when it comes out both Clans hear about it. A Meet button on your mate's profile lets your cat slip away to see them
+- Cats from different Clans who like each other can grow a crush at the Gatherings, so Clanmates sometimes fall for a cat across the border too
+- Every cat has a favorite and a disliked prey from their home's prey (kittypets have kittypet food). It shows on the profile, and the lines about a cat's favorite prey name it (a player suggestion)
 - If your cat has red eyes from ocular albinism, a curious kit might ask if they've been crying (a player suggestion)
 
 Changes:

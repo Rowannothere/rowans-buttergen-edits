@@ -77,6 +77,8 @@ LIFEGEN_SAVED_FIELDS = (
     "code_sentence",
     "code_exile",
     "code_healer",
+    "favorite_prey",
+    "disliked_prey",
 )
 
 
