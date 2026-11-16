@@ -28,6 +28,7 @@ WHERE = {
     "sneak_out": "secret", "lie_leader": "secret", "hide_sign": "secret", "bend_sign": "secret",
     "hide_news": "secret", "pass_secrets": "secret", "carry_messages": "secret",
     "healer_mate": "secret", "healer_kits": "secret",
+    "heart_mate": "secret",
 }
 # reputation lost when it comes out
 REPUTATION_LOSS = {"minor": (3, 5), "serious": (8, 12), "grave": (15, 25)}
@@ -293,8 +294,11 @@ def report(offender, witness, key, other_clan, group, naming=True, level=None):
 def came_out(cat, key, other_clan, level=None, by=None):
     """step 4: judged at the next full moon. Step 8: a leader loses Clan trust instead.
     by is the cat who told, if anyone"""
-    from scripts.honor import judgment, leader, moments
+    from scripts.honor import heart, judgment, leader, moments
 
+    if key == heart.ACT:
+        # Other Clans step 2: both Clans hear, and the pair decides what's next
+        heart.came_out(cat)
     if leader.is_leader(cat):
         leader.misdeed_out(cat, key, level)
     else:

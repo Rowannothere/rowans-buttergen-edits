@@ -27,6 +27,7 @@
         "hide_news": ["kept news from the leader", "kept news from the leader"],
         "healer_mate": ["broke a healer's vow and took a mate", "broke a healer's vow and took a mate"],
         "healer_kits": ["broke a healer's vow and had kits", "broke a healer's vow and had kits"],
+        "heart_mate": ["took a mate from another Clan", "took a mate from another Clan"],
         "favorite_off": ["let a favorite off without a sentence", "let a favorite off without a sentence"],
         "spite": ["punished a Clanmate harder than they deserved", "punished a Clanmate harder than they deserved"],
         "ignore_sign": ["ignored a sign from StarClan", "ignored a sign from StarClan"],

@@ -365,6 +365,10 @@ def on_skip(full_moon: bool):
     from scripts.honor import switching
 
     switching.on_skip(full_moon)
+    # Other Clans step 2: secret mates from other Clans
+    from scripts.honor import heart
+
+    heart.on_skip(full_moon)
     scale = 1 / weekskip.WEEKS_IN_MOON if weekskip.on() else 1.0
     cats = [c for c in clanmates() if can_act(c)]
     for cat in cats:

@@ -207,6 +207,8 @@ class Clan:
         self.code_leader = {}
         # cats switching Clans by a task (scripts/honor/switching.py)
         self.code_switch = {}
+        # mates from other Clans (scripts/honor/heart.py)
+        self.code_heart = {}
         self.achievements = []
         self.talks = []
         self.focus = ""
@@ -1142,6 +1144,7 @@ class Clan:
             "met": self.met,
             "code_leader": self.code_leader,
             "code_switch": self.code_switch,
+            "code_heart": self.code_heart,
             "custom_pronouns": self.custom_pronouns,
             "clan_age": self.clan_age,
         }
@@ -1725,6 +1728,7 @@ class Clan:
         game.clan.met = dict(clan_data.get("met") or {})
         game.clan.code_leader = dict(clan_data.get("code_leader") or {})
         game.clan.code_switch = dict(clan_data.get("code_switch") or {})
+        game.clan.code_heart = dict(clan_data.get("code_heart") or {})
 
         if "exile_return" in clan_data:
             game.clan.exile_return = clan_data["exile_return"]

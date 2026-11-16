@@ -180,6 +180,10 @@ def gathering():
     you = _you()
     if not you or not _attends(you):
         return None
+    # Other Clans step 2: now and then a rumor about a forbidden romance
+    from scripts.honor import heart
+
+    heart.rumor_at_gathering()
     cats = _pick(_gathering_pool(you), randint(*MEET_AT_GATHERING))
     if not cats:
         return None

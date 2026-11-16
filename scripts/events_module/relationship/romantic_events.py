@@ -86,6 +86,11 @@ def _handle_moving_on(cat: Cat, disable_random: bool = False):
         dead_or_gone = (
             not mate.status.group_ID == cat.status.group_ID and mate.status.moons_as >= 4
         )
+        # BUTTERGEN: mates from another Clan (Other Clans step 2) stay together while both live
+        from scripts.honor import heart
+
+        if dead_or_gone and not mate.dead and heart.keeps_together(cat, mate):
+            continue
 
         # if cat is not grief_stricken, then we try to move on
         if "grief_stricken" not in cat.temporary_conditions and dead_or_gone:

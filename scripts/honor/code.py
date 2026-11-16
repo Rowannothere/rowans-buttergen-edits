@@ -29,6 +29,7 @@ RULE_OF = {
     "skip_duties": "code leader's word", "carry_messages": "code leader's word",
     "secret_meeting": "code leader's word",
     "healer_mate": "healer mates break the code", "healer_kits": "healer mates break the code",
+    "heart_mate": "code own clan",
     "let_trespasser": "code border markers", "markers_lapse": "code border markers",
     "mark_their_land": "code border markers", "renew_markers": "code border markers",
     "gathering_fight": "code gathering truce",
@@ -43,7 +44,7 @@ RULE_OF = {
 
 
 # nothing can break these yet: grayed out on the Clan creation page
-LATER = ("code own clan", "code no needless killing")
+LATER = ("code no needless killing",)
 
 
 def starting_rules() -> dict:
