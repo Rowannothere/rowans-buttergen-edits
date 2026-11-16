@@ -10,7 +10,7 @@ from random import randint, random
 from scripts.cat.cats import Cat
 from scripts.cat.enums import CatRank
 from scripts.game_structure import game
-from scripts.honor import core
+from scripts.honor import code, core
 from scripts.honor.acts import ACTS, COOLDOWN_MOONS, HONOR_GAIN, HONOR_LOSS, REPUTATION_GAIN
 
 # rule d: turning a temptation down is worth half the usual gain
@@ -341,6 +341,9 @@ def on_outcome(patrol, outcome_id: str, cats: dict, text: str) -> list:
         cats["p_l"] = patrol.patrol_cats[0]
     lines = []
     for spec in specs:
+        if not code.counts(spec["act"]):
+            # the Clan doesn't follow that rule (Warrior code tab): nothing to gain or lose
+            continue
         if spec["kind"] == "break":
             lines += _run_break(spec, patrol, cats, text, patrol.other_clan)
         else:

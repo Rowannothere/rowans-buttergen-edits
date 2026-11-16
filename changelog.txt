@@ -2,9 +2,14 @@
 
 A development build, so keep a copy of your saves folder before playing.
 
+New:
+- Your own warrior code: the Clan Settings have a new warrior code tab with the 12 rules of the code. Untick a rule and breaking it isn't a misdeed anymore (no honor lost, no witnesses, no judgment). The leader tells the Clan when a rule changes. "Healers don't take mates" is one of the rules now, in place of the old setting
+- In multi clan mode, every other Clan has its own warrior code, shown at the bottom of its allegiances
+
 Changes:
 - Pregnant and nursing cats, and cats too sick or hurt to work, no longer get in trouble for eating before their turn (they eat first, like elders and kits)
 - Walking past a crying kit from another Clan is now a minor misdeed instead of a serious one
+- The version in the corner shows in full (it was cut to "v0.4-dev")
 - Clearer wording: a leader's secret meeting with another Clan's leader is wrong because it's hidden from the Clan, and the leader challenge no longer claims the warrior code allows it
 
 <strong>Buttergen v0.4-dev.12</strong>

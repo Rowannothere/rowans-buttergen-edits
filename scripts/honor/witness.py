@@ -9,7 +9,7 @@ from scripts.events_module.event_information import EventInformation
 from scripts.events_module.text_adjust import event_text_adjust
 from scripts.game_structure import game
 from scripts.game_structure.localization import load_lang_resource
-from scripts.honor import core
+from scripts.honor import code, core
 from scripts.honor.acts import ACTS
 
 # where each act happens, and the chance someone sees it there
@@ -226,7 +226,7 @@ def _you_saw_too(offender, witness, key, other_clan, level):
 def after_break(offender, key, other_clan, level=None):
     """called after a cat breaks the code. level overrides the act's own (a half-done act is minor)"""
     where = WHERE.get(key)
-    if where is None:
+    if where is None or not code.counts(key):
         return
     # step 5: your cat may notice, whoever else does
     noticed = where != "public" and _you_saw_too(offender, None, key, other_clan, level)

@@ -11,7 +11,7 @@ from scripts.events_module.event_information import EventInformation
 from scripts.events_module.text_adjust import event_text_adjust
 from scripts.game_structure import game
 from scripts.game_structure.localization import load_lang_resource
-from scripts.honor import core
+from scripts.honor import code, core
 from scripts.honor.acts import (
     ACTS, CAUSES, COOLDOWN_MOONS, DARK, DUTY, GRUDGE, HONOR_GAIN, HONOR_LOSS, HUNGER, LONGING,
     REPUTATION_GAIN, RESTLESS,
@@ -253,9 +253,11 @@ def weighted(options):
 def do_act(cat, key, other, other_clan):
     a = ACTS[key]
     you = cat is game.clan.your_cat
-    if a["kind"] == "break":
+    # an act against a rule the Clan doesn't follow (Warrior code tab) isn't a misdeed
+    misdeed = a["kind"] == "break" and code.counts(key)
+    if misdeed:
         core.change_honor(cat, -randint(*HONOR_LOSS[a["level"]]))
-    elif a["kind"] == "follow":
+    elif a["kind"] == "follow" and code.counts(key):
         core.change_honor(cat, randint(*HONOR_GAIN))
         core.change_reputation(cat, randint(*REPUTATION_GAIN))
     # the "why?" questions need the real reason, before it resets
@@ -278,7 +280,7 @@ def do_act(cat, key, other, other_clan):
     # step 3: someone may have seen it
     from scripts.honor import leader
 
-    if a["kind"] == "break":
+    if misdeed:
         from scripts.honor import witness
 
         witness.after_break(cat, key, other_clan)
@@ -321,7 +323,7 @@ def act_once(cat, full_moon: bool):
         # step 5: a serious or grave act becomes your choice (one a moon)
         from scripts.honor import choices
 
-        if choices.is_big(key) and choices.can_offer():
+        if choices.is_big(key) and code.counts(key) and choices.can_offer():
             choices.offer_temptation(key, other, oc)
             return None
     return do_act(cat, key, other, oc)
@@ -336,6 +338,8 @@ def on_skip_start(full_moon: bool):
     from scripts.honor import choices, judgment
 
     choices.on_skip_start()
+    # the Clan's own warrior code: announce changed rules, drop misdeeds against dropped rules
+    code.on_skip_start()
     # step 4: misdeeds that came out before this skip are judged at the full moon
     judgment.on_skip(full_moon)
 

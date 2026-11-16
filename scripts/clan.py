@@ -190,6 +190,10 @@ class Clan:
         self.code_stolen_kits = []
         # cats waiting for the leader's judgment (scripts/honor/judgment.py)
         self.code_judgments = []
+        # the warrior code rules as of the last skip, so a change gets announced (scripts/honor/code.py)
+        self.code_rules_seen = None
+        # other Clans' own codes: Clan name --> the rules they don't follow (flavor only for now)
+        self.other_codes = {}
         # your cat's waiting choice, and the moon the last one came up (scripts/honor/choices.py)
         self.code_choice = None
         self.code_choice_moon = None
@@ -1129,6 +1133,8 @@ class Clan:
             "code_secrets": self.code_secrets,
             "code_stolen_kits": self.code_stolen_kits,
             "code_judgments": self.code_judgments,
+            "code_rules_seen": self.code_rules_seen,
+            "other_codes": self.other_codes,
             "code_choice": self.code_choice,
             "code_choice_moon": self.code_choice_moon,
             "code_why": self.code_why,
@@ -1710,6 +1716,8 @@ class Clan:
         game.clan.code_secrets = list(clan_data.get("code_secrets", []))
         game.clan.code_stolen_kits = list(clan_data.get("code_stolen_kits", []))
         game.clan.code_judgments = list(clan_data.get("code_judgments", []))
+        game.clan.code_rules_seen = clan_data.get("code_rules_seen")
+        game.clan.other_codes = dict(clan_data.get("other_codes") or {})
         game.clan.code_choice = clan_data.get("code_choice")
         game.clan.code_choice_moon = clan_data.get("code_choice_moon")
         game.clan.code_why = dict(clan_data.get("code_why") or {})

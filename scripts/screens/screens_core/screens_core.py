@@ -60,29 +60,14 @@ def rebuild_core(*, should_rebuild_bgs=True):
 
     rebuild_mute("default")
 
-    version_number = pygame_gui.elements.UILabel(
-        ui_scale(pygame.Rect((0, 0), (-1, -1))),
-        get_version_info().version_number[0:8],
+    # the full version for exe and run.bat builds alike (the old [0:8] cut "v0.4-dev.11" to "v0.4-dev")
+    version_text = get_version_info().version_number
+    dev_watermark = pygame_gui.elements.UILabel(
+        ui_scale(pygame.Rect((490, 660), (300, 50))),  # ends inside the 800 wide screen (longer names got cut off)
+        "Buttergen: " + version_text,
         object_id="#dev_watermark",
-        anchors={"bottom": "bottom", "right": "right"},
+        text_kwargs={"ver": version_text},
     )
-    # Adjust position
-    version_number.set_relative_position(
-        (
-            -version_number.relative_rect[2] - ui_scale_value(10),
-            -version_number.relative_rect[3],
-        )
-    )
-
-    if get_version_info().is_source_build:
-        dev_watermark = pygame_gui.elements.UILabel(
-            ui_scale(pygame.Rect((490, 660), (300, 50))),  # ends inside the 800 wide screen (longer names got cut off)
-            "Buttergen: " + version_number.text,
-            object_id="#dev_watermark",
-            text_kwargs={"ver": version_number.text},
-        )
-        version_number.kill()
-        version_number = None
 
     if should_rebuild_bgs:
         rebuild_bgs()
