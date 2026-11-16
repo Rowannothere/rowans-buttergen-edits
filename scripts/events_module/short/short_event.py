@@ -17,7 +17,10 @@ from scripts.cat_relations.relationship import Relationship
 from scripts.clan_package.cotc import change_clan_reputation, change_clan_relations
 from scripts.clan_package.get_clan_cats import find_alive_cats_with_rank
 from scripts.clan_package.settings import get_clan_setting
-from scripts.clan_resources.point_of_interest import get_poi_from_constraints
+from scripts.clan_resources.point_of_interest import (
+    get_poi_from_constraints,
+    get_poi_tags_set,
+)
 from scripts.config import get_config
 from scripts.events_module.event_information import EventInformation
 from scripts.game_structure.game.settings import game_setting_get
@@ -40,6 +43,12 @@ from scripts.events_module.text_adjust import (
 )
 from scripts.game_structure import constants
 from scripts.game_structure import game
+from scripts.game_structure.game.switches import (
+    Switch,
+    switch_get_value,
+    switch_set_value,
+)
+from scripts.territory import territory_class
 
 
 class ShortEvent:
@@ -82,6 +91,7 @@ class ShortEvent:
         supplies: list = None,
         new_gender: List[str] = None,
         future_event: dict = None,
+        tile_location: List[str] = None,
     ):
         if not event_id:
             print("WARNING: moon event has no event_id")
@@ -216,6 +226,7 @@ class ShortEvent:
         self.supplies = supplies if supplies else []
         self.new_gender = new_gender
         self.future_event = future_event if future_event else {}
+        self.tile_location = tile_location if tile_location else []
 
         self.types: list[str] = []
         self.additional_event_text: str = ""
@@ -427,18 +438,22 @@ class ShortEvent:
             chosen_poi=chosen_poi,
         )
 
+        event_tile = self.handle_tile_location(other_clan)
+
         if self.chosen_herb:
             game.herb_events_list.append(f"{self.text} {self.herb_notice}")
 
         self.gather_future_event(clan)
 
+        event_tile_string = event_tile.tile_string if event_tile else None
         if "m_c" not in self.exclude_involved or not second_clan:
             game.cur_events_list.append(
                 EventInformation(
                     self.text + " " + self.additional_event_text,
                     self.types,
                     self.all_involved_cat_ids,
-                    clan=self.main_cat.status.get_last_living_group()
+                    clan=self.main_cat.status.get_last_living_group(),
+                    event_tile=event_tile_string,
                 )
             )
         if second_clan and "r_c" not in self.exclude_involved:
@@ -447,7 +462,8 @@ class ShortEvent:
                     self.text + " " + self.additional_event_text,
                     self.types,
                     self.all_involved_cat_ids,
-                    clan=self.random_cat.status.get_last_living_group()
+                    clan=self.random_cat.status.get_last_living_group(),
+                    event_tile=event_tile_string,
                 )
             )
         for attribute_list in self.new_cat_attributes:
@@ -457,9 +473,37 @@ class ShortEvent:
                         self.text + " " + self.additional_event_text,
                         self.types,
                         self.all_involved_cat_ids,
-                        clan=other_clan.group_ID
+                        clan=other_clan.group_ID,
+                        event_tile=event_tile_string,
                     )
                 )
+
+    def handle_tile_location(self, other_clan):
+        if not self.tile_location:
+            return None
+
+        valid_tiles = {}
+        for option in self.tile_location:
+            preset = option
+            if preset in get_poi_tags_set() and switch_get_value(Switch.last_used_POI):
+                preset = switch_get_value(Switch.last_used_POI)
+                switch_set_value(Switch.last_used_POI, "")
+
+            preset_list = preset.split(",") if "," in preset else [preset]
+            tiles = territory_class.get_tiles(
+                tile_types=preset_list,
+                clan=game.clan,
+                other_clan=other_clan,
+            )
+            if tiles:
+                valid_tiles[preset] = tiles
+
+        if not valid_tiles:
+            return None
+
+        chosen_tile = choice(valid_tiles[choice(list(valid_tiles))])
+        chosen_tile.add_event(self.text)
+        return chosen_tile
 
 
     def gather_future_event(self, clan):

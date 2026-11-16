@@ -210,6 +210,11 @@ class Clan:
         self.focus_cat = focus_cat
         self.clan_age = clan_age if clan_age else "established"
         self.custom_pronouns = {}
+        self.territory_tiles = []
+        self.territory_wars = []
+        self._saved_territory_wars = []
+        self._territory_group_id_remap = {}
+        self._saved_map_interaction = {}
 
         switch_set_value(Switch.biome, biome)
 
@@ -499,6 +504,11 @@ class Clan:
             for clan in self.all_other_clans:
                 if clan.leader:
                     clan.leader.generate_lead_ceremony()
+
+        from scripts.create_territory import generate_territories
+
+        tile_data = generate_territories()
+        self.territory_tiles = self.generate_territories_tile_list(tile_data)
 
         save_cats(game.clan.save_id, Cat, game)
         self.save_clan()
@@ -1193,6 +1203,14 @@ class Clan:
         clan_data["other_clans"] = [i.get_save_data() for i in self.all_other_clans]
 
         clan_data["war"] = self.war
+        clan_data["territory_wars"] = [
+            war.get_war_dict() for war in self.territory_wars
+        ]
+        from scripts.clan_package.settings import get_clan_setting
+
+        clan_data["pending_map_interaction"] = (
+            get_clan_setting("map_interaction") or {}
+        )
         clan_data["achievements"] = self.achievements
         clan_data["talks"] = self.talks
         clan_data["disaster"] = self.disaster
@@ -1212,6 +1230,12 @@ class Clan:
             self.save_freshkill_pile(game.clan)
 
         safe_save(f"{get_save_dir()}/{self.save_id}/clan.json", clan_data)
+        territory_data = {
+            tile.tile_string: tile.get_save_dict() for tile in self.territory_tiles
+        }
+        safe_save(
+            f"{get_save_dir()}/{self.save_id}/territory.json", territory_data
+        )
 
         if os.path.exists(f"{get_save_dir()}/{self.save_id}clan.json"):
             os.remove(f"{get_save_dir()}/{self.save_id}clan.json")
@@ -1222,6 +1246,7 @@ class Clan:
         """
 
         version_info = None
+        clan_loaded = False
         game.reset_used_group_IDs()
         if os.path.exists(
             get_save_dir() + "/" + switch_get_value(Switch.clan_list)[0] + "clan.json"
@@ -1230,6 +1255,7 @@ class Clan:
         ):
             version_info = get_version()
             self.load_clan_json()
+            clan_loaded = True
         elif os.path.exists(
             get_save_dir() + "/" + switch_get_value(Switch.clan_list)[0] + "clan.txt"
         ):
@@ -1242,9 +1268,19 @@ class Clan:
                 Switch.error_message, "There was an error loading the clan.json"
             )
 
+        if clan_loaded:
+            game.clan.load_territory_json()
+            game.clan.load_territory_wars()
+
         # can't put this in post initialization bc guide isn't made before that func
         self.add_guide_influence()
         load_clan_settings()
+        if clan_loaded:
+            from scripts.clan_package.settings import set_clan_setting
+
+            set_clan_setting(
+                "map_interaction", game.clan._saved_map_interaction
+            )
 
         return version_info
 
@@ -1746,6 +1782,12 @@ class Clan:
         if "focus_moons" in clan_data:
             game.clan.focus_moons = clan_data["focus_moons"]
 
+        game.clan._saved_territory_wars = clan_data.get("territory_wars", [])
+        game.clan._saved_map_interaction = clan_data.get(
+            "pending_map_interaction", {}
+        )
+        game.clan._territory_group_id_remap = group_id_remap
+
         if "focus_cat" in clan_data:
             if clan_data["focus_cat"] is None:
                 game.clan.focus_cat = None
@@ -1760,6 +1802,106 @@ class Clan:
             "version_commit": clan_data.get("version_commit"),
             "source_build": clan_data.get("source_build"),
         }
+
+    def generate_territories_tile_list(self, tile_data):
+        from scripts.tile import TerritoryTile
+
+        tiles = []
+        for tile_string, info in tile_data.items():
+            x, y = (int(value) for value in tile_string.split("-", 1))
+            owner_id = info.get("owner")
+            owner_id = self._territory_group_id_remap.get(
+                str(owner_id), owner_id
+            )
+            owner = next(
+                (
+                    clan
+                    for clan in [game.clan] + game.clan.all_other_clans
+                    if clan.group_ID == owner_id
+                ),
+                None,
+            )
+            tiles.append(
+                TerritoryTile(
+                    x=x,
+                    y=y,
+                    owner=owner,
+                    poi=info.get("poi"),
+                    terrain=info.get("terrain"),
+                    herb=info.get("herb"),
+                    strength=info.get("strength", 0),
+                    camp=info.get("camp", False),
+                    events=info.get("events", []),
+                    history=info.get("history", []),
+                )
+            )
+        return tiles
+
+    def load_territory_json(self):
+        from scripts.create_territory import generate_territories
+
+        filename = f"{get_save_dir()}/{self.save_id}/territory.json"
+        if os.path.exists(filename):
+            with open(filename, "r", encoding="utf-8") as save_file:
+                tile_data = ujson.load(save_file)
+        else:
+            tile_data = generate_territories()
+            safe_save(filename, tile_data)
+        game.clan.territory_tiles = self.generate_territories_tile_list(tile_data)
+
+    def load_territory_wars(self):
+        from scripts.territory import territory_class
+        from scripts.war import War
+
+        remap = game.clan._territory_group_id_remap
+        wars = []
+        valid_group_ids = {
+            clan.group_ID for clan in [game.clan] + game.clan.all_other_clans
+        }
+        for saved_war in game.clan._saved_territory_wars:
+            offense = remap.get(str(saved_war["offense"]), saved_war["offense"])
+            defense = remap.get(str(saved_war["defense"]), saved_war["defense"])
+            if offense not in valid_group_ids or defense not in valid_group_ids:
+                logger.warning("Skipping territory war with an unknown clan ID: %s", saved_war)
+                continue
+            demand = saved_war["demand"]
+            if isinstance(demand, str) and "-" in demand:
+                demand = territory_class.get_tile_from_string(demand) or demand
+            wars.append(
+                War(
+                    offense=offense,
+                    defense=defense,
+                    demand=demand,
+                    duration=saved_war.get("duration", 0),
+                    progress=saved_war.get("progress", 0),
+                )
+            )
+        game.clan.territory_wars = wars
+
+    def get_current_territory_war(self, other_clan=None):
+        for war in self.territory_wars:
+            if war.is_in_war(self, other_clan):
+                return war
+        return None
+
+    def remap_territory_strength(self):
+        from scripts.create_territory import set_strength
+        from scripts.territory import territory_class
+
+        strength_data = {}
+        for tile in self.territory_tiles:
+            strength_data[tile.tile_string] = tile.get_save_dict()
+            strength_data[tile.tile_string].pop("strength", None)
+        demand_strings = {
+            war: war.demand.tile_string
+            for war in self.territory_wars
+            if not isinstance(war.demand, str)
+        }
+        self.territory_tiles = []
+        strength_data = set_strength(strength_data)
+        self.territory_tiles = self.generate_territories_tile_list(strength_data)
+        for war, tile_string in demand_strings.items():
+            war.demand = territory_class.get_tile_from_string(tile_string)
 
     @staticmethod
     def remap_group_keys(table: dict, remap: dict) -> dict:

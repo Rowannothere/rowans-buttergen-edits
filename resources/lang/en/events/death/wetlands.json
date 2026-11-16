@@ -5,6 +5,7 @@
         "season": ["any"],
         "tags": [],
         "frequency": 2,
+        "tile_location": ["outside_camp"],
         "event_text": "m_c got stuck in quicksand and wasn't found in time.",
         "m_c": {
             "status": ["apprentice", "warrior", "deputy", "leader"],
@@ -23,6 +24,7 @@
         "season": ["greenleaf", "newleaf", "leaf-fall"],
         "tags": [],
         "frequency": 4,
+        "tile_location": ["outside_camp"],
         "event_text": "m_c was killed by a snake with a strikingly white mouth.",
         "m_c": {
             "status": ["apprentice"],

@@ -28,6 +28,7 @@ class GameScreen(StrEnum):
     PATROL = "patrol_screen"
     ALLEGIANCES = "allegiances_screen"
     CLAN_SETTINGS = "clan_settings_screen"
+    MAP_SCREEN = "map_screen"
 
     # den/work screens
     LEADER_DEN = "leader_den_screen"

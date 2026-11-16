@@ -43,6 +43,7 @@ from scripts.clan_package.clan_symbols import clan_symbol_sprite
 from scripts.ui.theme import get_text_box_theme
 from scripts.events_module import weekskip
 from scripts.events_module.text_adjust import shorten_text_to_fit
+from scripts.territory import territory_class
 from scripts.ui.scale import (
     ui_scale,
     ui_scale_dimensions,
@@ -116,6 +117,7 @@ class EventsScreen(Screens):
         self.cat_profile_buttons = []
         self.involved_cat_container = None
         self.involved_cat_buttons = []
+        self.open_map_buttons = {}
 
         # LIFEGEN -----------------------
         self.fave_filter_elements = {}
@@ -214,6 +216,14 @@ class EventsScreen(Screens):
             event.type == pygame_gui.UI_BUTTON_PRESSED
         ):  # everything else on button press to prevent blinking
             element = event.ui_element
+            for key, button in self.open_map_buttons.items():
+                if element == button:
+                    tile = territory_class.get_tile_from_string(key.split(".", 1)[1])
+                    if tile:
+                        switch_set_value(Switch.selected_tile, tile)
+                        self.change_screen(GameScreen.MAP_SCREEN)
+                    return
+
             if element is not None and (element == getattr(self, "honor_choice_badge", None)
                                         or element in getattr(self, "honor_event_buttons", [])):
                 honor_choices.open_window(self)
@@ -1429,6 +1439,7 @@ class EventsScreen(Screens):
         for ele in self.involved_cat_buttons:
             ele.kill()
         self.involved_cat_buttons = []
+        self.open_map_buttons = {}
 
         # BUTTERGEN: the button on the event line of the waiting choice
         for ele in getattr(self, "honor_event_buttons", []):
@@ -1521,9 +1532,24 @@ class EventsScreen(Screens):
             )
             display_element_container.rebuild()
 
+            tile = (
+                territory_class.get_tile_from_string(event_object.event_tile)
+                if event_object.event_tile
+                else None
+            )
+            event_text = event_object.text
+            if event_object.event_tile:
+                location = (
+                    tile.location_link() if tile else event_object.event_tile
+                )
+                event_text += (
+                    "<br>"
+                    + i18n.t("screens.events.event_location", tile=location)
+                )
+
             # TEXT BOX
             display_element_event = pygame_gui.elements.UITextBox(
-                event_object.text,
+                event_text,
                 ui_scale(pygame.Rect((0, 0), (509, -1))),
                 object_id=get_text_box_theme("#text_box_30_horizleft"),
                 starting_height=1,
@@ -1534,6 +1560,20 @@ class EventsScreen(Screens):
             )
 
             self.event_display_boxes.append(display_element_event)
+
+            if event_object.event_tile:
+                map_button_key = f"{i}.{event_object.event_tile}"
+                self.open_map_buttons[map_button_key] = UISurfaceImageButton(
+                    ui_scale(pygame.Rect((8, 5), (34, 34))),
+                    Icon.NEWLEAF,
+                    get_button_dict(ButtonStyles.ICON, (34, 34)),
+                    object_id="@buttonstyles_icon",
+                    starting_height=3,
+                    manager=MANAGER,
+                    container=display_element_container,
+                    anchors={"top_target": display_element_event},
+                    tool_tip_text="screens.events.view_map_tile",
+                )
 
             # BUTTERGEN: the choice line lists every cat it's about (older saves only had your cat)
             if event_object is choice_event:
@@ -1571,20 +1611,12 @@ class EventsScreen(Screens):
                     choice_button.row = display_element_container
                     self.honor_event_buttons.append(choice_button)
 
-            display_element_container.set_dimensions(
-                (
-                    default_rect[2],
-                    (
-                        display_element_event.get_relative_rect()[3]
-                        + (
-                            involved_cat_button.get_relative_rect()[3]
-                            + ui_scale_value(10)
-                        )
-                        if event_object.cats_involved
-                        else display_element_event.get_relative_rect()[3]
-                    ),
-                )
-            )
+            event_height = display_element_event.get_relative_rect()[3]
+            if event_object.cats_involved:
+                event_height += involved_cat_button.get_relative_rect()[3] + ui_scale_value(10)
+            elif tile:
+                event_height += self.open_map_buttons[map_button_key].get_relative_rect()[3] + ui_scale_value(10)
+            display_element_container.set_dimensions((default_rect[2], event_height))
 
             anchor = {"top_target": display_element_container}
 

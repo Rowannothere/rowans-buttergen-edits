@@ -4,6 +4,7 @@
     "location": ["wetlands"],
     "season": ["newleaf", "greenleaf", "leaf-fall"],
     "frequency": 4,
+    "tile_location": ["outside_camp"],
     "event_text": "Whilst m_c was poking around in the undergrowth, {PRONOUN/m_c/subject} ran nose first into a stinging nettle plant.",
     "m_c": {
       "status": ["apprentice", "warrior", "elder", "kitten"]
@@ -36,6 +37,7 @@
     "location": ["wetlands"],
     "season": ["newleaf", "greenleaf", "leaf-fall"],
     "frequency": 2,
+    "tile_location": ["territory"],
     "event_text": "m_c took a walk out in the territory and saw a large blue heron fly close overhead! How lucky!",
     "m_c": {
       "age": ["adolescent", "young adult", "adult", "senior adult", "senior"]

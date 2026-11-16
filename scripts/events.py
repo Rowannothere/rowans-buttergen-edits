@@ -271,6 +271,9 @@ def _one_moon_impl():
         update_afterlife_temper()
         pregnancy_events.increment_pregnancy_age()
         check_war()
+        from scripts.territory_events import process_territory_month
+
+        process_territory_month()
 
     if switch_get_value(Switch.change_group):
         new_group_ID = switch_get_value(Switch.change_group)

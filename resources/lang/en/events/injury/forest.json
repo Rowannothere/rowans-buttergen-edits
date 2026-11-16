@@ -212,6 +212,7 @@
             "any"
         ],
         "frequency": 1,
+        "tile_location": ["outside_camp,land"],
         "event_text": "m_c's tail was badly injured by a falling bough.",
         "m_c": {
             "age": [

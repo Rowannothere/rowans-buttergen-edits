@@ -1904,6 +1904,14 @@
           "title": "Event Text",
           "type": "string"
         },
+        "tile_location": {
+          "description": "The types of territory tiles where this event may occur.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Tile Location",
+          "type": "array"
+        },
         "new_accessory": {
           "description": "If the event gives a new accessory, list possible new accessories here (one will be chosen from the list)",
           "items": {

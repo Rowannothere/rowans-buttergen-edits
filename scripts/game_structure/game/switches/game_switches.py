@@ -55,6 +55,8 @@ class Switch(StrEnum):
     card_conflict_changes = auto()
     confirmed_deck_list = auto()
     ceremony_accessory = auto()
+    selected_tile = auto()
+    edit_map_info = auto()
 
     # LG
     attended_half_moon = auto()
@@ -137,6 +139,8 @@ _switches: Dict[str, Union[str, int, bool, list, dict, None]] = {
     "accomplices": [],
     "change_group": None,
     "ceremony_accessory": False,
+    "selected_tile": None,
+    "edit_map_info": {},
 }
 """If you are somehow accessing this from outside game_switches.py, something has gone terribly wrong."""
 

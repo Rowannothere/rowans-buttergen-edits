@@ -89,6 +89,12 @@ def get_random_poi_by_tag(tag, clan=None):
     return choice(tagged if tagged else ["MISSING_POI"])
 
 
+def get_pois_by_tag(tag, clan=None):
+    tagged = _poi_by_tags.get("shared", {}).get(tag, [])
+    clan_tagged = _poi_by_tags.get(clan, {}).get(tag, []) if clan else []
+    return list(dict.fromkeys([*tagged, *clan_tagged]))
+
+
 def get_random_poi_by_category(category: Literal["gathering", "moonplace", "terrain"], clan=None):
     try:
         return choice(get_pois_by_category(category, clan))

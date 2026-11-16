@@ -23,6 +23,7 @@ from .LeaderDenScreen import LeaderDenScreen
 from .ListScreen import ListScreen
 from .MedDenScreen import MedDenScreen
 from .MediationScreen import MediationScreen
+from .MapScreen import MapScreen
 from .PatrolScreen import PatrolScreen
 from .ProfileScreen import ProfileScreen
 from .RelationshipScreen import RelationshipScreen
@@ -122,6 +123,7 @@ def rebuild_all_screens():
         GameScreen.ACHIEVEMENTS: AchievementScreen,
         GameScreen.ELDER_STORY: ElderStoryScreen,
         GameScreen.QUEEN: QueenScreen,
+        GameScreen.MAP_SCREEN: MapScreen,
     }
 
     for enum, classobj in enum_to_class.items():

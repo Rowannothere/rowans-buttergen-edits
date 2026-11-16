@@ -34,6 +34,7 @@ from scripts.events_module.patrol.generate_patrol_list import (
 )
 from scripts.events_module.patrol.lifegen_outcome import execute_lifegen_outcome
 from scripts.events_module.patrol.patrol_event import PatrolEvent
+from scripts.events_module.event_information import EventInformation
 from scripts.events_module.text_adjust import (
     event_text_adjust,
 )
@@ -53,6 +54,7 @@ from scripts.game_structure.game.switches import (
     switch_append_list_value,
 )
 from scripts.special_dates import SpecialDate, is_today
+from scripts.territory import territory_class
 
 logger = logging.getLogger(__name__)
 
@@ -117,6 +119,9 @@ class Patrol:
         ) = {PatrolOutcome.SUCCESS: {}, PatrolOutcome.FAILURE: {}}
         self.available_options: list[PatrolOption] = []
         self.chosen_poi = None
+        self.event_tile = None
+        self.did_proceed = False
+        self.location_recorded = False
 
         # LG: randomly chosen r_c:X cats for each possible LifeGen patrol, key is the patrol's event_id
         self.lifegen_random_cats: dict[str, dict[str, Cat]] = {}
@@ -176,6 +181,8 @@ class Patrol:
                 clan=self.clan.group_ID
             )
 
+        self.event_tile = self._choose_event_tile(patrol_type)
+
         # Return text adjusted patrol intro
         return event_text_adjust(
             Cat,
@@ -186,6 +193,82 @@ class Patrol:
             other_clan=self.other_clan,
             chosen_poi=self.chosen_poi,
         )
+
+    def _choose_event_tile(self, patrol_type: str):
+        owned_tiles = [
+            tile
+            for tile in game.clan.territory_tiles
+            if tile.owner is self.clan
+        ]
+        if not owned_tiles:
+            return None
+
+        if self.chosen_poi:
+            matching_tiles = [
+                tile for tile in owned_tiles if tile.poi == self.chosen_poi
+            ]
+            if matching_tiles:
+                return choice(matching_tiles)
+
+        preferred_tiles = []
+        if self.is_med_patrol or patrol_type == "med":
+            preferred_tiles = [tile for tile in owned_tiles if tile.herb]
+        elif patrol_type == "border":
+            clans = [game.clan] + game.clan.all_other_clans
+            for other_clan in clans:
+                if other_clan is not self.clan:
+                    preferred_tiles.extend(
+                        territory_class.get_tiles(
+                            ["other_clan_border"],
+                            clan=self.clan,
+                            other_clan=other_clan,
+                        )
+                    )
+            preferred_tiles.extend(
+                territory_class.get_tiles(["unclaimed_border"], clan=self.clan)
+            )
+        elif patrol_type == "hunting":
+            preferred_tiles = territory_class.get_tiles(
+                ["outside_camp"], clan=self.clan
+            )
+        elif patrol_type == "training":
+            preferred_tiles = territory_class.get_tiles(
+                ["territory"], clan=self.clan
+            )
+
+        preferred_tiles = [
+            tile for tile in preferred_tiles if tile.owner is self.clan
+        ]
+        if preferred_tiles:
+            return choice(preferred_tiles)
+
+        available_tiles = [tile for tile in owned_tiles if not tile.camp]
+        return choice(available_tiles or owned_tiles)
+
+    def record_location(self, event_text: str):
+        if (
+            not self.did_proceed
+            or self.location_recorded
+            or not self.event_tile
+            or not event_text
+        ):
+            return
+
+        tile_string = self.event_tile.tile_string
+        tile = territory_class.get_tile_from_string(tile_string)
+        if tile is None:
+            return
+
+        tile.add_event(event_text)
+        game.cur_events_list.append(
+            EventInformation(
+                event_text,
+                ["misc"],
+                clan=self.clan.group_ID,
+                event_tile=tile_string,
+            )
+        )
+        self.location_recorded = True
 
     def proceed_patrol(
         self,
@@ -225,6 +308,7 @@ class Patrol:
         if selected_option is not None and selected_option not in self.available_options:
             raise ValueError("Selected patrol option is not currently available")
 
+        self.did_proceed = True
         return self.determine_outcome(
             antagonize=(path == PatrolChoice.ANTAGONIZE),
             selected_option=selected_option,

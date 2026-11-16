@@ -345,6 +345,7 @@ def generate_event_objects(event_triggered, biome, frequency) -> list:
                     future_event=event["future_event"]
                     if "future_event" in event
                     else {},
+                    tile_location=event.get("tile_location", []),
                 )
                 event_list.append(event)
 

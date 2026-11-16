@@ -493,7 +493,7 @@ def event_text_adjust(
     if replace_dict:
         text = process_text(text, replace_dict)
 
-    if re.search(r'[^\w]POI[^\w]', text):
+    if re.search(r"\bPOI\b", text):
         text = text.replace("POI", i18n.t(f"points_of_interest.{chosen_poi}"))
 
     # multi_cat

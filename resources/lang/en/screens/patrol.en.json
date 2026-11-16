@@ -22,6 +22,7 @@
         "antagonize": "antagonize",
         "patrol_again": "patrol again",
         "back_to_clan": "back to clan",
+        "event_location": "Location: %{tile}",
         "dead_outsider": {
             "one": "%{cats}'s ghost now wanders.",
             "many": "%{cats} ghosts now wander."

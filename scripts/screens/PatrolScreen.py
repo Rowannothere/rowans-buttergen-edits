@@ -34,6 +34,7 @@ from ..ui.generate_button import get_button_dict, ButtonStyles
 from ..ui.icon import Icon
 from ..ui.windows.rel_change_details import RelChangeDetailWindow
 from scripts import explore_patrol
+from scripts.territory import territory_class
 
 
 class PatrolScreen(Screens):
@@ -138,6 +139,13 @@ class PatrolScreen(Screens):
                     switch_set_value(Switch.cat, cat.ID)
                     game.last_screen_forProfile = GameScreen.PATROL
                     self.change_screen(GameScreen.PROFILE)
+            elif event.link_target.startswith("tile://"):
+                tile_string = event.link_target.split("tile://", maxsplit=1)[1]
+                tile = territory_class.get_tile_from_string(tile_string)
+                if tile:
+                    switch_set_value(Switch.selected_tile, tile)
+                    game.last_screen_forupdate = GameScreen.PATROL
+                    self.change_screen(GameScreen.MAP_SCREEN)
 
         elif event.type == pygame_gui.UI_BUTTON_START_PRESS:
             if self.patrol_stage == "choose_cats":
@@ -1480,6 +1488,18 @@ class PatrolScreen(Screens):
         Deals with the next stage of the patrol, including antagonize, proceed, and do not proceed.
         """
         self.patrol_stage = "patrol_complete"
+        patrol_event_text = "\n".join(
+            text for text in (self.display_text, self.results_text) if text
+        )
+        self.patrol_obj.record_location(patrol_event_text)
+        if self.patrol_obj.did_proceed and self.patrol_obj.event_tile:
+            location = i18n.t(
+                "screens.patrol.event_location",
+                tile=self.patrol_obj.event_tile.location_link(),
+            )
+            self.results_text = "\n".join(
+                text for text in (self.results_text, location) if text
+            )
 
         self.elements["clan_return"] = UIImageButton(
             ui_scale(pygame.Rect((400, 137), (162, 30))),

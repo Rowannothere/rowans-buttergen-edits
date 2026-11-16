@@ -24,6 +24,7 @@ class EventInformation:
         cats_involved: list | tuple = None,
         cat_dict: dict = None, 
         clan=None,
+        event_tile: str = None,
     ):
         """
         :param text: The event text.
@@ -32,10 +33,12 @@ class EventInformation:
         :param cats_involved: list or tuples of the IDs of cats involved in the event
         :param cat_dict: dict suitable for event_text_adjust containing the cat's text abbreviation as the key and the
         cat object as the value
+        :param event_tile: Territory map tile string where the event took place
         """
 
         self.text = text
         self.clan = clan
+        self.event_tile = event_tile if event_tile else None
 
         if isinstance(types, str):
             self.types = [types]
@@ -70,19 +73,24 @@ class EventInformation:
                 cat_dict[abbr] = kitty.ID
 
         if self.clan:
-            return {
+            event_data = {
                 "text": self.text,
                 "clan" : self.clan,
                 "types": self.types,
                 "cats_involved": self.cats_involved,
                 "cat_dict": cat_dict,
             }
-        return {
-            "text": self.text,
-            "types": self.types,
-            "cats_involved": self.cats_involved,
-            "cat_dict": cat_dict,
-        }
+        else:
+            event_data = {
+                "text": self.text,
+                "types": self.types,
+                "cats_involved": self.cats_involved,
+                "cat_dict": cat_dict,
+            }
+
+        if self.event_tile:
+            event_data["event_tile"] = self.event_tile
+        return event_data
 
     @staticmethod
     def from_dict(info_dict: dict, cat_class: "Cat"):
@@ -108,6 +116,7 @@ class EventInformation:
             types=info_dict.get("types", None),
             cats_involved=info_dict.get("cats_involved", None),
             cat_dict=cat_dict,
+            event_tile=info_dict.get("event_tile", None),
         )
 
     def __eq__(self, obj):

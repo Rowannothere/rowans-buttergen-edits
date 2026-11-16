@@ -20,6 +20,7 @@ from scripts.ui.elements.sprite_button import UISpriteButton
 from scripts.ui.elements.image_button import UIImageButton
 from scripts.ui.elements.surface_image_button import UISurfaceImageButton
 from scripts.screens.Screens import Screens
+from scripts.screens.enums import GameScreen
 from scripts.ui.generate_box import get_box, BoxStyles
 from scripts.ui.generate_button import get_button_dict, ButtonStyles
 from scripts.ui.icon import Icon
@@ -44,6 +45,7 @@ class LeaderDenScreen(Screens):
         self.current_page = 1
         self.help_button = None
         self.back_button = None
+        self.map_screen_button = None
 
         self.focus_clan = None
         self.focus_cat = None
@@ -82,7 +84,9 @@ class LeaderDenScreen(Screens):
         """
         if event.type == pygame_gui.UI_BUTTON_START_PRESS:
             if event.ui_element == self.back_button:
-                self.change_screen(game.last_screen_forupdate)
+                self.change_screen(GameScreen.CAMP)
+            elif event.ui_element == self.map_screen_button:
+                self.change_screen(GameScreen.MAP_SCREEN)
             elif event.ui_element == self.outsider_selection_elements["page_right"]:
                 self.current_page += 1
                 self.update_outsider_cats()
@@ -152,6 +156,13 @@ class LeaderDenScreen(Screens):
             object_id="#help_button",
             manager=MANAGER,
             tool_tip_text="screens.leader_den.help_tooltip",
+        )
+        self.map_screen_button = UISurfaceImageButton(
+            ui_scale(pygame.Rect((570, 25), (130, 30))),
+            "buttons.view_map",
+            get_button_dict(ButtonStyles.SQUOVAL, (130, 30)),
+            object_id="@buttonstyles_squoval",
+            manager=MANAGER,
         )
         # This is here incase the leader comes back
         self.no_leader = False
@@ -379,6 +390,7 @@ class LeaderDenScreen(Screens):
         """
         self.back_button.kill()
         self.help_button.kill()
+        self.map_screen_button.kill()
 
         for ele in self.screen_elements:
             self.screen_elements[ele].kill()
