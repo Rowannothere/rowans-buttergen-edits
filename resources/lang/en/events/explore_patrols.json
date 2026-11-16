@@ -1,0 +1,77 @@
+{
+    "where": {
+        "label": "Where:",
+        "clan": "%{clan}'s land",
+        "outside": "Outside the Clans"
+    },
+    "screen_label": "exploring",
+    "unwilling": {
+        "law": "Thinks it's against the code.",
+        "like": "Doesn't know you well enough."
+    },
+    "intro": {
+        "clan_alone": [
+            "You stand at the o_c_n border, tasting their scent markers. One step, and you'd be across.",
+            "The o_c_n scent line is right there. Nobody's watching. You could just... go."
+        ],
+        "clan_group": [
+            "You and r_c crouch at the o_c_n border, whiskers twitching. Are you really doing this?",
+            "r_c nudges you toward the o_c_n scent markers. \"Well? Are we going or not?\""
+        ],
+        "outside_alone": [
+            "You follow the edge of c_n's territory until the scent markers run out. The world keeps going.",
+            "Past the last scent marker, the land is wild and unclaimed. You could see what's out there."
+        ],
+        "outside_group": [
+            "You and r_c pad past the last c_n scent marker, out where no Clan has ever claimed the land."
+        ]
+    },
+    "decline": [
+        "You think better of it and turn back before anyone notices you were gone."
+    ],
+    "caught": [
+        "A patrol from o_c_n bursts out of the undergrowth, and e_c stalks up to you, hackles raised.",
+        "You hear them before you see them: a patrol from o_c_n, with e_c at the front."
+    ],
+    "caught_after": "The o_c_n patrol chases you all the way back to the border.",
+    "caught_fight": "The o_c_n patrol doesn't stop at words. You make it back across the border with fresh scratches.",
+    "talk_button": "Face %{name}",
+    "complaint": "o_c_n complains that c_n cats were caught on their land.",
+    "lone_friendly": [
+        "Near a stream, you nearly walk right into e_c of o_c_n, out hunting alone. To your surprise, {PRONOUN/e_c/subject} {VERB/e_c/laugh/laughs} instead of yowling for help.",
+        "You find e_c of o_c_n sunning {PRONOUN/e_c/self} on a rock. Instead of raising the alarm, {PRONOUN/e_c/subject} {VERB/e_c/ask/asks} what you're doing so far from home."
+    ],
+    "lone_cold": [
+        "You come face to face with e_c of o_c_n. {PRONOUN/e_c/subject/CAP} {VERB/e_c/hiss/hisses} at you to leave, and you do."
+    ],
+    "land": [
+        "You pad through o_c_n's land, tasting strange scents and seeing the trees from the wrong side. Nobody sees you.",
+        "You find a hollow full of soft moss that nobody's marked in moons. You leave before your luck runs out.",
+        "You find a patch of herbs growing by o_c_n's stream. You leave them be. They aren't yours to take."
+    ],
+    "kittypet_curious": [
+        "Near the Twoleg place, a plump kittypet named e_c watches you from a fence. {PRONOUN/e_c/subject/CAP} {VERB/e_c/ask/asks} if you're a real wild cat."
+    ],
+    "kittypet_scared": [
+        "A kittypet puffs up at the sight of you and bolts for {PRONOUN/e_c/poss} Twoleg den. Inside, a Twoleg calls {PRONOUN/e_c/object} e_c."
+    ],
+    "loner_friendly": [
+        "A loner named e_c shares the shade of an old barn with you and tells you about the places {PRONOUN/e_c/subject}{VERB/e_c/'ve/'s} been."
+    ],
+    "loner_wary": [
+        "A loner, e_c, keeps {PRONOUN/e_c/poss} distance, but tells you {PRONOUN/e_c/poss} name before slipping away."
+    ],
+    "rogue_swipe": [
+        "A rogue named e_c blocks your path, lip curled. You back away, but not before {PRONOUN/e_c/subject} {VERB/e_c/take/takes} a swipe at you."
+    ],
+    "rogue_sneer": [
+        "A scarred rogue, e_c, watches you from the shadows. \"Clan cats,\" {PRONOUN/e_c/subject} {VERB/e_c/sneer/sneers}. \"Go home.\""
+    ],
+    "nothing": [
+        "You walk until the trees thin out. It's quiet out here, and it's all yours for a while.",
+        "You follow a Twoleg path until you get bored of it. Nothing happens, but it was nice to get away."
+    ],
+    "nothing_prey": [
+        "You catch a mouse by a farm wall and eat it there. Out here, no one's counting."
+    ]
+}

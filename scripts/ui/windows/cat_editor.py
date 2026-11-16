@@ -216,7 +216,7 @@ class CatEditorWindow(EditorWindowBase):
         )
         self.elements.append(sprite)
         if on_click:
-            self.actions[sprite.button] = on_click
+            self.actions[sprite] = on_click
 
         name = shorten_text_to_fit(str(other.name), 90, 13)
         self._text(name, (x - 5, y - 25, 110, 30), "#text_box_26_horizcenter", disable=True)

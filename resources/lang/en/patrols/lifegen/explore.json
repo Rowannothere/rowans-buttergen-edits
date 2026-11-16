@@ -1,0 +1,86 @@
+[
+    {
+        "event_id": "explore_clan",
+        "types": [
+            "lifegen"
+        ],
+        "frequency": 4,
+        "season": [
+            "any"
+        ],
+        "required_cat_types": {
+            "patrol_cats": [
+                1,
+                3
+            ]
+        },
+        "chance_of_success": 100,
+        "patrol_art": "bord_general_intro",
+        "intro_strings": [
+            "You stand at the o_c_n border."
+        ],
+        "decline_strings": [
+            "You turn back."
+        ],
+        "success_outcomes": [
+            {
+                "frequency": 4,
+                "strings": [
+                    "You explore."
+                ],
+                "exp_gained": 0
+            }
+        ],
+        "fail_outcomes": [
+            {
+                "frequency": 4,
+                "strings": [
+                    "You explore."
+                ],
+                "exp_gained": 0
+            }
+        ]
+    },
+    {
+        "event_id": "explore_outside",
+        "types": [
+            "lifegen"
+        ],
+        "frequency": 4,
+        "season": [
+            "any"
+        ],
+        "required_cat_types": {
+            "patrol_cats": [
+                1,
+                3
+            ]
+        },
+        "chance_of_success": 100,
+        "patrol_art": "bord_general_intro",
+        "intro_strings": [
+            "You leave c_n's land."
+        ],
+        "decline_strings": [
+            "You turn back."
+        ],
+        "success_outcomes": [
+            {
+                "frequency": 4,
+                "strings": [
+                    "You explore."
+                ],
+                "exp_gained": 0
+            }
+        ],
+        "fail_outcomes": [
+            {
+                "frequency": 4,
+                "strings": [
+                    "You explore."
+                ],
+                "exp_gained": 0
+            }
+        ]
+    }
+]

@@ -101,6 +101,8 @@ class Patrol:
         self.other_clan = None
         # BUTTERGEN: the real friend in a friend patrol (friend_patrols.py)
         self.friend = None
+        # BUTTERGEN: the exploring patrol's place and what it ran into (explore_patrol.py)
+        self.explore = None
         self.clan = game.clan
         self.temperament: tuple[str, str] = ("", "")
         self.is_med_patrol = False
@@ -148,6 +150,11 @@ class Patrol:
         from scripts import friend_patrols
 
         friend_patrols.setup(self)
+        # BUTTERGEN: the exploring patrol (explore_patrol.py)
+        from scripts import explore_patrol
+
+        if switch_get_value(Switch.patrol_category) == explore_patrol.CATEGORY:
+            explore_patrol.setup(self)
         self._create_needed_cats()
 
         # LG: track which patrol categories the player's cat has gone on this moon
@@ -156,7 +163,7 @@ class Patrol:
         ]:
             switch_append_list_value(
                 Switch.patrolled,
-                {"clangen": "1", "lifegen": "2", "date": "4"}.get(
+                {"clangen": "1", "lifegen": "2", "date": "4", "explore": "5"}.get(
                     switch_get_value(Switch.patrol_category), "3"
                 ),
             )
@@ -172,7 +179,8 @@ class Patrol:
         # Return text adjusted patrol intro
         return event_text_adjust(
             Cat,
-            friend_patrols.intro(self) or choice(self.patrol_event.intro_strings),
+            friend_patrols.intro(self) or explore_patrol.intro(self)
+            or choice(self.patrol_event.intro_strings),
             involved_cat_dict=self.involved_cats,
             clan=self.clan,
             other_clan=self.other_clan,
@@ -193,12 +201,13 @@ class Patrol:
                 )
                 # BUTTERGEN: honor step 10, turning a temptation down counts
                 from scripts.honor import patrols as honor_patrols
-                from scripts import friend_patrols
+                from scripts import explore_patrol, friend_patrols
 
                 return (
                     event_text_adjust(
                         Cat,
-                        friend_patrols.decline(self) or choice(self.patrol_event.decline_strings),
+                        friend_patrols.decline(self) or explore_patrol.decline(self)
+                        or choice(self.patrol_event.decline_strings),
                         involved_cat_dict=self.involved_cats,
                         clan=self.clan,
                         other_clan=self.other_clan,
@@ -379,6 +388,13 @@ class Patrol:
         # ---------------------------------------------------------------------------- #
         #                                LOAD RESOURCES                                #
         # ---------------------------------------------------------------------------- #
+
+        # BUTTERGEN: exploring has one patrol for each kind of place
+        from scripts import explore_patrol
+
+        if switch_get_value(Switch.patrol_category) == explore_patrol.CATEGORY:
+            self.patrol_event = explore_patrol.pick_event(get_lifegen_patrol_list(explore_patrol.CATEGORY))
+            return
 
         # LG: LifeGen patrol categories have their own patrol pools
         if switch_get_value(Switch.patrol_category) != "clangen":
@@ -927,6 +943,18 @@ class Patrol:
         # BUTTERGEN: the friend's text, and the friend is the one who joins
         from scripts import friend_patrols
 
+        chosen_outcome = friend_patrols.outcome(
+            self, chosen_outcome,
+            self.outcome_cats[PatrolOutcome.SUCCESS if success else PatrolOutcome.FAILURE],
+        )
+        # BUTTERGEN: what the exploring patrol runs into
+        from scripts import explore_patrol
+
+        chosen_outcome = explore_patrol.outcome(
+            self, chosen_outcome,
+            self.outcome_cats[PatrolOutcome.SUCCESS if success else PatrolOutcome.FAILURE],
+        )
+
         # LG
         if switch_get_value(Switch.patrol_category) == "date":
             self._handle_date_relationships(success)
@@ -997,7 +1025,8 @@ class Patrol:
         # BUTTERGEN: running into another Clan, the player's cat may meet one of its cats
         from scripts import outsiders
 
-        final_results.extend(outsiders.after_patrol(self, processed_text, self.patrol_cats))
+        if not explore_patrol.is_exploring(self):
+            final_results.extend(outsiders.after_patrol(self, processed_text, self.patrol_cats))
 
         # BUTTERGEN: the player's cat and the cats in the outcome grow closer
         from scripts import patrol_bonds
@@ -1007,6 +1036,7 @@ class Patrol:
             self.outcome_cats[PatrolOutcome.SUCCESS if success else PatrolOutcome.FAILURE], success,
         )
         friend_patrols.after_outcome(self, chosen_outcome, success)
+        final_results.extend(explore_patrol.after_outcome(self))
 
         # Run the chosen outcome
         result = (

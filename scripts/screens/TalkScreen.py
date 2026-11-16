@@ -423,11 +423,20 @@ class TalkScreen(Screens):
 
         return text_string, cat
 
+    @staticmethod
+    def _back_screen():
+        """BUTTERGEN: back to the patrol screen after being caught exploring, otherwise the profile"""
+        from scripts import explore_patrol
+
+        screen = explore_patrol.talk_return["screen"] or GameScreen.PROFILE
+        explore_patrol.talk_return["screen"] = None
+        return screen
+
     def handle_event(self, event):
         new_scene = False
         if event.type == pygame_gui.UI_BUTTON_START_PRESS:
             if event.ui_element == self.back_button:
-                self.change_screen(GameScreen.PROFILE)
+                self.change_screen(self._back_screen())
             for btn in self.choice_buttons:
                 if event.ui_element == self.choice_buttons[btn]:
                     self.current_scene = self.choice_buttons[btn].next_scene
@@ -435,7 +444,7 @@ class TalkScreen(Screens):
 
         elif event.type == pygame.KEYDOWN and game_setting_get("keybinds"):
             if event.key == pygame.K_ESCAPE:
-                self.change_screen(GameScreen.PROFILE)
+                self.change_screen(self._back_screen())
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if self.text_frames:
                 if self.frame_index == len(self.text_frames[self.text_index]) - 1:

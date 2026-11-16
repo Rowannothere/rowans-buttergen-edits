@@ -33,6 +33,7 @@ from ..ui.generate_box import BoxStyles, get_box
 from ..ui.generate_button import get_button_dict, ButtonStyles
 from ..ui.icon import Icon
 from ..ui.windows.rel_change_details import RelChangeDetailWindow
+from scripts import explore_patrol
 
 
 class PatrolScreen(Screens):
@@ -268,6 +269,29 @@ class PatrolScreen(Screens):
             self.update_selected_cat()
             self.update_cat_images_buttons()
             self.update_button()
+        elif event.ui_element == self.elements.get("explore_icon"):
+            switch_set_value(Switch.patrol_category, explore_patrol.CATEGORY)
+            self.selected_cat = None
+            self.current_patrol.clear()
+            you = game.clan.your_cat
+            self.elements["cat_icon"].enable()
+            self.elements["your_cat"].enable()
+            if not you.dead and not you.status.is_outsider and you.joined_df and you.can_work():
+                self.elements["df_icon"].enable()
+            else:
+                self.elements["df_icon"].disable()
+            if not you.dead and not you.status.is_outsider and you.moons >= 14 and you.can_work():
+                self.elements["date_icon"].enable()
+            else:
+                self.elements["date_icon"].disable()
+            self.update_selected_cat()
+            self.update_cat_images_buttons()
+            self.update_button()
+        elif event.ui_element == self.elements.get("explore_where"):
+            places = [c.group_ID for c in explore_patrol.other_clans()] + [explore_patrol.OUTSIDE]
+            now = explore_patrol.where["to"]
+            explore_patrol.where["to"] = places[(places.index(now) + 1) % len(places)] if now in places else places[0]
+            self.update_explore_where()
         elif event.ui_element == self.elements["random"]:
             if self.able_cats:
                 self.selected_cat = choice(self.able_cats)
@@ -287,7 +311,7 @@ class PatrolScreen(Screens):
             if event.type == pygame_gui.UI_BUTTON_DOUBLE_CLICKED:
                 if self.selected_cat in self.current_patrol:
                     self.current_patrol.remove(self.selected_cat)
-                elif len(self.current_patrol) < self.max_cats:
+                elif len(self.current_patrol) < self.max_cats and not self.explore_reason(self.selected_cat):
                     self.current_patrol.append(self.selected_cat)
                 self.update_cat_images_buttons()
                 self.update_button()
@@ -482,6 +506,13 @@ class PatrolScreen(Screens):
             self.change_screen(GameScreen.CAMP)
         elif event.ui_element == self.elements.get("rel_detail"):
             RelChangeDetailWindow(self.rel_results)
+        elif event.ui_element == self.elements.get("explore_talk"):
+            cat = self.patrol_obj.explore["talk"]
+            self.in_progress_data = None
+            explore_patrol.talk_return["screen"] = GameScreen.PATROL
+            switch_set_value(Switch.cat, cat.ID)
+            switch_set_value(Switch.talk_category, "caught")
+            self.change_screen(GameScreen.TALK)
 
     def screen_switches(self):
         super().screen_switches()
@@ -648,6 +679,9 @@ class PatrolScreen(Screens):
         elif switch_get_value(Switch.patrol_category) == "clangen":
             self.max_cats = 6
             self.min_cats = 1
+        elif switch_get_value(Switch.patrol_category) == explore_patrol.CATEGORY:
+            self.max_cats = 1 + explore_patrol.MAX_COMPANIONS
+            self.min_cats = 1
         # ----------------------------------------------------
 
         if self.patrol_stage == "choose_cats":
@@ -664,7 +698,8 @@ class PatrolScreen(Screens):
                     manager=MANAGER,
                     anchors={"centerx": "centerx"},
                 )
-            elif self.selected_cat is None or len(self.current_patrol) >= self.max_cats:
+            elif (self.selected_cat is None or len(self.current_patrol) >= self.max_cats
+                  or self.explore_reason(self.selected_cat)):
                 self.elements["add_remove_cat"] = UISurfaceImageButton(
                     ui_scale(pygame.Rect((0, 460), (98, 30))),
                     "buttons.add_cat",
@@ -699,6 +734,10 @@ class PatrolScreen(Screens):
             elif switch_get_value(Switch.patrol_category) == "date":
                 if "4" in switch_get_value(Switch.patrolled):
                     self.elements["patrol_start"].disable()
+            elif switch_get_value(Switch.patrol_category) == explore_patrol.CATEGORY:
+                if (explore_patrol.PATROLLED in switch_get_value(Switch.patrolled)
+                        or game.clan.your_cat not in self.current_patrol):
+                    self.elements["patrol_start"].disable()
             #  ----------
 
             # Update add random cat buttons
@@ -721,7 +760,8 @@ class PatrolScreen(Screens):
                 self.elements["mouse"].disable()
                 self.elements["claws"].disable()
                 self.elements["herb"].disable()
-                text = {"lifegen": "lifegen", "df": "dark forest", "date": "date"}.get(
+                text = {"lifegen": "lifegen", "df": "dark forest", "date": "date",
+                        explore_patrol.CATEGORY: explore_patrol.texts()["screen_label"]}.get(
                     switch_get_value(Switch.patrol_category), ""
                 )
             elif not get_config("patrol_related.allow_player_selection.all"):
@@ -797,6 +837,35 @@ class PatrolScreen(Screens):
             if len(self.current_patrol) >= self.max_cats or len(able_no_med) < 1:
                 self.elements["add_one"].disable()
                 self.elements["random"].disable()
+            # BUTTERGEN: exploring companions are picked by hand
+            exploring = switch_get_value(Switch.patrol_category) == explore_patrol.CATEGORY
+            if exploring:
+                for key in ("add_one", "add_three", "add_six"):
+                    self.elements[key].disable()
+            # why the picked Clanmate won't come exploring, at the bottom of their frame
+            if "explore_reason" in self.elements:
+                self.elements.pop("explore_reason").kill()
+            if self.explore_reason(self.selected_cat):
+                self.elements["explore_reason"] = pygame_gui.elements.UITextBox(
+                    self.explore_reason(self.selected_cat),
+                    ui_scale(pygame.Rect((305, 412), (190, -1))),
+                    object_id=get_text_box_theme("#text_box_22_horizcenter"),
+                    manager=MANAGER,
+                )
+            if "explore_icon" in self.elements:
+                if exploring or not explore_patrol.can_go() or self.current_clan is not game.clan:
+                    self.elements["explore_icon"].disable()
+                else:
+                    self.elements["explore_icon"].enable()
+                for key in ("paw", "mouse", "claws", "herb"):
+                    if exploring:
+                        self.elements[key].hide()
+                    else:
+                        self.elements[key].show()
+                if exploring:
+                    self.elements["explore_where"].show()
+                else:
+                    self.elements["explore_where"].hide()
             if (
                 len(self.current_patrol) > 3
                 or len(able_no_med) < 3
@@ -1088,7 +1157,7 @@ class PatrolScreen(Screens):
         self.elements["patrol_start"].disable()
 
         self.elements["cat_icon"] = UISurfaceImageButton(
-            ui_scale(pygame.Rect((323, 560), (34, 34))),
+            ui_scale(pygame.Rect((312, 560), (34, 34))),
             Icon.CAT_HEAD,
             get_button_dict(ButtonStyles.ICON, (34, 34)),
             object_id="@buttonstyles_icon",
@@ -1101,7 +1170,7 @@ class PatrolScreen(Screens):
             self.elements["cat_icon"].disable()
 
         self.elements["df_icon"] = UISurfaceImageButton(
-            ui_scale(pygame.Rect((363, 560), (34, 34))),
+            ui_scale(pygame.Rect((348, 560), (34, 34))),
             Icon.DARKFOREST,
             get_button_dict(ButtonStyles.ICON, (34, 34)),
             object_id="@buttonstyles_icon",
@@ -1119,7 +1188,7 @@ class PatrolScreen(Screens):
             self.elements["df_icon"].disable()
 
         # self.elements["date_icon"] = UISurfaceImageButton(
-        #     ui_scale(pygame.Rect((403, 560), (34, 34))),
+        #     ui_scale(pygame.Rect((384, 560), (34, 34))),
         #     Icon.STARCLAN,
         #     get_button_dict(ButtonStyles.ICON, (34, 34)),
         #     object_id="@buttonstyles_icon",
@@ -1128,7 +1197,7 @@ class PatrolScreen(Screens):
 
         # # idk how to add my own icons so this one gets to be an image button
         self.elements["date_icon"] = UIImageButton(
-            ui_scale(pygame.Rect((403, 560), (34, 34))),
+            ui_scale(pygame.Rect((384, 560), (34, 34))),
             "",
             object_id="#date_button",
             manager=MANAGER,
@@ -1146,7 +1215,7 @@ class PatrolScreen(Screens):
             self.elements["date_icon"].disable()
 
         self.elements["your_cat"] = UISurfaceImageButton(
-            ui_scale(pygame.Rect((443, 560), (34, 34))),
+            ui_scale(pygame.Rect((420, 560), (34, 34))),
             Icon.PAW,
             get_button_dict(ButtonStyles.ICON, (34, 34)),
             object_id="@buttonstyles_icon",
@@ -1156,6 +1225,24 @@ class PatrolScreen(Screens):
             self.elements["your_cat"].enable()
         else:
             self.elements["your_cat"].disable()
+
+        # BUTTERGEN: the exploring patrol (explore_patrol.py), and where it goes
+        self.elements["explore_icon"] = UISurfaceImageButton(
+            ui_scale(pygame.Rect((456, 560), (34, 34))),
+            Icon.MAGNIFY,
+            get_button_dict(ButtonStyles.ICON, (34, 34)),
+            object_id="@buttonstyles_icon",
+            manager=MANAGER,
+        )
+        self.elements["explore_where"] = UISurfaceImageButton(
+            ui_scale(pygame.Rect((0, 637), (190, 30))),
+            "",
+            get_button_dict(ButtonStyles.SQUOVAL, (190, 30)),
+            object_id="@buttonstyles_squoval",
+            manager=MANAGER,
+            anchors={"centerx": "centerx"},
+        )
+        self.update_explore_where()
 
         # add prey information
         if game.clan.game_mode != "classic" and self.current_clan == game.clan:
@@ -1177,6 +1264,26 @@ class PatrolScreen(Screens):
             )
         self.update_cat_images_buttons()
         self.update_button()
+
+    def explore_reason(self, cat) -> str:
+        """BUTTERGEN: why this Clanmate won't come exploring, or an empty string"""
+        if (cat is None or cat is game.clan.your_cat
+                or switch_get_value(Switch.patrol_category) != explore_patrol.CATEGORY):
+            return ""
+        return explore_patrol.unwilling(cat)
+
+    def update_explore_where(self):
+        """BUTTERGEN: the place the exploring patrol goes, shown on its button"""
+        if "explore_where" not in self.elements:
+            return
+        where = explore_patrol.texts()["where"]
+        clan = explore_patrol.target_clan()
+        if clan is None:
+            explore_patrol.where["to"] = explore_patrol.OUTSIDE
+            place = where["outside"]
+        else:
+            place = where["clan"].replace("%{clan}", str(clan.name))
+        self.elements["explore_where"].set_text(f"{where['label']} {place}")
 
     def run_patrol_start(self):
         """Runs patrol start. To be run in a separate thread."""
@@ -1419,6 +1526,18 @@ class PatrolScreen(Screens):
         self.elements["not_proceed"].disable()
         self.elements["antagonize"].hide()
 
+        # BUTTERGEN: caught exploring, one of their patrol has words with the player's cat
+        explore = getattr(self.patrol_obj, "explore", None)
+        if explore and explore.get("talk") is not None:
+            self.elements["explore_talk"] = UISurfaceImageButton(
+                ui_scale(pygame.Rect((550, 433), (172, 30))),
+                explore_patrol.texts()["talk_button"].replace("%{name}", str(explore["talk"].name)),
+                get_button_dict(ButtonStyles.PROFILE_MIDDLE, (172, 30)),
+                object_id="@buttonstyles_profile_middle",
+                starting_height=3,
+                manager=MANAGER,
+            )
+
     def update_cat_images_buttons(self):
         """Updates all the cat sprite buttons. Also updates the skills tab, if open, and the next and
         previous page buttons."""
@@ -1493,6 +1612,21 @@ class PatrolScreen(Screens):
                         and the_cat.is_dateable(game.clan.your_cat)
                     ):
                         self.able_cats.append(the_cat)
+        elif switch_get_value(Switch.patrol_category) == explore_patrol.CATEGORY:
+            # BUTTERGEN: the player's cat, and Clanmates (the unwilling ones say why when picked)
+            you = game.clan.your_cat
+            if explore_patrol.can_go() and explore_patrol.PATROLLED not in switch_get_value(Switch.patrolled):
+                if you not in self.current_patrol:
+                    self.current_patrol.insert(0, you)
+                for c in Cat.all_cats_list:
+                    if (
+                        c is not you
+                        and c.status.alive_in_player_clan
+                        and not c.status.rank.is_baby()
+                        and c.can_work()
+                        and c not in self.current_patrol
+                    ):
+                        self.able_cats.append(c)
         else:  # DF patrol
             the_cat = game.clan.your_cat
             if the_cat.status.alive_in_your_cat_group and the_cat.can_work():

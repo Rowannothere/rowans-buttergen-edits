@@ -37,7 +37,8 @@ ACTS = {
     "healer_mate": brk("serious", frozenset(), ()),
     "healer_kits": brk("serious", frozenset(), ()),
     # everyone from apprentice up
-    "eat_first": brk("minor", EVERYONE | LEADER, (HUNGER,)),
+    # elders and queens eat first anyway (kits too), so it isn't a misdeed for them
+    "eat_first": brk("minor", (EVERYONE | LEADER) - {R.ELDER, R.QUEEN}, (HUNGER,)),
     "sneak_out": brk("minor", EVERYONE, (RESTLESS, LONGING)),
     "skip_duties": brk("minor", WORKING, (RESTLESS,)),
     "lie_leader": brk("serious", EVERYONE - {R.DEPUTY}, (GRUDGE, DARK), other="leader"),
@@ -52,6 +53,8 @@ ACTS = {
     "hunt_border": brk("serious", WARRIORS, (HUNGER,), other_clan=True),
     "let_trespasser": brk("minor", WARRIORS, (LONGING,), other_clan=True),
     "markers_lapse": brk("minor", WARRIORS, (RESTLESS,), other_clan=True),
+    # Other Clans step 1: only from the exploring patrol, never a temptation
+    "cross_border": brk("minor", frozenset(), (RESTLESS,), other_clan=True),
     "renew_markers": fol(WARRIORS, other_clan=True),
     "feed_elders": fol(WARRIORS, other="elder"),
     "keep_vigil": fol(WARRIORS),

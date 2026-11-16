@@ -1,0 +1,14 @@
+{
+    "have_kits": "You will be more likely to have kits the next moon.",
+    "young": "Too young to have kits.",
+    "pregnant": "Already expecting kits.",
+    "recovering": "Still recovering from giving birth.",
+    "cooldown_you": "You had kits recently: %{moons} more %{moon_word}.",
+    "cooldown": "%{name} had kits recently: %{moons} more %{moon_word}.",
+    "turned_off": "Kits are turned off in this cat's toggles.",
+    "rank": "Can't have kits in this role.",
+    "no_mate": "Needs a mate first.",
+    "away": "Only cats in a Clan can try for kits.",
+    "moon": "moon",
+    "moons": "moons"
+}

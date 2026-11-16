@@ -23,6 +23,7 @@ WHERE = {
     "favorite_herbs": "camp", "leave_den": "camp", "kits_wander": "camp", "best_nest": "camp",
     "spread_rumors": "camp", "unfair_patrols": "camp", "twist_words": "camp",
     "hunt_border": "border", "let_trespasser": "border", "markers_lapse": "border",
+    "cross_border": "border",
     "neglect_kit": "border", "twoleg_food": "border",
     "sneak_out": "secret", "lie_leader": "secret", "hide_sign": "secret", "bend_sign": "secret",
     "hide_news": "secret", "pass_secrets": "secret", "carry_messages": "secret",

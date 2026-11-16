@@ -1,3 +1,28 @@
+<strong>Buttergen v0.4-dev.12</strong>
+
+A development build, so keep a copy of your saves folder before playing.
+
+New:
+- Exploring patrols (multi clan mode): a new patrol button takes your cat and up to 2 willing Clanmates onto another Clan's land or outside the Clans. They might get caught by a patrol and have to face one of its cats, run into a lone cat, or meet kittypets, loners and rogues they can talk to afterward
+- Crossing into another Clan's land is a new minor misdeed: the cats who came along can keep it, hold it over your cat or report it, and getting caught means it comes out
+- The "have kits" and "try for kits" buttons now say why they're grayed out when hovered (too young, had kits recently and how many moons are left, no mate, and so on), and warn when a mate had kits too recently to have more yet
+
+Changes:
+- Brought up to date with Genemod's modded branch and Clangen's development branch from November 15, 2026 (other Clans keep their own herb supplies, the mediation screen's romance check, the conditions tab spacing)
+
+Fixes:
+- The game no longer crashes when an event names the leader or deputy while the Clan doesn't have one
+- The "Make your choice" button on an event no longer hides under the name buttons, and the event now shows every cat the choice is about
+- Moon events where your cat runs into a cat from another Clan now count as meeting them, like Gatherings and border patrols do
+- Picking a cat in the cat editor no longer crashes the game
+- Cat maker: the pseudo-merle markings no longer change when picking an eye color or size (they stay until Random cat)
+- The solo hunting patrol where a cat gets stuck in a Twoleg trap now really takes that cat (nobody was taken)
+- The Dark Forest dream patrol about a lost StarClan spirit no longer picks a living cat (in multi clan, a cat from another Clan): the spirit is a real Dark Forest cat
+- Fixed a crash on moon skip when a lost or exiled cat died whose old mentor had faded
+- A cat who loses the Clan's trust at a full moon no longer gets an apprentice in that same moon
+- Starting relationships: cats were all treated as siblings (so everyone liked everyone, even with randomized relationships on); only real siblings are now
+- Elders and queens no longer get in trouble for eating before their turn (they eat first anyway), and the choice line reads "You saw that ... ate before their turn"
+
 <strong>Buttergen v0.4-dev.11</strong>
 
 A development build, so keep a copy of your saves folder before playing.

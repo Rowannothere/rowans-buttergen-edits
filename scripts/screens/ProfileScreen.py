@@ -59,6 +59,8 @@ from scripts.ui.elements.checkbox import UICheckbox
 from scripts.ui.elements.image_button import UIImageButton
 from scripts.ui.elements.modified_image import UIModifiedImage
 from scripts.ui.elements.surface_image_button import UISurfaceImageButton
+# BUTTERGEN: kit buttons that say why they're off
+from scripts.ui.elements.reason_button import UIReasonButton
 from scripts.ui.generate_box import BoxStyles, get_box
 from scripts.ui.generate_button import get_button_dict, ButtonStyles
 from scripts.ui.icon import Icon
@@ -2995,7 +2997,7 @@ class ProfileScreen(Screens):
             self.condition_data[f"desc_{con}"] = pygame_gui.elements.UITextBox(
                 con["details"],
                 details_rect,
-                object_id="#text_box_22_horizcenter",
+                object_id="#text_box_22_horizcenter_spacing_75",
                 container=self.condition_data[f"bg_{con}"],
                 manager=MANAGER,
                 anchors={"centerx": "centerx", "top_target": self.condition_data[f"name_{con}"]},
@@ -3265,7 +3267,7 @@ class ProfileScreen(Screens):
                 manager=MANAGER,
             )
             # BUTTERGEN: any cat with a mate can try for kits
-            self.try_kits_button = UISurfaceImageButton(
+            self.try_kits_button = UIReasonButton(
                 ui_scale(pygame.Rect((50, 586), (172, 34))),
                 "try for kits",
                 get_button_dict(ButtonStyles.LADDER_BOTTOM, (172, 34)),
@@ -3545,6 +3547,8 @@ class ProfileScreen(Screens):
             from scripts.events_module.pregnancy import try_for_kits
 
             left = try_for_kits.moons_left(self.the_cat)
+            reason = try_for_kits.why_not(self.the_cat)
+            self.try_kits_button.set_tooltip(reason or None)
             if left:
                 self.try_kits_button.set_text(f"trying for kits ({left})")
                 self.try_kits_button.disable()
@@ -3611,13 +3615,18 @@ class ProfileScreen(Screens):
             ):
                 if old_button:
                     old_button.kill()
-            self.have_kits_button = UISurfaceImageButton(
+            # BUTTERGEN: the hover text says why kits can't happen (it shows while disabled too)
+            from scripts.events_module.pregnancy import try_for_kits
+
+            have_kits_tip = try_for_kits.reason_texts()["have_kits"]
+            kits_reason = try_for_kits.why_not(self.the_cat, have_kits=True)
+            self.have_kits_button = UIReasonButton(
                 ui_scale(pygame.Rect((402, 580), (172, 36))),
                 "have kits",
                 get_button_dict(ButtonStyles.LADDER_MIDDLE, (172, 36)),
                 object_id="@buttonstyles_ladder_middle",
                 starting_height=2,
-                tool_tip_text="You will be more likely to have kits the next moon.",
+                tool_tip_text=have_kits_tip,
                 manager=MANAGER,
                 anchors={"bottom_target": self.your_tab},
             )
@@ -3628,6 +3637,10 @@ class ProfileScreen(Screens):
                 and not switch_get_value(Switch.have_kits)
             ):
                 self.have_kits_button.enable()
+                if kits_reason:
+                    self.have_kits_button.set_tooltip(f"{have_kits_tip}<br>{kits_reason}")
+            elif kits_reason and not switch_get_value(Switch.have_kits):
+                self.have_kits_button.set_tooltip(kits_reason)
 
             self.request_apprentice_button = UISurfaceImageButton(
                 ui_scale(pygame.Rect((402, 544), (172, 36))),

@@ -435,6 +435,18 @@ def resolve(c, option):
     return _resolve_why(c, option)
 
 
+def _choice_cats(entry) -> list:
+    """your cat, then every cat the choice is about, so their profiles open from the event line"""
+    ids = [_you().ID] if _you() else []
+    if entry:
+        for key in ("offender", "other", "leader", "challenger", "cat"):
+            if entry.get(key):
+                ids.append(entry[key])
+        ids += entry.get("kits") or []
+        ids += entry.get("healers") or []
+    return [i for n, i in enumerate(ids) if i not in ids[:n] and Cat.fetch_cat(i)]
+
+
 def announce():
     """an event line for the waiting choice, with a button that opens the window (part 3)"""
     from scripts.honor import choices
@@ -442,7 +454,7 @@ def announce():
     shown = choices.window_text()
     if not shown:
         return
-    event = EventInformation(shown[0], ["misc"], [_you().ID] if _you() else [])
+    event = EventInformation(shown[0], ["misc"], _choice_cats(choices.pending()))
     event.honor_choice = True
     game.cur_events_list.insert(0, event)
 
