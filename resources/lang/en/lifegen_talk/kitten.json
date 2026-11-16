@@ -25769,5 +25769,58 @@
                 "relationship": ["min_like_20"]
             }
         ]
+    },
+    "buttergen_red_eyes_crying": {
+        "frequency": 2,
+        "cats": {
+            "y_c": {
+                "condition": [
+                    "ocular_albinism:any:true",
+                    "blind:any:false"
+                ]
+            },
+            "t_c": {
+                "condition": [
+                    "not:ocular_albinism"
+                ]
+            }
+        },
+        "intro": [
+            "Woahg! y_c, have you been crying?"
+        ],
+        "intro_choices": {
+            "choice1": {
+                "text": "...Yes?",
+                "next_scene": "yes"
+            },
+            "choice2": {
+                "text": "No, my eyes are just like that.",
+                "next_scene": "no"
+            }
+        },
+        "yes": [
+            "Yeah, I can tell! You must cry a lot because your eyes are always red!"
+        ],
+        "no": [
+            "No? But your eyes are all red and spooky!",
+            "Huh!? I'm not being rude! Y-you're rude!",
+            "[{PRONOUN/t_c/subject/CAP} {VERB/t_c/scamper/scampers} off with {PRONOUN/t_c/poss} tail in a puff.]"
+        ],
+        "no_scene_effects": {
+            "relationships": [
+                {
+                    "cats_from": [
+                        "t_c"
+                    ],
+                    "cats_to": [
+                        "y_c"
+                    ],
+                    "values": [
+                        "like"
+                    ],
+                    "amount": -2
+                }
+            ]
+        }
     }
 }
