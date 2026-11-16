@@ -7,6 +7,9 @@ New:
 - Crossing into another Clan's land is a new minor misdeed: the cats who came along can keep it, hold it over your cat or report it, and getting caught means it comes out
 - The "have kits" and "try for kits" buttons now say why they're grayed out when hovered (too young, had kits recently and how many moons are left, no mate, and so on), and warn when a mate had kits too recently to have more yet
 
+Changes:
+- Brought up to date with Genemod's modded branch and Clangen's development branch from November 15, 2026 (other Clans keep their own herb supplies, the mediation screen's romance check, the conditions tab spacing)
+
 Fixes:
 - The game no longer crashes when an event names the leader or deputy while the Clan doesn't have one
 - The "Make your choice" button on an event no longer hides under the name buttons, and the event now shows every cat the choice is about
