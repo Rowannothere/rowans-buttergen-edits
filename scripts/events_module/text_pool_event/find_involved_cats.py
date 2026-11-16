@@ -288,9 +288,11 @@ _RANDOM_CAT_ABBR = re.compile(r"(?<![A-Za-z0-9_])r_c\d+(?![A-Za-z0-9_])")
 
 
 def _unlisted_random_cats(event, involved_cats: dict) -> list[str]:
-    """LG: r_cN abbreviations an event's text (or relationship changes) uses that nothing assigned"""
+    """LG: r_cN abbreviations an event's text (or consequence blocks) uses that nothing assigned"""
     pieces = []
-    for attr in ("strings", "intro_strings", "decline_strings", "relationship_changes"):
+    # BUTTERGEN: death, lost and condition blocks too, or they hit nobody
+    for attr in ("strings", "intro_strings", "decline_strings", "relationship_changes",
+                 "death", "lost", "condition"):
         value = getattr(event, attr, None)
         if value:
             pieces.append(str(value))
