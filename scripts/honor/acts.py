@@ -45,7 +45,7 @@ ACTS = {
     "gathering_fight": brk("serious", EVERYONE | LEADER, (GRUDGE,), other_clan=True, full_moon=True),
     "pass_secrets": brk("grave", EVERYONE, (DARK,), other_clan=True),
     "twoleg_food": brk("minor", EVERYONE, (HUNGER, RESTLESS)),
-    "neglect_kit": brk("serious", EVERYONE, (GRUDGE, DARK), other_clan=True),
+    "neglect_kit": brk("minor", EVERYONE, (GRUDGE, DARK), other_clan=True),
     "give_share": fol(EVERYONE, other="hungry"),
     "defend_clanmate": fol(EVERYONE, other="liked"),
     "help_kit": fol(EVERYONE, other_clan=True),

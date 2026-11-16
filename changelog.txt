@@ -1,3 +1,12 @@
+<strong>Buttergen v0.4-dev.13</strong>
+
+A development build, so keep a copy of your saves folder before playing.
+
+Changes:
+- Pregnant and nursing cats, and cats too sick or hurt to work, no longer get in trouble for eating before their turn (they eat first, like elders and kits)
+- Walking past a crying kit from another Clan is now a minor misdeed instead of a serious one
+- Clearer wording: a leader's secret meeting with another Clan's leader is wrong because it's hidden from the Clan, and the leader challenge no longer claims the warrior code allows it
+
 <strong>Buttergen v0.4-dev.12</strong>
 
 A development build, so keep a copy of your saves folder before playing.

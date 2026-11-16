@@ -196,6 +196,8 @@ def options_for(cat, full_moon: bool) -> list:
             continue
         if a.get("hungry") and not _hungry():
             continue
+        if key in ("eat_first", "app_eat_first") and eats_first(cat):
+            continue
         done = cat.code_done.get(key)
         if done is not None and now - done < COOLDOWN_MOONS:
             continue
@@ -216,6 +218,21 @@ def options_for(cat, full_moon: bool) -> list:
         if weight > 0:
             out.append((weight, key, other, oc))
     return out
+
+
+def eats_first(cat) -> bool:
+    """canon feeds pregnant and nursing cats and the sick or hurt first, whatever their rank"""
+    conditions = cat.temporary_conditions
+    if "pregnant" in conditions or "recovering_from_birth" in conditions:
+        return True
+    if any(c.severity != "minor" for c in conditions):
+        return True
+    if cat.gender in ("female", "molly"):
+        for kit in Cat.all_cats_list:
+            if (cat.ID in (kit.parent1, kit.parent2) and kit.moons < 4 and not kit.dead
+                    and kit.status.alive_in_player_clan):
+                return True
+    return False
 
 
 def _hungry() -> bool:
