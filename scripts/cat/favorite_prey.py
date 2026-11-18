@@ -53,6 +53,15 @@ def _pick(cat, avoid=None) -> str:
     return choice(pool) if pool else "mouse"
 
 
+def options(cat, avoid=None) -> list:
+    """every prey the cat could have as a favorite or dislike (the cat editor's list)"""
+    if _is_kittypet(cat):
+        pool = list(KITTYPET_FOOD) + [RARE_KITTYPET_FOOD]
+    else:
+        pool = _wild_prey(_biome()) or _wild_prey("forest")
+    return sorted(p for p in pool if p != avoid)
+
+
 def favorite(cat) -> str:
     if not getattr(cat, "favorite_prey", None):
         cat.favorite_prey = _pick(cat, avoid=getattr(cat, "disliked_prey", None))

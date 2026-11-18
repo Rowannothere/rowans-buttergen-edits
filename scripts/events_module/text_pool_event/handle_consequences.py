@@ -1113,6 +1113,10 @@ def _handle_mentor_app(event_involved_cats: dict[str, Union[Cat, list[Cat]]]):
                     affect_skills[0], affect_skills[1], affect_skills[2]
                 )
                 print(str(cat.name), affect_skills)
+            elif cat.status.rank == CatRank.MEDICINE_APPRENTICE and cat.skills.primary:
+                # BUTTERGEN: a healer apprentice learns a little on any patrol with their mentor,
+                # even when their skills don't share a type
+                cat.skills._add_skill(cat.skills.primary, randint(1, 2))
 
 
 def _handle_future_event(

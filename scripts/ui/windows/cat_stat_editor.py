@@ -165,6 +165,13 @@ class CatStatEditorWindow(EditorWindowBase):
             (20, 350, 660, 60),
             "#text_box_26_horizleft_pad_10_14",
         )
+        # BUTTERGEN: favorite and disliked prey (scripts/cat/favorite_prey.py)
+        from scripts.cat import favorite_prey
+
+        self._text(f"Favorite prey: {favorite_prey.favorite(cat)}", (20, 420, 380, 30))
+        self._button("change", (400, 418, 170, 32), lambda: self._open_prey_picker(False))
+        self._text(f"Dislikes: {favorite_prey.disliked(cat)}", (20, 458, 380, 30))
+        self._button("change", (400, 456, 170, 32), lambda: self._open_prey_picker(True))
         self._max_reset(
             560,
             lambda: max_stats(cat, PERSONALITY_FACETS),
@@ -310,6 +317,17 @@ class CatStatEditorWindow(EditorWindowBase):
     def _open_picker(self, title, options, on_pick):
         self.picker = (title, options, on_pick)
         self.page = 0
+
+    def _open_prey_picker(self, disliked):
+        from scripts.cat import favorite_prey
+
+        cat = self.the_cat
+        if disliked:
+            self._open_picker("Choose a disliked prey", favorite_prey.options(cat, favorite_prey.favorite(cat)),
+                              lambda p: setattr(cat, "disliked_prey", p))
+        else:
+            self._open_picker("Choose a favorite prey", favorite_prey.options(cat, favorite_prey.disliked(cat)),
+                              lambda p: setattr(cat, "favorite_prey", p))
 
     def _open_trait_picker(self):
         self._open_picker("Choose a trait", all_traits(self.the_cat), lambda t: set_trait(self.the_cat, t))
