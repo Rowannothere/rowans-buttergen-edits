@@ -1,0 +1,44 @@
+{
+    "bg_oc_close_former_1": {
+        "frequency": 2,
+        "cats": {
+            "y_c": {},
+            "t_c": {
+                "group": [
+                    "other_clan"
+                ]
+            }
+        },
+        "intro": [
+            "Does c_n still sound the same at dawn? I miss it sometimes."
+        ]
+    },
+    "bg_oc_close_former_2": {
+        "frequency": 2,
+        "cats": {
+            "y_c": {},
+            "t_c": {
+                "group": [
+                    "other_clan"
+                ]
+            }
+        },
+        "intro": [
+            "o_c_n is home now, but I haven't forgotten where I started."
+        ]
+    },
+    "bg_oc_close_former_3": {
+        "frequency": 2,
+        "cats": {
+            "y_c": {},
+            "t_c": {
+                "group": [
+                    "other_clan"
+                ]
+            }
+        },
+        "intro": [
+            "How's everyone back in c_n? Tell them I said hello. Or don't, maybe."
+        ]
+    }
+}

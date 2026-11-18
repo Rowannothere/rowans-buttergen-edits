@@ -68,6 +68,28 @@ def mood(cat) -> str:
     return game.clan.get_relations(game.clan, other, get_label=True)
 
 
+def closeness(cat) -> str:
+    """how an outside cat knows the player's cat: "mate", "family", "former" (lived in the player's
+    Clan while the player's cat was alive), or "" for strangers"""
+    you = _you()
+    if not you or not cat:
+        return ""
+    if cat.ID in you.mate:
+        return "mate"
+    family = set(you.get_parents()) | set(you.get_siblings()) | set(you.get_children())
+    if cat.ID in family:
+        return "family"
+    from scripts.cat.enums import CatGroup
+
+    history = cat.status.group_history
+    last_home = max((i for i, e in enumerate(history) if str(e.get("group")) == CatGroup.PLAYER_CLAN_ID), default=None)
+    if last_home is None:
+        return ""
+    # moons since they left the player's Clan: they knew the player's cat if it was born by then
+    since = sum(e.get("moons_as", 0) for e in history[last_home + 1:])
+    return "former" if you.moons > since else ""
+
+
 def _close(cat) -> bool:
     you = _you()
     rel = you.relationships.get(cat.ID) if you else None

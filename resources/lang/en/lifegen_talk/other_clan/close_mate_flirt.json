@@ -1,0 +1,31 @@
+{
+    "bg_oc_close_mate_flirt_1": {
+        "frequency": 2,
+        "cats": {
+            "y_c": {},
+            "t_c": {
+                "group": [
+                    "other_clan"
+                ]
+            }
+        },
+        "intro": [
+            "[t_c purrs.]",
+            "Every moment with you is worth the risk."
+        ]
+    },
+    "bg_oc_close_mate_flirt_2": {
+        "frequency": 2,
+        "cats": {
+            "y_c": {},
+            "t_c": {
+                "group": [
+                    "other_clan"
+                ]
+            }
+        },
+        "intro": [
+            "If anyone asks, I was out hunting. For a very, very long time."
+        ]
+    }
+}

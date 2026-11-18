@@ -1,0 +1,45 @@
+{
+    "bg_oc_close_family_1": {
+        "frequency": 2,
+        "cats": {
+            "y_c": {},
+            "t_c": {
+                "group": [
+                    "other_clan"
+                ]
+            }
+        },
+        "intro": [
+            "You're looking well. Is c_n treating you right?"
+        ]
+    },
+    "bg_oc_close_family_2": {
+        "frequency": 2,
+        "cats": {
+            "y_c": {},
+            "t_c": {
+                "group": [
+                    "other_clan"
+                ]
+            }
+        },
+        "intro": [
+            "I still think about you, you know. Being in different Clans doesn't change that."
+        ]
+    },
+    "bg_oc_close_family_3": {
+        "frequency": 2,
+        "cats": {
+            "y_c": {},
+            "t_c": {
+                "group": [
+                    "other_clan"
+                ]
+            }
+        },
+        "intro": [
+            "[t_c touches noses with you.]",
+            "Tell me everything. How have you been?"
+        ]
+    }
+}
