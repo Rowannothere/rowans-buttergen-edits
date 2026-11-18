@@ -36,6 +36,7 @@ ACTS = {
     # from romance and births (scripts/honor/healer.py), never from temptation
     "healer_mate": brk("serious", frozenset(), ()),
     "healer_kits": brk("serious", frozenset(), ()),
+    "healer_adopt": brk("serious", frozenset(), ()),
     # Other Clans step 2: a mate from another Clan (scripts/honor/heart.py), never from temptation
     "heart_mate": brk("serious", frozenset(), (), other_clan=True),
     # everyone from apprentice up

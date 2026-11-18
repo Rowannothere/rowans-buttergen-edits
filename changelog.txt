@@ -18,6 +18,10 @@ Changes:
 - Clearer wording: a leader's secret meeting with another Clan's leader is wrong because it's hidden from the Clan, and the leader challenge no longer claims the warrior code allows it
 
 Fixes:
+- Queens without kits of their own no longer get in trouble for keeping the best of the nursery for their kits, and the other nursery misdeeds and good deeds need kits in the nursery
+- Kits can't be made mates or given romance in the cat editor
+- A healer who takes in kits to raise breaks the healer's vow too (with "Healers don't take mates" ticked)
+- Cats with kits still in the nursery no longer ask to switch Clans
 - Some patrol outcomes that should injure, kill or lose a cat hit nobody, because the cat was never named in the text. They now pick a cat from the patrol
 - The healer patrol where a spirit answers your cat's call no longer has a living cat join the Clan with a StarClan backstory. Your cat meets a Dark Forest spirit instead
 

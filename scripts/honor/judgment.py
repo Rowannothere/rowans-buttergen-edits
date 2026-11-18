@@ -171,7 +171,7 @@ def _sentence_text(step, cat, key, deputy_push, clan_push):
     kind = _rank_kind(cat)
     if step == DUTIES and kind == "healer":
         lines = t[DUTIES]["healer_" + who]
-    elif step == DEMOTION and key in ("healer_mate", "healer_kits"):
+    elif step == DEMOTION and key in ("healer_mate", "healer_kits", "healer_adopt"):
         lines = t["demotion_vow"][who]
     elif step == DEMOTION:
         lines = t[DEMOTION][("you_" if you else "") + kind]

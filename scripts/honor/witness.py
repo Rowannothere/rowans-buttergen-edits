@@ -27,7 +27,7 @@ WHERE = {
     "neglect_kit": "border", "twoleg_food": "border",
     "sneak_out": "secret", "lie_leader": "secret", "hide_sign": "secret", "bend_sign": "secret",
     "hide_news": "secret", "pass_secrets": "secret", "carry_messages": "secret",
-    "healer_mate": "secret", "healer_kits": "secret",
+    "healer_mate": "secret", "healer_kits": "secret", "healer_adopt": "camp",
     "heart_mate": "secret",
 }
 # reputation lost when it comes out

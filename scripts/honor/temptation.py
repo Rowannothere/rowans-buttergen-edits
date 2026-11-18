@@ -198,6 +198,8 @@ def options_for(cat, full_moon: bool) -> list:
             continue
         if key in ("eat_first", "app_eat_first") and eats_first(cat):
             continue
+        if key in NEEDS_KITS and not _nursery_kits(cat, own=NEEDS_KITS[key] == "own"):
+            continue
         done = cat.code_done.get(key)
         if done is not None and now - done < COOLDOWN_MOONS:
             continue
@@ -218,6 +220,20 @@ def options_for(cat, full_moon: bool) -> list:
         if weight > 0:
             out.append((weight, key, other, oc))
     return out
+
+
+# nursery acts: "own" needs the cat's own kits (born or adopted) in the nursery, "any" any kits there
+NEEDS_KITS = {"best_nest": "own", "kits_wander": "any", "nurse_kit": "any", "watch_nursery": "any"}
+NURSERY_MOONS = 6
+
+
+def _nursery_kits(cat, own=False) -> list:
+    kits = [k for k in Cat.all_cats_list
+            if not k.dead and k.moons < NURSERY_MOONS and k is not cat
+            and k.status.group_ID == cat.status.group_ID and not k.status.is_lost()]
+    if own:
+        kits = [k for k in kits if cat.ID in (k.parent1, k.parent2) or cat.ID in (k.adoptive_parents or [])]
+    return kits
 
 
 def eats_first(cat) -> bool:
