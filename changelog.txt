@@ -7,6 +7,7 @@ Changes:
 
 Fixes:
 - Your cat's mate, family and old Clanmates in other Clans no longer talk to your cat like a stranger. They have their own lines, and a mate never turns down a flirt
+- At Gatherings, a leader only meets the other Clans' leaders and a deputy only meets their deputies
 
 <strong>Buttergen v0.4-dev.13</strong>
 
