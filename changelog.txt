@@ -6,7 +6,6 @@ Changes:
 - Bigger other Clans (multi clan mode): new Clans' neighbors start with 15 to 21 cats instead of 7 to 10, and a Clan with fewer than 15 cats sometimes takes in a loner, rogue or kittypet. If your cat is at the Gathering, they hear about it
 
 Fixes:
-- Saving is much faster: files that didn't change aren't written again (a big Clan went from about 3 seconds to under half a second)
 - Your cat's mate, family and old Clanmates in other Clans no longer talk to your cat like a stranger. They have their own lines, and a mate never turns down a flirt
 
 <strong>Buttergen v0.4-dev.13</strong>
