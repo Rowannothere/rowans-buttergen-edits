@@ -173,9 +173,13 @@ def _attends(you) -> bool:
 def _gathering_pool(you):
     from scripts.cat.cats import Cat
 
+    # leaders sit with the other leaders, deputies with the other deputies
+    same_rank = you.status.rank if you.status.rank in (CatRank.LEADER, CatRank.DEPUTY) else None
     pool = []
     for cat in Cat.all_cats_list:
         if cat.dead or cat.status.rank.is_baby() or clan_of(cat) is None:
+            continue
+        if same_rank and cat.status.rank != same_rank:
             continue
         # mostly cats near the player's cat's rank and age
         weight = 1.0
