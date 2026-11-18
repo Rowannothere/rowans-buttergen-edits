@@ -510,14 +510,16 @@
                         }
                     },
                     "n_c0": {
-                        "can_create_new_cat": {},
+                        "can_create_new_cat": {
+                            "spirit": "dark_forest"
+                        },
                         "backstory": [
                             "oldstarclan2"
                         ]
                     }
                 },
                 "exp_gained": 10,
-                "join": [
+                "meet": [
                     {
                         "cats": [
                             "n_c0"

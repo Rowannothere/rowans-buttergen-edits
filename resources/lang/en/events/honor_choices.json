@@ -113,7 +113,7 @@
         "options": ["Tell the Clan", "Tell r_c alone", "Keep it to yourself"]
     },
     "challenge_call": {
-        "prompt": "c_n no longer trusts m_c, and neither do you. The warrior code lets a Clan challenge a leader who has lost its trust.",
+        "prompt": "c_n no longer trusts m_c, and neither do you. A Clan can stand together against a leader it no longer trusts.",
         "options": ["Call for a challenge", "Stay quiet"]
     },
     "challenge_vote": {

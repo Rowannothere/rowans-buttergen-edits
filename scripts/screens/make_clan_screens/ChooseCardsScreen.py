@@ -44,7 +44,7 @@ class ChooseCardsScreen(MakeClanScreenBase):
         if event.type == pygame_gui.UI_BUTTON_START_PRESS:
             # PREV/NEXT
             if event.ui_element == self.elements["next_step"]:
-                self.change_screen(GameScreen.MAKE_CLAN_CHOOSE_NAME)
+                self.change_screen(GameScreen.MAKE_CLAN_CHOOSE_CODE)
             elif event.ui_element == self.elements["previous_step"]:
                 self.change_screen(GameScreen.MAKE_CLAN_CHOOSE_MODE)
 

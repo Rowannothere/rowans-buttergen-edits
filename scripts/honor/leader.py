@@ -113,8 +113,10 @@ def after_break(cat, key, other_clan=None, level=None):
 
 def misdeed_in_judgment(leader, key):
     """let a favorite off, or punish out of spite: it costs honor, and someone may see"""
-    from scripts.honor import witness
+    from scripts.honor import code, witness
 
+    if not code.counts(key):
+        return
     core.change_honor(leader, -randint(*HONOR_LOSS[ACTS[key]["level"]]))
     leader.code_done[key] = game.clan.age
     witness.after_break(leader, key, None)

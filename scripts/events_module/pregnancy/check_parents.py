@@ -173,6 +173,12 @@ def get_second_parent(cat, clan):
         else:
             mate.append(cat.fetch_cat(choice(cat.mate)))
 
+    # BUTTERGEN: kits with a mate from another Clan come with Other Clans step 3
+    if mate:
+        from scripts.honor import heart
+
+        mate = [m for m in mate if m is not None and not heart.no_kits(cat, m)] or None
+
     # if the sex does matter, choose the best solution to allow kits
     if not samesex and mate and not cat_is_amab(cat):
         opposite_mate = [cat.fetch_cat(mate_id) for mate_id in cat.mate if xor(cat_is_amab(cat.fetch_cat(
@@ -423,6 +429,10 @@ def handle_outside_parent(cat, clan, amount=0, background_category= "1"):
         if random() < get_config("mates.crossclan_litter_mates_chance") and get_config("mates.allow_mating"):
             outside_parent[0].set_mate(cat)
             cat.set_mate(outside_parent[0])
+            # BUTTERGEN: a mate from another Clan is a secret now (Other Clans step 2)
+            from scripts.honor import heart
+
+            heart.register_litter_mates(cat, outside_parent[0])
     else:
         if get_clan_setting("halfclan single"):
             print("No possible half-clan single parents found")

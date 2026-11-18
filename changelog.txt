@@ -1,3 +1,32 @@
+<strong>Buttergen v0.4-dev.13</strong>
+
+A development build, so keep a copy of your saves folder before playing.
+
+New:
+- Your own warrior code: the Clan Settings have a new warrior code tab with the 12 rules of the code. Untick a rule and breaking it isn't a misdeed anymore (no honor lost, no witnesses, no judgment). The leader tells the Clan when a rule changes. "Healers don't take mates" is one of the rules now, in place of the old setting
+- In multi clan mode, every other Clan has its own warrior code, shown at the bottom of its allegiances
+- A warrior code page while making a new Clan, right after the game mode, to pick the rules from the start
+- Romance across borders (multi clan mode): when your cat and a cat from another Clan both fall for each other, you choose: become mates in secret, stay friends, or turn them away. Secret mates can be seen meeting, and when it comes out both Clans hear about it. A Meet button on your mate's profile lets your cat slip away to see them
+- Cats from different Clans who like each other can grow a crush at the Gatherings, so Clanmates sometimes fall for a cat across the border too
+- Every cat has a favorite and a disliked prey from their home's prey (kittypets have kittypet food). It shows on the profile, and the lines about a cat's favorite prey name it. The cat editor's Personality tab can change both (a player suggestion)
+- If your cat has a stubby tail, a kit might ask why it looks like a rabbit's. Tell the truth (born that way, or lost it to an injury), or make something up (a player suggestion)
+- If your cat has red eyes from ocular albinism, a curious kit might ask if they've been crying (a player suggestion)
+
+Changes:
+- Pregnant and nursing cats, and cats too sick or hurt to work, no longer get in trouble for eating before their turn (they eat first, like elders and kits)
+- Walking past a crying kit from another Clan is now a minor misdeed instead of a serious one
+- The version in the corner shows in full (it was cut to "v0.4-dev")
+- Clearer wording: a leader's secret meeting with another Clan's leader is wrong because it's hidden from the Clan, and the leader challenge no longer claims the warrior code allows it
+
+Fixes:
+- Healer apprentices now learn a little on every patrol with their mentor, even when their skills don't match
+- Queens without kits of their own no longer get in trouble for keeping the best of the nursery for their kits, and the other nursery misdeeds and good deeds need kits in the nursery
+- Kits can't be made mates or given romance in the cat editor
+- A healer who takes in kits to raise breaks the healer's vow too (with "Healers don't take mates" ticked)
+- Cats with kits still in the nursery no longer ask to switch Clans
+- Some patrol outcomes that should injure, kill or lose a cat hit nobody, because the cat was never named in the text. They now pick a cat from the patrol
+- The healer patrol where a spirit answers your cat's call no longer has a living cat join the Clan with a StarClan backstory. Your cat meets a Dark Forest spirit instead
+
 <strong>Buttergen v0.4-dev.12</strong>
 
 A development build, so keep a copy of your saves folder before playing.

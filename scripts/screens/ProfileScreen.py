@@ -279,6 +279,17 @@ class ProfileScreen(Screens):
 
                 HonorExileWindow(self.the_cat, self)
             elif (
+                "heart_meet" in self.profile_elements
+                and event.ui_element == self.profile_elements["heart_meet"]
+            ):
+                # BUTTERGEN: meet a mate from another Clan (Other Clans step 2)
+                from scripts.honor import heart
+
+                pair = heart.pair_of(game.clan.your_cat, self.the_cat)
+                if pair and heart.can_meet(game.clan.your_cat, self.the_cat):
+                    heart.meet(pair, by_you=True)
+                self.profile_elements["heart_meet"].disable()
+            elif (
                 "switch_clan" in self.profile_elements
                 and event.ui_element == self.profile_elements["switch_clan"]
             ):
@@ -1322,6 +1333,20 @@ class ProfileScreen(Screens):
                 tool_tip_text="Flirt with this Cat",
                 manager=MANAGER,
             )
+            # BUTTERGEN: meet a mate from another Clan (Other Clans step 2)
+            from scripts.honor import heart
+
+            if heart.pair_of(you, self.the_cat):
+                self.profile_elements["heart_meet"] = UISurfaceImageButton(
+                    ui_scale(pygame.Rect((263, 105), (72, 34))),
+                    heart.texts()["meet_button"],
+                    get_button_dict(ButtonStyles.SQUOVAL, (72, 34)),
+                    object_id="@buttonstyles_squoval",
+                    tool_tip_text=heart.texts()["meet_tooltip"],
+                    manager=MANAGER,
+                )
+                if not heart.can_meet(you, self.the_cat):
+                    self.profile_elements["heart_meet"].disable()
             if self.the_cat.flirted or cant_flirt:
                 self.profile_elements["flirt"].disable()
             elif cant_flirt:
@@ -1442,6 +1467,13 @@ class ProfileScreen(Screens):
                 parents=adjust_list_text([str(cat.name) for cat in all_parents]),
             )
 
+        # BUTTERGEN: favorite and disliked prey (scripts/cat/favorite_prey.py)
+        if not the_cat.dead:
+            from scripts.cat import favorite_prey
+
+            output += "\n" + i18n.t("general.favorite_prey", prey=favorite_prey.favorite(the_cat))
+            output += "\n" + i18n.t("general.disliked_prey", prey=favorite_prey.disliked(the_cat))
+
         # MATE
         if len(the_cat.mate) > 0:
             output += "\n"
@@ -1460,9 +1492,11 @@ class ProfileScreen(Screens):
 
                     mate_names.append(f"{str(mate_ob.name)} {i18n.t(former_indicate)}")
                 elif mate_ob.status.group_ID != self.the_cat.status.group_ID:
-                    mate_names.append(
-                        f"{str(mate_ob.name)} {i18n.t('general.mate_away')}"
-                    )
+                    # BUTTERGEN: a mate from another Clan shows the Clan, and if it's a secret
+                    from scripts.honor import heart
+
+                    note = heart.mate_note(the_cat, mate_ob) or i18n.t('general.mate_away')
+                    mate_names.append(f"{str(mate_ob.name)} {note}")
                 else:
                     mate_names.append(f"{str(mate_ob.name)}")
 

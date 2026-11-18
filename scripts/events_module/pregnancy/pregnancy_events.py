@@ -72,6 +72,11 @@ def handle_having_kits(cat: Cat, clan):
     # Check if they can have kits.
     if not check_if_can_have_kits(cat):
         return
+    # BUTTERGEN: a cat whose only mates are in other Clans has no kits until Other Clans step 3
+    from scripts.honor import heart
+
+    if cat.mate and all(heart.no_kits(cat, Cat.fetch_cat(m)) for m in cat.mate):
+        return
 
     # DETERMINE THE SECOND PARENT
     # check if there is a cat in the clan for the second parent

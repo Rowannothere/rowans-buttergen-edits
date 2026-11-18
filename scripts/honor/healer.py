@@ -11,8 +11,10 @@ from scripts.game_structure.localization import load_lang_resource
 from scripts.honor import core
 from scripts.honor.acts import HONOR_LOSS
 
-MATE_ACT, KITS_ACT = "healer_mate", "healer_kits"
-HEALER_ACTS = (MATE_ACT, KITS_ACT)
+MATE_ACT, KITS_ACT, ADOPT_ACT = "healer_mate", "healer_kits", "healer_adopt"
+HEALER_ACTS = (MATE_ACT, KITS_ACT, ADOPT_ACT)
+# a kit this young with a healer as an adoptive parent was just taken in
+ADOPTED_WITHIN = 1
 HEALER_RANKS = (CatRank.MEDICINE_CAT, CatRank.MEDICINE_APPRENTICE)
 BECOME_MATES = 0.35
 KIT_CHANCE_FACTOR = 2  # the "1 in chance" gets twice as big, so kits are half as likely
@@ -156,10 +158,31 @@ def found_out(cat, kits=False):
     _post(choice(texts()["out_kits" if kits else "out_mate"][who]), [cat, mate] if mate else [cat], top=True)
 
 
+def _adoptions():
+    """a healer who takes in kits breaks the vow too. It happens in the open, so it comes out now"""
+    from scripts.honor import witness
+
+    for kit in list(Cat.all_cats_list):
+        if kit.dead or kit.moons > ADOPTED_WITHIN or not kit.status.alive_in_player_clan:
+            continue
+        for parent_id in kit.adoptive_parents or []:
+            healer = Cat.fetch_cat(parent_id)
+            if not is_healer(healer) or not _alive_in_clan(healer) or healer.ID in (kit.parent1, kit.parent2):
+                continue
+            rec = _record(healer)
+            rec.setdefault("adopted", [])
+            if kit.ID in rec["adopted"]:
+                continue
+            rec["adopted"].append(kit.ID)
+            core.change_honor(healer, -randint(*HONOR_LOSS["serious"]))
+            witness.report(healer, None, ADOPT_ACT, None, "out")
+
+
 def on_full_moon():
     if not on():
         return
     _count_existing()
+    _adoptions()
     for cat in list(Cat.all_cats_list):
         rec = getattr(cat, "code_healer", None)
         if not rec or not rec["secret"] or not is_healer(cat) or not _alive_in_clan(cat):

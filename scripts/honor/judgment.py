@@ -9,7 +9,7 @@ from scripts.events_module.event_information import EventInformation
 from scripts.events_module.text_adjust import event_text_adjust
 from scripts.game_structure import game
 from scripts.game_structure.localization import load_lang_resource
-from scripts.honor import core
+from scripts.honor import code, core
 from scripts.honor.acts import ACTS
 
 LEVEL_POINTS = {"minor": 1, "serious": 3, "grave": 6}
@@ -70,6 +70,8 @@ def queue(cat, key, other_clan=None, level=None):
     as the worse one plus a point. level overrides the act's own (a half-done act is minor)"""
     clan_name = other_clan.name if other_clan else None
     if not _alive_in_clan(cat) or key not in ACTS or cat.status.rank == CatRank.LEADER:
+        return
+    if not code.counts(key):
         return
     for entry in game.clan.code_judgments:
         if entry["cat"] == cat.ID:
@@ -169,7 +171,7 @@ def _sentence_text(step, cat, key, deputy_push, clan_push):
     kind = _rank_kind(cat)
     if step == DUTIES and kind == "healer":
         lines = t[DUTIES]["healer_" + who]
-    elif step == DEMOTION and key in ("healer_mate", "healer_kits"):
+    elif step == DEMOTION and key in ("healer_mate", "healer_kits", "healer_adopt"):
         lines = t["demotion_vow"][who]
     elif step == DEMOTION:
         lines = t[DEMOTION][("you_" if you else "") + kind]

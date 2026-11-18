@@ -112,6 +112,11 @@ def _validate_cat(abbrev, cat_block, possible_cats, your_cat, the_cat):
 
         if not __filter_conditions(cat_block[abbrev], cat):
             continue
+        # BUTTERGEN: "short_tail": true needs a cat born with a stubby tail (bobtail genes), false one without
+        if "short_tail" in cat_block[abbrev]:
+            born_short = 0 < getattr(cat.phenotype, "bobtailnr", 0) <= 3
+            if born_short != bool(cat_block[abbrev]["short_tail"]):
+                continue
 
         if "focus_cat" in cat_block[abbrev]:
             is_focus_cat = cat is game.clan.focus_cat

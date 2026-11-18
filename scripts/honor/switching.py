@@ -451,7 +451,11 @@ def on_skip(full_moon: bool):
             ask(cat, entry["to"], entry.get("bonus", 0), entry.get("follow"))
     # new asks
     you = _you()
-    candidates = [c for c in Cat.all_cats_list if c is not you and eligible(c) and not busy(c)]
+    # a cat with kits still in the nursery (born or adopted) stays with them
+    from scripts.honor.temptation import _nursery_kits
+
+    candidates = [c for c in Cat.all_cats_list if c is not you and eligible(c) and not busy(c)
+                  and not _nursery_kits(c, own=True)]
     # at most one new ask a Gathering, so a Clan with many ties abroad doesn't flood the events
     for cat in sorted(candidates, key=lambda c: random()):
         options = [t for t in targets(cat) if not wait_for(cat, t)]

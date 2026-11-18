@@ -136,6 +136,10 @@ def name_repl(m, cat_dict):
 
 def process_text(text, cat_dict, raise_exception=False):
     """Add the correct name and pronouns into a string."""
+    # BUTTERGEN: "r_c's favorite prey" names it
+    from scripts.cat import favorite_prey
+
+    text = favorite_prey.name_in_text(text, cat_dict)
     adjust_text = re.sub(
         r"(?<!%)\{(.*?)}", lambda x: pronoun_repl(x, cat_dict, raise_exception), text
     )

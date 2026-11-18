@@ -11,7 +11,7 @@ from scripts.events_module.event_information import EventInformation
 from scripts.events_module.text_adjust import event_text_adjust
 from scripts.game_structure import game
 from scripts.game_structure.localization import load_lang_resource
-from scripts.honor import core
+from scripts.honor import code, core
 from scripts.honor.acts import (
     ACTS, CAUSES, COOLDOWN_MOONS, DARK, DUTY, GRUDGE, HONOR_GAIN, HONOR_LOSS, HUNGER, LONGING,
     REPUTATION_GAIN, RESTLESS,
@@ -196,6 +196,10 @@ def options_for(cat, full_moon: bool) -> list:
             continue
         if a.get("hungry") and not _hungry():
             continue
+        if key in ("eat_first", "app_eat_first") and eats_first(cat):
+            continue
+        if key in NEEDS_KITS and not _nursery_kits(cat, own=NEEDS_KITS[key] == "own"):
+            continue
         done = cat.code_done.get(key)
         if done is not None and now - done < COOLDOWN_MOONS:
             continue
@@ -218,6 +222,35 @@ def options_for(cat, full_moon: bool) -> list:
     return out
 
 
+# nursery acts: "own" needs the cat's own kits (born or adopted) in the nursery, "any" any kits there
+NEEDS_KITS = {"best_nest": "own", "kits_wander": "any", "nurse_kit": "any", "watch_nursery": "any"}
+NURSERY_MOONS = 6
+
+
+def _nursery_kits(cat, own=False) -> list:
+    kits = [k for k in Cat.all_cats_list
+            if not k.dead and k.moons < NURSERY_MOONS and k is not cat
+            and k.status.group_ID == cat.status.group_ID and not k.status.is_lost()]
+    if own:
+        kits = [k for k in kits if cat.ID in (k.parent1, k.parent2) or cat.ID in (k.adoptive_parents or [])]
+    return kits
+
+
+def eats_first(cat) -> bool:
+    """canon feeds pregnant and nursing cats and the sick or hurt first, whatever their rank"""
+    conditions = cat.temporary_conditions
+    if "pregnant" in conditions or "recovering_from_birth" in conditions:
+        return True
+    if any(c.severity != "minor" for c in conditions):
+        return True
+    if cat.gender in ("female", "molly"):
+        for kit in Cat.all_cats_list:
+            if (cat.ID in (kit.parent1, kit.parent2) and kit.moons < 4 and not kit.dead
+                    and kit.status.alive_in_player_clan):
+                return True
+    return False
+
+
 def _hungry() -> bool:
     pile = getattr(game.clan, "freshkill_pile", None)
     return pile is not None and not pile.clan_has_enough_food()
@@ -236,9 +269,11 @@ def weighted(options):
 def do_act(cat, key, other, other_clan):
     a = ACTS[key]
     you = cat is game.clan.your_cat
-    if a["kind"] == "break":
+    # an act against a rule the Clan doesn't follow (Warrior code tab) isn't a misdeed
+    misdeed = a["kind"] == "break" and code.counts(key)
+    if misdeed:
         core.change_honor(cat, -randint(*HONOR_LOSS[a["level"]]))
-    elif a["kind"] == "follow":
+    elif a["kind"] == "follow" and code.counts(key):
         core.change_honor(cat, randint(*HONOR_GAIN))
         core.change_reputation(cat, randint(*REPUTATION_GAIN))
     # the "why?" questions need the real reason, before it resets
@@ -261,7 +296,7 @@ def do_act(cat, key, other, other_clan):
     # step 3: someone may have seen it
     from scripts.honor import leader
 
-    if a["kind"] == "break":
+    if misdeed:
         from scripts.honor import witness
 
         witness.after_break(cat, key, other_clan)
@@ -304,7 +339,7 @@ def act_once(cat, full_moon: bool):
         # step 5: a serious or grave act becomes your choice (one a moon)
         from scripts.honor import choices
 
-        if choices.is_big(key) and choices.can_offer():
+        if choices.is_big(key) and code.counts(key) and choices.can_offer():
             choices.offer_temptation(key, other, oc)
             return None
     return do_act(cat, key, other, oc)
@@ -319,6 +354,8 @@ def on_skip_start(full_moon: bool):
     from scripts.honor import choices, judgment
 
     choices.on_skip_start()
+    # the Clan's own warrior code: announce changed rules, drop misdeeds against dropped rules
+    code.on_skip_start()
     # step 4: misdeeds that came out before this skip are judged at the full moon
     judgment.on_skip(full_moon)
 
@@ -344,6 +381,10 @@ def on_skip(full_moon: bool):
     from scripts.honor import switching
 
     switching.on_skip(full_moon)
+    # Other Clans step 2: secret mates from other Clans
+    from scripts.honor import heart
+
+    heart.on_skip(full_moon)
     scale = 1 / weekskip.WEEKS_IN_MOON if weekskip.on() else 1.0
     cats = [c for c in clanmates() if can_act(c)]
     for cat in cats:

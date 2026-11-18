@@ -36,6 +36,9 @@ ACTS = {
     # from romance and births (scripts/honor/healer.py), never from temptation
     "healer_mate": brk("serious", frozenset(), ()),
     "healer_kits": brk("serious", frozenset(), ()),
+    "healer_adopt": brk("serious", frozenset(), ()),
+    # Other Clans step 2: a mate from another Clan (scripts/honor/heart.py), never from temptation
+    "heart_mate": brk("serious", frozenset(), (), other_clan=True),
     # everyone from apprentice up
     # elders and queens eat first anyway (kits too), so it isn't a misdeed for them
     "eat_first": brk("minor", (EVERYONE | LEADER) - {R.ELDER, R.QUEEN}, (HUNGER,)),
@@ -45,7 +48,7 @@ ACTS = {
     "gathering_fight": brk("serious", EVERYONE | LEADER, (GRUDGE,), other_clan=True, full_moon=True),
     "pass_secrets": brk("grave", EVERYONE, (DARK,), other_clan=True),
     "twoleg_food": brk("minor", EVERYONE, (HUNGER, RESTLESS)),
-    "neglect_kit": brk("serious", EVERYONE, (GRUDGE, DARK), other_clan=True),
+    "neglect_kit": brk("minor", EVERYONE, (GRUDGE, DARK), other_clan=True),
     "give_share": fol(EVERYONE, other="hungry"),
     "defend_clanmate": fol(EVERYONE, other="liked"),
     "help_kit": fol(EVERYONE, other_clan=True),

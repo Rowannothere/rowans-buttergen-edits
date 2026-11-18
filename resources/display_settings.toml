@@ -127,9 +127,23 @@
         multisire = false
         "romantic with former mentor" = true
         "first cousin mates" = false
-        "healer mates break the code" = false
         no_litters = false
     
+    # BUTTERGEN: the Clan's own warrior code (scripts/honor/code.py), one checkbox per rule
+    [clan.code]
+        "code defend" = true
+        "code borders" = true
+        "code eat first" = true
+        "code leader's word" = true
+        "code own clan" = true
+        "healer mates break the code" = false
+        "code no needless killing" = true
+        "code border markers" = true
+        "code gathering truce" = true
+        "code stay in camp" = true
+        "code clan property" = true
+        "code honesty" = true
+
     [clan.freshkill_tactics]
         low_rank = true
         high_rank = false

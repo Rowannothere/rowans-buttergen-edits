@@ -1,0 +1,32 @@
+{
+    "ask": {
+        "prompt": "r_c of o_c_n wants to be more than friends. What do you do?",
+        "prompt_mate": "r_c of o_c_n wants to be more than friends, but m_c already has a mate. What do you do?",
+        "options": ["Become mates in secret", "Stay friends", "Turn them away"],
+        "options_open": ["Become mates", "Stay friends", "Turn them away"]
+    },
+    "mates": "m_c and r_c of o_c_n are mates now, though no one else can know.",
+    "mates_open": "m_c and r_c of o_c_n are mates now.",
+    "friends": "m_c tells r_c of o_c_n that they can only be friends. It's for the best.",
+    "turned": "m_c turns r_c of o_c_n away. r_c doesn't look back as {PRONOUN/r_c/subject} {VERB/r_c/pad/pads} back to {PRONOUN/r_c/poss} own territory.",
+    "apart": "m_c and r_c of o_c_n see less and less of each other, until they don't meet at all.",
+    "grief": "Word comes from o_c_n that r_c has died. m_c can't let anyone see {PRONOUN/m_c/poss} grief.",
+    "news": "News of m_c and r_c reaches o_c_n. Their warriors glare across the border.",
+    "judged_there": "c_n hears that o_c_n has punished r_c for taking a mate from another Clan.",
+    "out": {
+        "prompt": "Everyone knows about m_c and r_c now. What do you do?",
+        "options": ["End it", "Keep meeting in secret", "Ask to join o_c_n"]
+    },
+    "end": "m_c tells r_c of o_c_n that it has to end. Neither of them looks back.",
+    "keep": "m_c and r_c of o_c_n won't give each other up. They'll just have to be more careful.",
+    "join": "m_c means to ask o_c_n to take {PRONOUN/m_c/object} in at the next Gathering, to be with r_c.",
+    "join_in": "r_c of o_c_n means to ask c_n to take {PRONOUN/r_c/object} in, to be with m_c.",
+    "meet": "m_c slips away to meet r_c of o_c_n.",
+    "affair_leave": "r_c finds out that m_c has a mate in another Clan, and ends things with {PRONOUN/m_c/object}.",
+    "affair_stay": "r_c finds out that m_c has a mate in another Clan. r_c stays, but something between them has broken.",
+    "rumor": "At the Gathering, whispers say a o_c_n warrior has been meeting a cat from another Clan.",
+    "mate_secret": "(%{clan}, secret)",
+    "mate_known": "(%{clan})",
+    "meet_button": "Meet",
+    "meet_tooltip": "Slip away to meet your mate. Someone might see."
+}

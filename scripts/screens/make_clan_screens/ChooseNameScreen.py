@@ -149,10 +149,7 @@ class ChooseNameScreen(MakeClanScreenBase):
                 )
                 self.change_screen(GameScreen.MAKE_CLAN_CHOOSE_CATS)
             elif event.ui_element == self.elements["previous_step"]:
-                if self.clan_info.game_mode == "cruel_season":
-                    self.change_screen(GameScreen.MAKE_CLAN_CHOOSE_CARDS)
-                else:
-                    self.change_screen(GameScreen.MAKE_CLAN_CHOOSE_MODE)
+                self.change_screen(GameScreen.MAKE_CLAN_CHOOSE_CODE)
             # LG
             elif event.ui_element == self.elements["small"]:
                 self.clan_info.starting_size = "small"

@@ -39,6 +39,7 @@ FAITH_BUTTONS = [
 ]
 
 # (button label, preset key) in two columns
+ROMANCE_PRESETS = ("crush", "lover", "soulmate")
 PRESET_BUTTONS = [
     ("Rival", "rival"),
     ("Enemy", "enemy"),
@@ -331,6 +332,11 @@ class CatEditorWindow(EditorWindowBase):
 
         if self.target:
             other = self.target
+            # BUTTERGEN: no romance with kits, or between an adolescent and a grown cat (Clangen's age rules),
+            # and only cats old enough for mates can be made mates
+            no_romance = (cat.age.is_baby() or other.age.is_baby()
+                          or ((not cat.age.can_have_mate() or not other.age.can_have_mate()) and cat.age != other.age))
+            too_young = not cat.age.can_have_mate() or not other.age.can_have_mate()
             # how the edited cat feels about the target, same display as Relations > See relationships
             self._card(other, 25, 240 + oy, sprite_size=64)
 
@@ -339,13 +345,15 @@ class CatEditorWindow(EditorWindowBase):
                 value = get_rel_value(cat, other, stat)
                 self._text(f"{stat.title()}: {value}", (190, y, 150, 30))
                 self._button("-10", (330, y, 62, 30), lambda s=stat: self._nudge_rel(s, -10))
-                self._button("+10", (398, y, 62, 30), lambda s=stat: self._nudge_rel(s, 10))
+                self._button("+10", (398, y, 62, 30), lambda s=stat: self._nudge_rel(s, 10),
+                             disabled=stat == "romance" and no_romance)
             for i, (label, preset) in enumerate(PRESET_BUTTONS):
                 col, row = i % 2, i // 2
                 self._button(
                     label,
                     (490 + col * 100, 216 + oy + row * 44, 94, 32),
                     lambda p=preset: self._preset(p),
+                    disabled=preset in ROMANCE_PRESETS and no_romance,
                 )
 
             # Mates
@@ -357,12 +365,14 @@ class CatEditorWindow(EditorWindowBase):
                 "Make mates",
                 (330, 426 + oy, 160, 34),
                 self._make_mates,
-                disabled=is_mate or is_related,
+                disabled=is_mate or is_related or too_young,
             )
             self._button("End mate bond", (500, 426 + oy, 170, 34), self._end_mates, disabled=not is_mate)
             self._text(
                 "These two are related, so they can't be made mates."
                 if is_related and not is_mate
+                else "One of them is too young for romance or mates."
+                if too_young and not is_mate
                 else "Cats can have several mates at once (open relationships and polycules).",
                 (190, 466 + oy, 500, 30),
                 "#text_box_26_horizleft_pad_10_14",
@@ -423,7 +433,8 @@ class CatEditorWindow(EditorWindowBase):
         apply_preset(self.the_cat, self.target, preset, self.both_ways)
 
     def _make_mates(self):
-        self.the_cat.set_mate(self.target)
+        if self.the_cat.age.can_have_mate() and self.target.age.can_have_mate():
+            self.the_cat.set_mate(self.target)
 
     def _end_mates(self):
         self.the_cat.unset_mate(self.target)

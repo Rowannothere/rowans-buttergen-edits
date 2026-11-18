@@ -45,6 +45,8 @@ class AllegiancesScreen(Screens):
     def handle_event(self, event):
         if event.type == pygame_gui.UI_BUTTON_PRESSED:
             if event.ui_element in self.names_buttons:
+                if event.ui_element.return_cat_id() is None:
+                    return  # BUTTERGEN: the warrior code row has no cat
                 switch_set_value(Switch.cat, event.ui_element.return_cat_id())
                 self.change_screen('profile_screen')
             elif event.ui_element == self.export_button:
@@ -218,6 +220,14 @@ class AllegiancesScreen(Screens):
                 anchors={"centerx": "centerx"},
             )
             allegiance_list = self.get_allegiances_text()
+            # BUTTERGEN: another Clan's own warrior code, the rules it doesn't follow
+            if self.current_clan is not game.clan:
+                from scripts.honor import code
+
+                line = code.other_clan_line(self.current_clan)
+                if line:
+                    allegiance_list.append(
+                        [f"<b><u>{code.texts()['other_clan_heading']}</u></b>", "", None, line])
 
         if hasattr(self, "scroll_container") and self.scroll_container:
             self.scroll_container.kill()

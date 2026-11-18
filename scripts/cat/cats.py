@@ -277,6 +277,9 @@ class Cat:
         self.code_exile = None
         # healer mates the Clan does and doesn't know about (scripts/honor/healer.py)
         self.code_healer = None
+        # BUTTERGEN: picked the first time it's needed (scripts/cat/favorite_prey.py)
+        self.favorite_prey = None
+        self.disliked_prey = None
 
         # toggles
         self.no_kits = toggles["no_kits"]
@@ -3219,6 +3222,8 @@ class Cat:
                 "honor": self.honor,
                 "temptation": self.temptation,
                 "code_done": self.code_done,
+                "favorite_prey": self.favorite_prey,
+                "disliked_prey": self.disliked_prey,
                 "code_record": self.code_record,
                 "code_sentence": self.code_sentence,
                 "code_exile": self.code_exile,

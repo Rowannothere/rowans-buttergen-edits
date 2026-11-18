@@ -62,6 +62,7 @@ def pending():
         or (c["kind"] in (OMEN, CALL, VOTE) and not _alive_in_clan(Cat.fetch_cat(c["leader"])))
         or (c["kind"] in SWITCH_KINDS and not _alive(Cat.fetch_cat(c["cat"])))
         or (c["kind"] in _moment_kinds() and _moments().pending_gone(c))
+        or (c["kind"] in _heart_kinds() and _heart().pending_gone(c))
     )
     if gone:
         game.clan.code_choice = None
@@ -86,6 +87,16 @@ def _moments():
 
 def _moment_kinds():
     return _moments().KINDS
+
+
+def _heart():
+    from scripts.honor import heart
+
+    return heart
+
+
+def _heart_kinds():
+    return _heart().KINDS
 
 
 def _offer(entry):
@@ -171,7 +182,9 @@ def window_text():
         if with_decide:
             options.append((DECIDE, t["let_decide"].replace("%{name}", str(you.name))))
         return prompt, options
-    if c["kind"] in SWITCH_KINDS:
+    if c["kind"] in _heart_kinds():
+        prompt, options = _heart().window_text(c)
+    elif c["kind"] in SWITCH_KINDS:
         from scripts.honor import switching
 
         prompt, options = switching.window_text(c, _render, None)
@@ -270,6 +283,8 @@ def _resolve(option):
     game.clan.code_choice = None
     if c["kind"] in _moment_kinds():
         return _moments().resolve(c, option)
+    if c["kind"] in _heart_kinds():
+        return _heart().resolve_choice(c, option)
     if c["kind"] in SWITCH_KINDS:
         from scripts.honor import switching
 

@@ -9,7 +9,7 @@ from scripts.events_module.event_information import EventInformation
 from scripts.events_module.text_adjust import event_text_adjust
 from scripts.game_structure import game
 from scripts.game_structure.localization import load_lang_resource
-from scripts.honor import core
+from scripts.honor import code, core
 from scripts.honor.acts import ACTS
 
 # where each act happens, and the chance someone sees it there
@@ -27,7 +27,8 @@ WHERE = {
     "neglect_kit": "border", "twoleg_food": "border",
     "sneak_out": "secret", "lie_leader": "secret", "hide_sign": "secret", "bend_sign": "secret",
     "hide_news": "secret", "pass_secrets": "secret", "carry_messages": "secret",
-    "healer_mate": "secret", "healer_kits": "secret",
+    "healer_mate": "secret", "healer_kits": "secret", "healer_adopt": "camp",
+    "heart_mate": "secret",
 }
 # reputation lost when it comes out
 REPUTATION_LOSS = {"minor": (1, 1), "serious": (1, 2), "grave": (2, 3)}
@@ -226,7 +227,7 @@ def _you_saw_too(offender, witness, key, other_clan, level):
 def after_break(offender, key, other_clan, level=None):
     """called after a cat breaks the code. level overrides the act's own (a half-done act is minor)"""
     where = WHERE.get(key)
-    if where is None:
+    if where is None or not code.counts(key):
         return
     # step 5: your cat may notice, whoever else does
     noticed = where != "public" and _you_saw_too(offender, None, key, other_clan, level)
@@ -292,8 +293,11 @@ def report(offender, witness, key, other_clan, group, naming=True, level=None):
 def came_out(cat, key, other_clan, level=None, by=None):
     """step 4: judged at the next full moon. Step 8: a leader loses Clan trust instead.
     by is the cat who told, if anyone"""
-    from scripts.honor import judgment, leader, moments
+    from scripts.honor import heart, judgment, leader, moments
 
+    if key == heart.ACT:
+        # Other Clans step 2: both Clans hear, and the pair decides what's next
+        heart.came_out(cat)
     if leader.is_leader(cat):
         leader.misdeed_out(cat, key, level)
     else:

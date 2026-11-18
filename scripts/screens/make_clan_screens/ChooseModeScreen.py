@@ -154,7 +154,7 @@ class ChooseModeScreen(MakeClanScreenBase):
                     if self.clan_info.game_mode == "cruel_season":
                         self.change_screen(GameScreen.MAKE_CLAN_CHOOSE_CARDS)
                     else:
-                        self.change_screen(GameScreen.MAKE_CLAN_CHOOSE_NAME)
+                        self.change_screen(GameScreen.MAKE_CLAN_CHOOSE_CODE)
             elif event.ui_element == self.elements["random_clan_checkbox"]:
                 if self.elements["random_clan_checkbox"].checked:
                     self.elements["random_clan_checkbox"].uncheck()

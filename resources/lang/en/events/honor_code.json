@@ -1,0 +1,22 @@
+{
+    "rule_off": [
+        "m_c tells the Clan that from now on, \"[rule]\" no longer binds c_n."
+    ],
+    "rule_off_you": [
+        "You tell the Clan that from now on, \"[rule]\" no longer binds c_n."
+    ],
+    "rule_off_no_leader": [
+        "From now on, \"[rule]\" no longer binds c_n."
+    ],
+    "rule_on": [
+        "m_c tells the Clan that from now on, c_n will follow \"[rule]\" again."
+    ],
+    "rule_on_you": [
+        "You tell the Clan that from now on, c_n will follow \"[rule]\" again."
+    ],
+    "rule_on_no_leader": [
+        "From now on, c_n will follow \"[rule]\" again."
+    ],
+    "other_clan_heading": "WARRIOR CODE",
+    "other_clan": "Doesn't follow: [rules]"
+}

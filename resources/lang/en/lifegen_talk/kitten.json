@@ -25769,5 +25769,148 @@
                 "relationship": ["min_like_20"]
             }
         ]
+    },
+    "buttergen_red_eyes_crying": {
+        "frequency": 2,
+        "cats": {
+            "y_c": {
+                "condition": [
+                    "ocular_albinism:any:true",
+                    "blind:any:false"
+                ]
+            },
+            "t_c": {
+                "condition": [
+                    "not:ocular_albinism"
+                ]
+            }
+        },
+        "intro": [
+            "Woahg! y_c, have you been crying?"
+        ],
+        "intro_choices": {
+            "choice1": {
+                "text": "...Yes?",
+                "next_scene": "yes"
+            },
+            "choice2": {
+                "text": "No, my eyes are just like that.",
+                "next_scene": "no"
+            }
+        },
+        "yes": [
+            "Yeah, I can tell! You must cry a lot because your eyes are always red!"
+        ],
+        "no": [
+            "No? But your eyes are all red and spooky!",
+            "Huh!? I'm not being rude! Y-you're rude!",
+            "[{PRONOUN/t_c/subject/CAP} {VERB/t_c/scamper/scampers} off with {PRONOUN/t_c/poss} tail in a puff.]"
+        ],
+        "no_scene_effects": {
+            "relationships": [
+                {
+                    "cats_from": [
+                        "t_c"
+                    ],
+                    "cats_to": [
+                        "y_c"
+                    ],
+                    "values": [
+                        "like"
+                    ],
+                    "amount": -2
+                }
+            ]
+        }
+    },
+    "buttergen_stubby_tail_born": {
+        "frequency": 2,
+        "cats": {
+            "y_c": {
+                "short_tail": true,
+                "condition": [
+                    "not:lost_tail",
+                    "blind:any:false"
+                ]
+            },
+            "t_c": {
+                "condition": [
+                    "not:lost_tail"
+                ]
+            }
+        },
+        "intro": [
+            "Hey, y_c, how come your tail is so stubby? It looks like a rabbit's!",
+            "[Hmm... How should you respond?]"
+        ],
+        "intro_choices": {
+            "choice1": {
+                "text": "Tell the truth (born without a tail)",
+                "next_scene": "truth"
+            },
+            "choice2": {
+                "text": "Make something up",
+                "next_scene": "story"
+            }
+        },
+        "truth": [
+            "[You explain you were born without a long tail, and that it's always been normal for you.]",
+            "Ohhhh, so it is like a rabbit's!",
+            "Hey, y_c, do you think maybe some rabbits are born with long tails like cats, then?"
+        ],
+        "story": [
+            "[You shoot t_c a quizzical glance. Has {PRONOUN/t_c/subject} not heard the reason rabbit tails are short?]",
+            "Huh? What do you mean, y_c?",
+            "[You tell a story about how rabbit kits have long tails, like a cat's! But when they're old enough to run, they bite them off to run even faster! You tell t_c you found out the hard way, when you were hunting a young rabbit with a long tail... In the scuffle, it bit yours clean off!]",
+            "[So you suppose your tail is exactly like a rabbit's.]",
+            "Eep!",
+            "[t_c's own tail puffs up, and {PRONOUN/t_c/subject} {VERB/t_c/drape/drapes} {PRONOUN/t_c/poss} paws over it protectively.]",
+            "[Hm. Maybe that was a bit too much for t_c?]"
+        ]
+    },
+    "buttergen_stubby_tail_lost": {
+        "frequency": 2,
+        "cats": {
+            "y_c": {
+                "condition": [
+                    "lost_tail:any:true",
+                    "blind:any:false"
+                ]
+            },
+            "t_c": {
+                "condition": [
+                    "not:lost_tail"
+                ]
+            }
+        },
+        "intro": [
+            "Hey, y_c, how come your tail is so stubby? It looks like a rabbit's!",
+            "[Hmm... How should you respond?]"
+        ],
+        "intro_choices": {
+            "choice1": {
+                "text": "Tell the truth (lost tail)",
+                "next_scene": "truth"
+            },
+            "choice2": {
+                "text": "Make something up",
+                "next_scene": "story"
+            }
+        },
+        "truth": [
+            "[You explain your tail was lost from an injury, but that you've gotten used to balancing and signaling without one. t_c looks up at you in awe.]",
+            "Woahhh... That's really cool, y_c! Maybe one day I'll lose my tail protecting the Clan!",
+            "[Before you can respond, {PRONOUN/t_c/subject} {VERB/t_c/dash/dashes} off to play.]",
+            "[You hope {PRONOUN/t_c/subject} won't have to get hurt for the Clan...]"
+        ],
+        "story": [
+            "[You shoot t_c a quizzical glance. Has {PRONOUN/t_c/subject} not heard the reason rabbit tails are short?]",
+            "Huh? What do you mean, y_c?",
+            "[You tell a story about how rabbit kits have long tails, like a cat's! But when they're old enough to run, they bite them off to run even faster! You tell t_c you found out the hard way, when you were hunting a young rabbit with a long tail... In the scuffle, it bit yours clean off!]",
+            "[So you suppose your tail is exactly like a rabbit's.]",
+            "Eep!",
+            "[t_c's own tail puffs up, and {PRONOUN/t_c/subject} {VERB/t_c/drape/drapes} {PRONOUN/t_c/poss} paws over it protectively.]",
+            "[Hm. Maybe that was a bit too much for t_c?]"
+        ]
     }
 }
