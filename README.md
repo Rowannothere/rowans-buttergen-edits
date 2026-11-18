@@ -2,7 +2,7 @@
 
 A Warrior Cats game where you play as your own cat, every cat has real, inheritable genes so kits look like their parents, and cats come in a huge variety of looks. This is just the beginning, and plenty more features are on the way: see [Planned features](#planned-features) below.
 
-Updated November 15, 2026.
+Updated November 18, 2026.
 
 **This is the dev branch:** the newest features, before they're ready for a stable version. To download it, check that the branch button above the files says **dev**, then use the green **Code** button. For the stable version, go to the [main page](https://github.com/Tropicaluwu/Buttergen).
 
@@ -195,6 +195,8 @@ If it's still blocked and the error mentions `Python312\Lib\site-packages`, Wind
 - Cats with their own faith, and flirting with your mate
 - Multi clan mode (optional, picked when you make a new clan), where the other Clans have their own real cats
 - The honor system (dev build): honor, reputation and Clan trust, temptations to break the warrior code, witnesses and secrets, judgments at the full moon, exile and coming home, leader challenges, switching Clans, and choices as a mentor, parent, deputy or leader
+- Your own warrior code (dev build): pick the rules your Clan follows, when making a new Clan or any time in the Clan settings
+- Other Clans (dev build, multi clan mode): meet other Clans' cats at Gatherings, on border patrols and on exploring patrols, talk with them, and fall into forbidden romance across borders
 - Built on the newest development versions of Genemod, Lifegen and Clangen
 
 See [changelog.txt](changelog.txt) for what's new.
@@ -203,10 +205,8 @@ See [changelog.txt](changelog.txt) for what's new.
 
 Buttergen is just getting started. These are on the way, roughly in this order (plans can change):
 
-- **Other Clans:** meet other Clans' cats at Gatherings, on border patrols and on new exploring patrols (trespassing on their land, or meeting kittypets and rogues), talk with them, forbidden romance across borders, half-Clan kits, and finding out where a cat was really born
+- **Other Clans:** half-Clan kits, and finding out where a cat was really born
 - **The leader names new warriors:** as the leader, pick each new warrior's name at their ceremony, or roll a random one
-- **Try for kits:** a button that makes any pair of mates much likelier to have kits for a while
-- **Your own warrior code:** a checklist of rules for each Clan. The Clan only reacts when a cat breaks a rule it actually follows
 - **Relationships with more going on:** ambition, jealousy, wants and feelings that change how cats act toward each other, like an ambitious cat resenting the deputy
 - **Play as your cat mode:** an optional mode where what you can do depends on your cat's rank, so only a leader picks mentors or exiles cats, and patrols go out without you unless you lead them
 - **Affairs:** a reworked affairs system
