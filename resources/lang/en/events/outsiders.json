@@ -32,5 +32,13 @@
         "this_moon": "this moon",
         "moons_ago": "%{moons} moons ago",
         "one_moon_ago": "1 moon ago"
+    },
+    "new_member": {
+        "text": "At the Gathering, o_c_n has a new warrior: m_c, once a %{was}.",
+        "was": {
+            "loner": "loner",
+            "rogue": "rogue",
+            "kittypet": "kittypet"
+        }
     }
 }

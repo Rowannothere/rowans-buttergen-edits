@@ -19,6 +19,9 @@ ATTEND_ELDER = 0.25
 MEET_AT_GATHERING = (1, 3)
 LIKE_AT_GATHERING = {"ally": (2, 6), "neutral": (2, 6), "hostile": (-2, 2)}
 BORDER_MEET = 0.5
+# an other Clan under this many living cats may take in a loner, rogue or kittypet at a full moon
+TAKE_IN_UNDER = 15
+TAKE_IN_CHANCE = 0.25
 
 
 def texts() -> dict:
@@ -198,10 +201,40 @@ def _pick(pool, amount):
     return chosen
 
 
-def gathering():
+def take_ins() -> list:
+    """small other Clans sometimes take in a loner, rogue or kittypet. Returns [(cat, OtherClan, was)]"""
+    from scripts.cat.cats import Cat
+    from scripts.cat.enums import CatSocial
+    from scripts.events_module.consequences import create_new_cat
+    from scripts.cat.constants import BACKSTORIES
+
+    joined = []
+    for other in game.clan.all_other_clans:
+        living = [c for c in Cat.all_cats_list
+                  if not c.dead and c.status.group_ID == other.group_ID and not c.status.is_lost()]
+        if not living or len(living) >= TAKE_IN_UNDER or random() >= TAKE_IN_CHANCE:
+            continue
+        was, social = choice((("loner", CatSocial.LONER), ("rogue", CatSocial.ROGUE),
+                              ("kittypet", CatSocial.KITTYPET)))
+        new = create_new_cat(
+            Cat, new_name=True, backstory=BACKSTORIES["backstory_categories"][f"{was}_backstories"],
+            rank=CatRank.WARRIOR, original_social=social, moons=randint(14, 60), group=other.group_ID,
+        )
+        if new:
+            joined.append((new[0], other, was))
+    return joined
+
+
+def gathering(joined=None):
     you = _you()
     if not you or not _attends(you):
         return None
+    # cats the other Clans took in since the last Gathering: one line, if any
+    if joined:
+        cat, other, was = choice(joined)
+        t = texts()["new_member"]
+        line = _render(t["text"].replace("%{was}", t["was"][was]), cat, other)
+        game.cur_events_list.append(EventInformation(line, ["other_clans"], [cat.ID]))
     # Other Clans step 2: now and then a rumor about a forbidden romance
     from scripts.honor import heart
 
@@ -260,7 +293,7 @@ def on_skip(full_moon: bool):
     if not on():
         return
     if full_moon:
-        gathering()
+        gathering(take_ins())
     # the exploring patrol: Clans that caught c_n cats on their land complain
     from scripts import explore_patrol
 
