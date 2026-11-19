@@ -16,7 +16,7 @@ RANKS = (CatRank.WARRIOR, CatRank.MEDICINE_CAT)
 ASK_PER_POINT = 0.008
 ASK_CAP = 0.25
 # a Gathering only has a new ask at all this often, so they don't come every moon
-ASK_GATHERING = 0.25
+ASK_GATHERING = 1 / 6
 ACCEPT_BASE, ACCEPT_LOW, ACCEPT_HIGH = 50, 5, 90
 TASK_BASE, TASK_SKILL = 40, 40
 EFFORT = {"all": 15, "enough": -15}
