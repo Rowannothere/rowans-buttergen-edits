@@ -46,6 +46,12 @@ class Dialogue:
 
         if outsiders.on() and outsiders.clan_of(self.cat) is not None and not self.cat.dead:
             category = switch_get_value(Switch.talk_category)
+            close = outsiders.closeness(self.cat)
+            # a mate, family or an old Clanmate isn't a stranger
+            if close == "mate" and category == "flirt":
+                return load_lang_resource(f"{resource_dir}/other_clan/close_mate_flirt.json")
+            if close and category not in ("insult", "flirt", "caught"):
+                return load_lang_resource(f"{resource_dir}/other_clan/close_{close}.json")
             part = {"insult": "insults", "flirt": "flirt", "caught": "caught"}.get(category)
             if part:
                 return load_lang_resource(f"{resource_dir}/other_clan/{part}.json")

@@ -136,10 +136,15 @@ def _give_other_clans_codes():
 
 
 def other_clan_line(other) -> str:
-    """for the other Clan's allegiances: the rules it doesn't follow, or "" """
+    """for the other Clan's allegiances: the rules it follows, then the ones it doesn't"""
     from scripts.game_structure import game
 
-    off = game.clan.other_codes.get(other.name) if game.clan else None
-    if not off:
+    if not game.clan:
         return ""
-    return texts()["other_clan"].replace("[rules]", "; ".join(rule_name(r) for r in off))
+    off = game.clan.other_codes.get(other.name) or []
+    t = texts()
+    kept = [rule_name(r) for r in RULES if r not in off]
+    line = t["other_clan_follows"] + "<br>" + "<br>".join(kept)
+    if off:
+        line += "<br><br>" + t["other_clan"].replace("[rules]", "; ".join(rule_name(r) for r in off))
+    return line

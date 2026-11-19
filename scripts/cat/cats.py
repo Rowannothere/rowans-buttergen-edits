@@ -1252,6 +1252,9 @@ class Cat:
         """
         if not os.path.exists(history_dir):
             os.makedirs(history_dir)
+        # BUTTERGEN: a history nobody opened this session hasn't changed, so its file stays as it is
+        if self._history is None and os.path.exists(f"{history_dir}/{self.ID}_history.json"):
+            return
 
         history_dict = self.history.make_dict()
         try:

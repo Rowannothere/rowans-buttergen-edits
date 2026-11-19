@@ -19,6 +19,9 @@ ATTEND_ELDER = 0.25
 MEET_AT_GATHERING = (1, 3)
 LIKE_AT_GATHERING = {"ally": (2, 6), "neutral": (2, 6), "hostile": (-2, 2)}
 BORDER_MEET = 0.5
+# an other Clan under this many living cats may take in a loner, rogue or kittypet at a full moon
+TAKE_IN_UNDER = 15
+TAKE_IN_CHANCE = 0.25
 
 
 def texts() -> dict:
@@ -66,6 +69,28 @@ def mood(cat) -> str:
     if other is None:
         return "outsider"
     return game.clan.get_relations(game.clan, other, get_label=True)
+
+
+def closeness(cat) -> str:
+    """how an outside cat knows the player's cat: "mate", "family", "former" (lived in the player's
+    Clan while the player's cat was alive), or "" for strangers"""
+    you = _you()
+    if not you or not cat:
+        return ""
+    if cat.ID in you.mate:
+        return "mate"
+    family = set(you.get_parents()) | set(you.get_siblings()) | set(you.get_children())
+    if cat.ID in family:
+        return "family"
+    from scripts.cat.enums import CatGroup
+
+    history = cat.status.group_history
+    last_home = max((i for i, e in enumerate(history) if str(e.get("group")) == CatGroup.PLAYER_CLAN_ID), default=None)
+    if last_home is None:
+        return ""
+    # moons since they left the player's Clan: they knew the player's cat if it was born by then
+    since = sum(e.get("moons_as", 0) for e in history[last_home + 1:])
+    return "former" if you.moons > since else ""
 
 
 def _close(cat) -> bool:
@@ -148,9 +173,13 @@ def _attends(you) -> bool:
 def _gathering_pool(you):
     from scripts.cat.cats import Cat
 
+    # leaders sit with the other leaders, deputies with the other deputies
+    same_rank = you.status.rank if you.status.rank in (CatRank.LEADER, CatRank.DEPUTY) else None
     pool = []
     for cat in Cat.all_cats_list:
         if cat.dead or cat.status.rank.is_baby() or clan_of(cat) is None:
+            continue
+        if same_rank and cat.status.rank != same_rank:
             continue
         # mostly cats near the player's cat's rank and age
         weight = 1.0
@@ -176,10 +205,40 @@ def _pick(pool, amount):
     return chosen
 
 
-def gathering():
+def take_ins() -> list:
+    """small other Clans sometimes take in a loner, rogue or kittypet. Returns [(cat, OtherClan, was)]"""
+    from scripts.cat.cats import Cat
+    from scripts.cat.enums import CatSocial
+    from scripts.events_module.consequences import create_new_cat
+    from scripts.cat.constants import BACKSTORIES
+
+    joined = []
+    for other in game.clan.all_other_clans:
+        living = [c for c in Cat.all_cats_list
+                  if not c.dead and c.status.group_ID == other.group_ID and not c.status.is_lost()]
+        if not living or len(living) >= TAKE_IN_UNDER or random() >= TAKE_IN_CHANCE:
+            continue
+        was, social = choice((("loner", CatSocial.LONER), ("rogue", CatSocial.ROGUE),
+                              ("kittypet", CatSocial.KITTYPET)))
+        new = create_new_cat(
+            Cat, new_name=True, backstory=BACKSTORIES["backstory_categories"][f"{was}_backstories"],
+            rank=CatRank.WARRIOR, original_social=social, moons=randint(14, 60), group=other.group_ID,
+        )
+        if new:
+            joined.append((new[0], other, was))
+    return joined
+
+
+def gathering(joined=None):
     you = _you()
     if not you or not _attends(you):
         return None
+    # cats the other Clans took in since the last Gathering: one line, if any
+    if joined:
+        cat, other, was = choice(joined)
+        t = texts()["new_member"]
+        line = _render(t["text"].replace("%{was}", t["was"][was]), cat, other)
+        game.cur_events_list.append(EventInformation(line, ["other_clans"], [cat.ID]))
     # Other Clans step 2: now and then a rumor about a forbidden romance
     from scripts.honor import heart
 
@@ -238,7 +297,7 @@ def on_skip(full_moon: bool):
     if not on():
         return
     if full_moon:
-        gathering()
+        gathering(take_ins())
     # the exploring patrol: Clans that caught c_n cats on their land complain
     from scripts import explore_patrol
 

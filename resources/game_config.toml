@@ -1020,7 +1020,7 @@ dev_tools = false
   quickstart_cats = [4, 7]
 
   # range of cats to pick on quickstart (not counting the leader, deputy, and healer) for neighbouring Clans in multiclan
-  neighbourclan_cats = [4, 7]
+  neighbourclan_cats = [12, 18]
 
   # the "default" rank, the majority of cats will take this and random high ranks will originate from this rank
   majority_rank = "warrior"

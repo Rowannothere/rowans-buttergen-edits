@@ -18,5 +18,6 @@
         "From now on, c_n will follow \"[rule]\" again."
     ],
     "other_clan_heading": "WARRIOR CODE",
+    "other_clan_follows": "Follows:",
     "other_clan": "Doesn't follow: [rules]"
 }

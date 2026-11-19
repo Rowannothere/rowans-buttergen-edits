@@ -1,0 +1,59 @@
+{
+    "bg_oc_close_mate_1": {
+        "frequency": 2,
+        "cats": {
+            "y_c": {},
+            "t_c": {
+                "group": [
+                    "other_clan"
+                ]
+            }
+        },
+        "intro": [
+            "You came. I wasn't sure you would, with all the patrols out tonight."
+        ]
+    },
+    "bg_oc_close_mate_2": {
+        "frequency": 2,
+        "cats": {
+            "y_c": {},
+            "t_c": {
+                "group": [
+                    "other_clan"
+                ]
+            }
+        },
+        "intro": [
+            "[t_c presses close for a moment, then glances back toward the border.]",
+            "We don't have long."
+        ]
+    },
+    "bg_oc_close_mate_3": {
+        "frequency": 2,
+        "cats": {
+            "y_c": {},
+            "t_c": {
+                "group": [
+                    "other_clan"
+                ]
+            }
+        },
+        "intro": [
+            "Some nights I wish we were in the same Clan. Then I remember I'd probably drive you mad."
+        ]
+    },
+    "bg_oc_close_mate_4": {
+        "frequency": 2,
+        "cats": {
+            "y_c": {},
+            "t_c": {
+                "group": [
+                    "other_clan"
+                ]
+            }
+        },
+        "intro": [
+            "Did anyone see you leave? Good. Let's keep it that way."
+        ]
+    }
+}

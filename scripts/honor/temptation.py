@@ -200,6 +200,9 @@ def options_for(cat, full_moon: bool) -> list:
             continue
         if key in NEEDS_KITS and not _nursery_kits(cat, own=NEEDS_KITS[key] == "own"):
             continue
+        # only mollies have milk
+        if key == "nurse_kit" and cat.gender not in ("female", "molly"):
+            continue
         done = cat.code_done.get(key)
         if done is not None and now - done < COOLDOWN_MOONS:
             continue

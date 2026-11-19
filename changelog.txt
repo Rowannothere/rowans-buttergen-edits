@@ -1,3 +1,16 @@
+<strong>Buttergen v0.4-dev.14</strong>
+
+A development build, so keep a copy of your saves folder before playing.
+
+Changes:
+- Bigger other Clans (multi clan mode): new Clans' neighbors start with 15 to 21 cats instead of 7 to 10, and a Clan with fewer than 15 cats sometimes takes in a loner, rogue or kittypet. If your cat is at the Gathering, they hear about it
+
+Fixes:
+- Your cat's mate, family and old Clanmates in other Clans no longer talk to your cat like a stranger. They have their own lines, and a mate never turns down a flirt
+- At Gatherings, a leader only meets the other Clans' leaders and a deputy only meets their deputies
+- Toms no longer nurse other cats' kits
+- Other Clans' allegiances now list every warrior code rule they follow, not only the ones they don't
+
 <strong>Buttergen v0.4-dev.13</strong>
 
 A development build, so keep a copy of your saves folder before playing.
