@@ -2,6 +2,9 @@
 
 A development build, so keep a copy of your saves folder before playing.
 
+Changes:
+- Cats ask to switch Clans less often: a Gathering has a new ask about 1 time in 4, not nearly every time
+
 Fixes:
 - The warrior naming window calls the cat by their apprentice name (Crowpaw, not Crowfur) until the player picks the new name
 

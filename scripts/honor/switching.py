@@ -15,6 +15,8 @@ RANKS = (CatRank.WARRIOR, CatRank.MEDICINE_CAT)
 # the ask chance per Gathering is the pull score times this, at most ASK_CAP
 ASK_PER_POINT = 0.008
 ASK_CAP = 0.25
+# a Gathering only has a new ask at all this often, so they don't come every moon
+ASK_GATHERING = 0.25
 ACCEPT_BASE, ACCEPT_LOW, ACCEPT_HIGH = 50, 5, 90
 TASK_BASE, TASK_SKILL = 40, 40
 EFFORT = {"all": 15, "enough": -15}
@@ -454,6 +456,8 @@ def on_skip(full_moon: bool):
     # a cat with kits still in the nursery (born or adopted) stays with them
     from scripts.honor.temptation import _nursery_kits
 
+    if random() >= ASK_GATHERING:
+        return
     candidates = [c for c in Cat.all_cats_list if c is not you and eligible(c) and not busy(c)
                   and not _nursery_kits(c, own=True)]
     # at most one new ask a Gathering, so a Clan with many ties abroad doesn't flood the events
