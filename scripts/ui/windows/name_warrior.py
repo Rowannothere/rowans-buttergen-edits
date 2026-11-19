@@ -34,7 +34,14 @@ def _queue() -> list:
     return game.naming_queue
 
 
-def maybe_queue(cat, new_rank, was_apprentice, old_mentor):
+def _old_names() -> dict:
+    """the apprentice name each waiting cat had, for the prompt"""
+    if not hasattr(game, "naming_old_names"):
+        game.naming_old_names = {}
+    return game.naming_old_names
+
+
+def maybe_queue(cat, new_rank, was_apprentice, old_mentor, old_name=None):
     """called at a ceremony, after the rank change"""
     you = game.clan.your_cat if game.clan else None
     if (not you or you is cat or you.dead or not you.status.alive_in_player_clan
@@ -47,6 +54,8 @@ def maybe_queue(cat, new_rank, was_apprentice, old_mentor):
         return
     if cat.ID not in _queue():
         _queue().append(cat.ID)
+    if old_name:
+        _old_names()[cat.ID] = old_name
     if WINDOW_KEY not in switch_get_value(Switch.windows_dict):
         switch_append_list_value(Switch.windows_dict, WINDOW_KEY)
 
@@ -89,7 +98,12 @@ class NameWarriorWindow(GameWindow):
         from scripts.cat.cats import Cat
         from scripts.events_module.text_adjust import event_text_adjust
 
-        prompt = event_text_adjust(Cat, t["prompt"].replace("[kind]", t["kinds"][kind]), main_cat=self.cat)
+        prompt = t["prompt"].replace("[kind]", t["kinds"][kind])
+        # they're still an apprentice until the name is picked: "Crowpaw is ready...", not "Crowfur"
+        old_name = _old_names().pop(self.cat.ID, None)
+        if old_name:
+            prompt = sub(r"(?<!/)\bm_c\b", old_name, prompt)
+        prompt = event_text_adjust(Cat, prompt, main_cat=self.cat)
         self.message = pygame_gui.elements.UITextBox(
             prompt,
             ui_scale(pygame.Rect((20, 15), (360, 70))),
