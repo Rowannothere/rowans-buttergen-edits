@@ -7,6 +7,7 @@ Changes:
 
 Fixes:
 - The warrior naming window calls the cat by their apprentice name (Crowpaw, not Crowfur) until the player picks the new name
+- Former kittypets who kept their kittypet name no longer think about ignoring a kittypet calling their old name
 
 <strong>Buttergen v0.4-dev.14</strong>
 
