@@ -362,7 +362,8 @@ class Relationship:
         """
         Returns the tier group for the given value.
         """
-        for group, interval in get_config("relationship.value_intervals").items():
+        # BUTTERGEN: no copy, it's only read (this runs thousands of times a moon)
+        for group, interval in get_config("relationship.value_intervals", copy_value=False).items():
             if rel_type <= interval:
                 return group
 

@@ -457,9 +457,10 @@ def filter_events(
             continue
         if not clan.deputy and event_mentions(event, "dep_name"):
             continue
+        # BUTTERGEN: the cheap text check first, so the healer lookup only runs when it matters
         if (
-            not find_alive_cats_with_rank(Cat, [CatRank.MEDICINE_CAT], working=True, clan=clan.group_ID)
-            and event_mentions(event, "med_name")
+            event_mentions(event, "med_name")
+            and not find_alive_cats_with_rank(Cat, [CatRank.MEDICINE_CAT], working=True, clan=clan.group_ID)
         ):
             continue
 

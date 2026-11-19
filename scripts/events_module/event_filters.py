@@ -391,8 +391,10 @@ def event_for_other_clan(Cat, ranks: list, other_clan) -> bool:
         return True
 
     if not ranks:
-        oc_cats = get_living_clan_cat_count(Cat, other_clan, include_newborns=False)
-        return oc_cats > 0
+        # BUTTERGEN: stops at the first cat instead of counting them all
+        from scripts.clan_package.get_clan_cats import has_living_clan_cats
+
+        return has_living_clan_cats(Cat, other_clan, include_newborns=False)
 
     for rank in ranks:
         final_ranks = [rank.replace("_mult", "")]
@@ -2411,6 +2413,9 @@ def get_highest_romantic_relation(
     current_max_relationship = None
     for rel in relationships:
         if rel.romance < 0 or not rel.cat_to:
+            continue
+        # BUTTERGEN: a lower one can't win anyway, so skip the slow mate check for it
+        if rel.romance <= max_love_value:
             continue
         if exclude_mate and rel.cat_from.ID in rel.cat_to.mate:
             continue
