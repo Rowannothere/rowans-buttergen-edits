@@ -219,7 +219,7 @@ def judge(entry) -> bool:
         # your leader picks the sentence, with this one as the usual pick
         from scripts.honor import moments
 
-        entry["usual"], entry["pushes"] = step, [deputy_push, clan_push]
+        entry["usual"], entry["pushes"], entry["judge"] = step, [deputy_push, clan_push], judge_cat.ID
         moments.offer_next_sentence()
         return False
     # step 8: a leader may let a favorite off, or punish out of spite

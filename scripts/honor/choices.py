@@ -56,6 +56,8 @@ def pending():
         return None
     gone = (
         not _alive_in_clan(_you())
+        # offered to a cat who died since (a new life started): it isn't the new cat's to make
+        or (c.get("you") and c["you"] != _you().ID)
         or (c["kind"] == WITNESS and not _alive_in_clan(Cat.fetch_cat(c["offender"])))
         or (c["kind"] == MATE and not _alive_in_clan(Cat.fetch_cat(c["other"])))
         or (c["kind"] == KITS and not [k for k in (Cat.fetch_cat(i) for i in c["kits"]) if k and not k.dead])
@@ -100,6 +102,8 @@ def _heart_kinds():
 
 
 def _offer(entry):
+    you = _you()
+    entry["you"] = you.ID if you else None
     game.clan.code_choice = entry
     game.clan.code_choice_moon = game.clan.age
     # an event line with a button, so the choice is easy to spot

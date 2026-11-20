@@ -374,10 +374,20 @@ def settle():
 
     for entry in waiting_sentences():
         cat = Cat.fetch_cat(entry["cat"])
+        you = _you()
+        if not _alive_in_clan(cat):
+            game.clan.code_judgments.remove(entry)
+            continue
+        if (not _alive_in_clan(you) or judgment._judge_for(cat) is not you
+                or entry.get("judge", you.ID) != you.ID):
+            # your leader died or stepped down before picking (a new life may have started): the
+            # Clan's own judge decides at the next full moon, not the player's new cat
+            for k in ("usual", "pushes", "judge"):
+                entry.pop(k, None)
+            continue
         game.clan.code_judgments.remove(entry)
-        if _alive_in_clan(cat) and _alive_in_clan(_you()):
-            deputy_push, clan_push = entry.get("pushes", [0, 0])
-            judgment.finish(entry, cat, _you(), entry["usual"], deputy_push, clan_push)
+        deputy_push, clan_push = entry.get("pushes", [0, 0])
+        judgment.finish(entry, cat, you, entry["usual"], deputy_push, clan_push)
 
 
 # the choice window and the event line
@@ -386,7 +396,13 @@ def pending_gone(c) -> bool:
     cat = Cat.fetch_cat(c.get("offender"))
     if not _alive_in_clan(cat):
         return True
-    if c["kind"] in (MENTOR, DEPUTY, SENTENCE):
+    if c["kind"] == SENTENCE:
+        from scripts.honor import judgment
+
+        # only while your cat is still the one who judges them
+        entry = _entry_for(cat)
+        return entry is None or not entry.get("usual") or judgment._judge_for(cat) is not _you()
+    if c["kind"] in (MENTOR, DEPUTY):
         return _entry_for(cat) is None
     return False
 
