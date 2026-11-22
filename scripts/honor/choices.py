@@ -67,6 +67,9 @@ def pending():
         or (c["kind"] in SWITCH_KINDS and not _alive(Cat.fetch_cat(c["cat"])))
         or (c["kind"] in _moment_kinds() and _moments().pending_gone(c))
         or (c["kind"] in _heart_kinds() and _heart().pending_gone(c))
+        or (c["kind"] in _half_kinds() and _half().pending_gone(c))
+        or (c["kind"] == WITNESS and c["act"] in _half().ACTS
+            and not _half().has_secret(Cat.fetch_cat(c["offender"]), c["act"]))
     )
     if gone:
         game.clan.code_choice = None
@@ -101,6 +104,16 @@ def _heart():
 
 def _heart_kinds():
     return _heart().KINDS
+
+
+def _half():
+    from scripts.honor import halfclan
+
+    return halfclan
+
+
+def _half_kinds():
+    return _half().KINDS
 
 
 def _offer(entry):
@@ -190,6 +203,8 @@ def window_text():
         return prompt, options
     if c["kind"] in _heart_kinds():
         prompt, options = _heart().window_text(c)
+    elif c["kind"] in _half_kinds():
+        prompt, options = _half().window_text(c)
     elif c["kind"] in SWITCH_KINDS:
         from scripts.honor import switching
 
@@ -291,6 +306,8 @@ def _resolve(option):
         return _moments().resolve(c, option)
     if c["kind"] in _heart_kinds():
         return _heart().resolve_choice(c, option)
+    if c["kind"] in _half_kinds():
+        return _half().resolve_choice(c, option)
     if c["kind"] in SWITCH_KINDS:
         from scripts.honor import switching
 

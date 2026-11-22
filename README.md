@@ -238,7 +238,6 @@ See [changelog.txt](changelog.txt) for what's new.
 
 Buttergen is just getting started. These are on the way, roughly in this order (plans can change):
 
-- **Other Clans:** half-Clan kits, and finding out where a cat was really born
 - **Relationships with more going on:** ambition, jealousy, wants and feelings that change how cats act toward each other, like an ambitious cat resenting the deputy
 - **Play as your cat mode:** an optional mode where what you can do depends on your cat's rank, so only a leader picks mentors or exiles cats, and patrols go out without you unless you lead them
 - **Affairs:** a reworked affairs system

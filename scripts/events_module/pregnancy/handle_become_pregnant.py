@@ -102,6 +102,10 @@ def _handle_pregnancy_notice(cat, other_cat, surrogate, hidden, clan):
                 afab_mate.append(mate_cat)
             else:
                 amab_mate.append(mate_cat)
+    # BUTTERGEN: a secret mate from another Clan isn't named (Other Clans step 3)
+    from scripts.honor import halfclan
+
+    mate, afab_mate, amab_mate = (halfclan.public_mates(cat, m) for m in (mate, afab_mate, amab_mate))
     if cat.status.group_ID != clan.group_ID:
         clan = cat.status.fetch_clan_object(game.clan)
 
@@ -263,6 +267,12 @@ def _retrieve_secret_kittens(cat, other_cat, surrogate, clan):
                             game.cur_events_list.append(EventInformation(secondary_event, ["birth_death"], cats_involved=cats_involved, clan=par.status.group_ID))
         for kit in kits:
             cats_involved.append(kit.ID)
+        # BUTTERGEN: kits from outside break the code, with their own events (Other Clans step 3)
+        if not surrogate:
+            from scripts.honor import halfclan
+
+            if halfclan.after_brought(cat, outside_parent, kits):
+                return
         game.cur_events_list.append(EventInformation(print_event, ["birth_death"], cats_involved=cats_involved, clan=clan.group_ID))
 
 

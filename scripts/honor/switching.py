@@ -172,7 +172,9 @@ def accept_chance(cat, target, bonus=0) -> int:
 
     clan = clan_of_group(target)
     leader = leader_of(target)
-    chance = ACCEPT_BASE + bonus
+    from scripts.honor import halfclan
+
+    chance = ACCEPT_BASE + bonus + halfclan.switch_bonus(cat, target)
     if leader is not None:
         chance += 10 * round((leader.personality.lawfulness - 8) / 8)
     chance += _ties(cat, clan)

@@ -39,6 +39,9 @@ ACTS = {
     "healer_adopt": brk("serious", frozenset(), ()),
     # Other Clans step 2: a mate from another Clan (scripts/honor/heart.py), never from temptation
     "heart_mate": brk("serious", frozenset(), (), other_clan=True),
+    # Other Clans step 3: kits with a parent outside the Clan (scripts/honor/halfclan.py)
+    "heart_kits": brk("serious", frozenset(), (), other_clan=True),
+    "outside_kits": brk("serious", frozenset(), ()),
     # everyone from apprentice up
     # elders and queens eat first anyway (kits too), so it isn't a misdeed for them
     "eat_first": brk("minor", (EVERYONE | LEADER) - {R.ELDER, R.QUEEN}, (HUNGER,)),

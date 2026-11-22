@@ -473,6 +473,10 @@ def handle_two_moon_pregnant(cat: Cat, clan):
         from scripts.honor import healer as honor_healer
 
         honor_healer.after_birth(pregnant_cat, other_cat or [], kits)
+        # BUTTERGEN: kits with a parent outside the Clan (Other Clans step 3)
+        from scripts.honor import halfclan
+
+        halfclan.after_birth(pregnant_cat, other_cat or [], kits, hidden, bool(surrogate))
     except Exception:  # pylint: disable=broad-except
         import traceback
 
@@ -581,6 +585,13 @@ def _handle_main_birth_event(
             event_list.append(choice(events["birth"]["two_parents_surrogate"]))
     elif hidden:
         event_list.append(choice(events["birth"]["hidden_pregnancy"]))
+    # BUTTERGEN: kits with a parent outside the cat's Clan (Other Clans step 3)
+    elif not affair_partners and not surrogate and (half_clan := _half_clan_birth(cat, other_cat, events)):
+        line, named_mate = half_clan
+        event_list.append(line)
+        if named_mate:
+            random_choice = named_mate
+            involved_cats.append(named_mate.ID)
     elif not cat.status.is_outsider and single_parent:
         event_list.append(choice(events["birth"]["unmated_parent"]))
 
@@ -677,6 +688,12 @@ def _handle_main_birth_event(
         random_choice,
         event_list,
     )
+
+
+def _half_clan_birth(cat, other_cat, events):
+    from scripts.honor import halfclan
+
+    return halfclan.birth_text(cat, other_cat, events)
 
 
 def _remove_unmentioned_mate_ids(

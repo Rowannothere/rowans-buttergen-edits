@@ -143,6 +143,8 @@
         "code stay in camp" = true
         "code clan property" = true
         "code honesty" = true
+        # not a rule: how often cats learn where they were born (scripts/honor/halfclan.py)
+        "birth secrets rare" = false
 
     # BUTTERGEN: let your cat decide (scripts/let_decide.py)
     [clan.decide]

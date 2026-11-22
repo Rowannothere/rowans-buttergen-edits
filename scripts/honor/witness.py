@@ -29,6 +29,8 @@ WHERE = {
     "hide_news": "secret", "pass_secrets": "secret", "carry_messages": "secret",
     "healer_mate": "secret", "healer_kits": "secret", "healer_adopt": "camp",
     "heart_mate": "secret",
+    # Other Clans step 3: kits with a parent outside the Clan
+    "heart_kits": "secret", "outside_kits": "secret",
 }
 # reputation lost when it comes out
 REPUTATION_LOSS = {"minor": (3, 5), "serious": (8, 12), "grave": (15, 25)}
@@ -226,9 +228,9 @@ def _you_saw_too(offender, witness, key, other_clan, level):
 
 def _already_know(offender, key, other_clan) -> set:
     """a mate in another Clan is one long secret: cats who know about it don't find out again"""
-    from scripts.honor import heart
+    from scripts.honor import halfclan, heart
 
-    if key != heart.ACT:
+    if key != heart.ACT and key not in halfclan.ACTS:
         return set()
     name = other_clan.name if other_clan else None
     return {i for s in game.clan.code_secrets
@@ -236,17 +238,18 @@ def _already_know(offender, key, other_clan) -> set:
             for i in s["knowers"]}
 
 
-def after_break(offender, key, other_clan, level=None):
-    """called after a cat breaks the code. level overrides the act's own (a half-done act is minor)"""
+def after_break(offender, key, other_clan, level=None, chance=None):
+    """called after a cat breaks the code. level overrides the act's own (a half-done act is minor),
+    chance overrides how likely someone sees"""
     where = WHERE.get(key)
     if where is None or not code.counts(key):
         return
     knowers = _already_know(offender, key, other_clan)
     # step 5: your cat may notice, whoever else does
     you = _you()
-    noticed = (where != "public" and not (you and you.ID in knowers)
+    noticed = (chance is None and where != "public" and not (you and you.ID in knowers)
                and _you_saw_too(offender, None, key, other_clan, level))
-    if random() >= SEE_CHANCE[where]:
+    if random() >= (SEE_CHANCE[where] if chance is None else chance):
         return
     witness = pick_witness(offender, key)
     if witness is None or witness.ID in knowers or (noticed and witness is _you()):
@@ -320,6 +323,9 @@ def came_out(cat, key, other_clan, level=None, by=None):
         judgment.queue(cat, key, other_clan, level)
         # your cat may get a say, as their mentor, parent or the deputy
         moments.after_came_out(cat, key, other_clan, level, by)
+    from scripts.honor import halfclan
+
+    halfclan.came_out(cat, key, other_clan)
 
 
 def name_others(caught):
@@ -347,6 +353,8 @@ def on_skip():
     """secrets age, spread, get called in, or come out"""
     if not game.clan:
         return
+    from scripts.honor import halfclan
+
     scale = 1 / weekskip.WEEKS_IN_MOON if weekskip.on() else 1.0
     you = _you()
     for secret in list(game.clan.code_secrets):
@@ -357,7 +365,9 @@ def on_skip():
         key = secret["act"]
         level = secret.get("level")
         other_clan = _clan_by_name(secret["clan"])
-        if not _alive_in_clan(offender) or key not in ACTS or game.clan.age - secret["moon"] > FORGET_AFTER:
+        # secrets about kits are never forgotten
+        old = game.clan.age - secret["moon"] > FORGET_AFTER and key not in halfclan.ACTS
+        if not _alive_in_clan(offender) or key not in ACTS or old:
             game.clan.code_secrets.remove(secret)
             continue
         if witness is None or witness.dead:

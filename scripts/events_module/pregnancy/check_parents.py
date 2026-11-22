@@ -173,12 +173,6 @@ def get_second_parent(cat, clan):
         else:
             mate.append(cat.fetch_cat(choice(cat.mate)))
 
-    # BUTTERGEN: kits with a mate from another Clan come with Other Clans step 3
-    if mate:
-        from scripts.honor import heart
-
-        mate = [m for m in mate if m is not None and not heart.no_kits(cat, m)] or None
-
     # if the sex does matter, choose the best solution to allow kits
     if not samesex and mate and not cat_is_amab(cat):
         opposite_mate = [cat.fetch_cat(mate_id) for mate_id in cat.mate if xor(cat_is_amab(cat.fetch_cat(

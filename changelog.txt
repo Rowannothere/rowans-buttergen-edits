@@ -5,9 +5,17 @@ A development build, so keep a copy of your saves folder before playing.
 New:
 - Let your cat decide (a player suggestion): a new "your cat" tab in the Clan Settings. Tick the choices you want your cat to make on their own, or tick everything: their path at 6 moons, retiring, choosing a deputy as leader, names, and warrior code choices. They choose by their personality, skills and relationships, and the events say what they picked. All off at first
 - A "Let them decide" button on the path, retiring and deputy windows, for handing off just one choice
+- Half-Clan kits (multi clan mode): mates in different Clans can have kits now, half as often as other mates. They're born in the Clan of whoever carries them, and your cat chooses: raise them in secret, take them to their other parent, or tell the truth. If the kits are born over there, your cat can let them stay, or try to bring them home. Other cats decide by personality
+- Kits with a kittypet, loner or rogue break the code the same way, for every cat and in single Clan mode too (they still only happen with the setting for kits with cats outside the Clan)
+- Secrets about kits are never forgotten. Clanmates can guess, gossip spreads, and when it's out it's judged with the mate as one misdeed, a little harder if the cat lied and milder if they told the truth right away. Clanmates may tease half-Clan kits, and friends may step in
+- Learning the truth: from 12 moons old, cats can find out that they have a parent in another Clan, or that they were stolen as a kit. Your cat can keep it to themselves, confront the cat who hid it, or look for their birth family at the next Gathering. A new setting in the Warrior code tab, "Birth secrets come out rarely", makes it 3 times rarer. Kits taken at 3 moons or older remember
 
 Changes:
 - If your cat decides not to retire on their own, they're asked again after 6 moons
+- Kits born outside and brought home by a Clanmate come with a choice or a story of their own, not only "refused to talk about their origin"
+
+Fixes:
+- With healers' mates against the code, a healer's kits born in another Clan are no longer handed to a queen in yours
 
 <strong>Buttergen v0.4-dev.16</strong>
 

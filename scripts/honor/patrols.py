@@ -258,6 +258,8 @@ def _follower_loss(spec, cat, offenders, cats) -> bool:
 
 
 def _run_break(spec, patrol, cats, text, other_clan) -> list:
+    from scripts.honor import halfclan
+
     if spec["who"] == "patrol":
         offenders = [c for c in patrol.patrol_cats if c is not cats.get("p_l") and _alive(c)]
     else:
@@ -273,7 +275,8 @@ def _run_break(spec, patrol, cats, text, other_clan) -> list:
         if kit is not None:
             game.clan.code_stolen_kits.append({
                 "kit": kit.ID, "from": other_clan.name if other_clan else None,
-                "by": [c.ID for c in offenders], "moon": game.clan.age,
+                "by": [c.ID for c in offenders], "moon": game.clan.age, "learned": [],
+                "out": halfclan.theft_is_out(offenders),
             })
     level = spec["level"] or ACTS[spec["act"]]["level"]
     you = _you()
