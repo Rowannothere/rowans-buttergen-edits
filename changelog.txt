@@ -1,3 +1,12 @@
+<strong>Buttergen v0.4-dev.16</strong>
+
+A development build, so keep a copy of your saves folder before playing.
+
+New:
+- Buttergen as a Windows app (Buttergen.exe), with nothing to install. The README has the download link, and how to bring your Clans along from run.bat. run.bat still works like before
+- The Windows app updates itself: click Update Available! on the start screen, then update now. The game downloads the update and restarts, and if anything goes wrong the old version comes back. Your Clans are kept in their own folder, so updates never touch them
+- Open saves folder, next to the app, opens the folder your Clans are in
+
 <strong>Buttergen v0.4-dev.15</strong>
 
 A development build, so keep a copy of your saves folder before playing.
