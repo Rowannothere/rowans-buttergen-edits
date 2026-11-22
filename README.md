@@ -14,17 +14,47 @@ I ask that if you make a fork or a version of this mod built off of my code, you
 
 ## How to play
 
-Buttergen runs from its source code, so there's no app to install. Instead you install **uv**. After that, starting the game is a double-click (or one command on Linux).
+On Windows you can download Buttergen as an app. On Mac and Linux (or if the app doesn't work on your PC), it runs from its source code: you install **uv**, and after that, starting the game is a double-click (or one command on Linux).
 
-You need an internet connection the first time you start the game: uv downloads the right version of Python and everything the game needs.
-
-> **Important:** your Clans are saved in the **saves** folder inside the game folder. **Every time you download a new version, copy your saves folder into the new game folder**, or your Clans won't be there. See [Updating](#updating-to-a-new-version). The game tells you on the start screen when a new version is out.
-
-Jump to: [Windows](#windows) | [Mac](#mac) | [Linux](#linux) | [Updating](#updating-to-a-new-version) | [Problems](#if-something-goes-wrong)
+Jump to: [Windows, the easy way](#windows-the-easy-way-no-setup) | [Windows (run.bat)](#windows-runbat) | [Mac](#mac) | [Linux](#linux) | [Updating](#updating-to-a-new-version) | [Problems](#if-something-goes-wrong)
 
 ---
 
-### Windows
+### Windows: the easy way (no setup)
+
+1. [Download the newest dev build](https://nightly.link/Tropicaluwu/Buttergen/workflows/build/dev/Buttergen_Win64.zip).
+2. Find the zip in your Downloads, right-click it and choose **Extract All**. Put the **Buttergen** folder somewhere easy to find, like your Documents (not in Program Files).
+3. Open the **Buttergen** folder and double-click **Buttergen** (the one with the cat icon).
+4. If Windows says **"Windows protected your PC"**, click **More info**, then **Run anyway**. Buttergen isn't signed, so Windows doesn't know it yet.
+
+**Updating:** when a new version is out, the game shows **Update Available!** on the start screen. Click it, then click **update now**. That's all: the game downloads the update and restarts, and your Clans are still there.
+
+**Where are my Clans?** In the **Buttergen** folder, double-click **Open saves folder**. A window opens with your Clans in it. They aren't inside the game folder, so updating or deleting the game never touches them.
+
+If Windows blocks the app completely (Smart App Control), use [run.bat](#windows-runbat) instead.
+
+#### I already have Clans from run.bat. How do I bring them along?
+
+You only do this **one time**. It copies your Clans, so your old game keeps them too. Best to do it before you make new Clans in the app.
+
+1. Close the game if it's open.
+2. Open your **old** game folder (the one with **run.bat** in it). Open the folder named **saves**. Leave this window open.
+3. Open your **new** Buttergen folder and double-click **Open saves folder**. A second window opens.
+4. Click inside the **first** window (your old Clans). Press **Ctrl + A** to select everything, then **Ctrl + C** to copy it.
+5. Click inside the **second** window. Press **Ctrl + V** to paste. If Windows asks, choose **Replace the files in the destination**.
+6. Start Buttergen. Your Clans are there!
+
+Keep your old game folder until you've seen your Clans in the new one.
+
+---
+
+You need an internet connection the first time you start the game with any of the ways below: uv downloads the right version of Python and everything the game needs.
+
+> **Important (run.bat, Mac and Linux only):** your Clans are saved in the **saves** folder inside the game folder. **Every time you download a new version, copy your saves folder into the new game folder**, or your Clans won't be there. See [Updating](#updating-to-a-new-version). The game tells you on the start screen when a new version is out.
+
+---
+
+### Windows (run.bat)
 
 **1. Install uv (one time only)**
 
@@ -120,6 +150,8 @@ Some file managers can also start it: right-click **run.sh** and choose **Run as
 
 When a new version is out, the game shows **Update Available!** on the start screen. Click it to see how to update.
 
+**Playing the Windows app?** Click **update now** and you're done. The rest of this is for run.bat, Mac and Linux.
+
 Your saves are inside the game folder, in a folder called **saves**. So **every time** you update, bring them along:
 
 1. Download the new version the same way as the first time (green **Code** button, then **Download ZIP**) and unzip it.
@@ -147,7 +179,8 @@ Once your Clans show up in the new version, you can delete the old folder.
   3. When it's done, close the window and double-click **run.bat** as usual.
 - **"failed to hardlink file" or "incompatible hardlinks" (Windows):** the game folder is (or was) inside OneDrive. Move the game folder somewhere outside OneDrive, like **C:\Games**. Then delete the hidden **.venv** folder inside the game folder, open **PowerShell**, run `uv cache clean`, and start the game again. OneDrive can also get in the way of your saves, so the game is best kept outside it.
 - **"An Application Control policy has blocked this file" or "python.exe - Bad Image" (Windows 11):** this is Windows Smart App Control, not a broken download. See [Blocked by Smart App Control](#blocked-by-smart-app-control).
-- **My Clans are gone after updating:** copy the **saves** folder from the old game folder into the new one (see [Updating](#updating-to-a-new-version)).
+- **My Clans are gone in the Windows app:** they're probably still in your old run.bat folder. See [how to bring them along](#i-already-have-clans-from-runbat-how-do-i-bring-them-along).
+- **My Clans are gone after updating (run.bat, Mac, Linux):** copy the **saves** folder from the old game folder into the new one (see [Updating](#updating-to-a-new-version)).
 
 
 ### Blocked by Smart App Control

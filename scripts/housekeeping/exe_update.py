@@ -29,6 +29,8 @@ UPDATED_ARG = "--updated"
 
 # what the game folder holds that an update replaces. Nothing else in there is touched
 PARTS = (INTERNAL, EXE)
+# replaced too, but the game doesn't need it: an update never fails over it
+SAVES_BAT = "Open saves folder.bat"
 OLD, NEW = ".old", ".new"
 # how long the new exe waits for the old game to close
 SWAP_SECONDS = 60
@@ -276,6 +278,13 @@ def put_old_back(game, seconds=10):
             pass
 
 
+def copy_saves_bat(staged, game):
+    try:
+        shutil.copy2(os.path.join(staged, SAVES_BAT), os.path.join(game, SAVES_BAT))
+    except OSError:
+        pass
+
+
 def crashed(process, started, seconds) -> bool:
     """True if it closed with an error before it got to the main menu"""
     until = time.time() + seconds
@@ -300,6 +309,7 @@ def finish(staged, game, log=print) -> bool:
         process = launch(exe, game, [UPDATED_ARG, started])
         if crashed(process, started, WATCH_SECONDS):
             raise UpdateError(f"the new version closed with error {process.returncode}")
+        copy_saves_bat(staged, game)
         log("updated")
         return True
     except Exception as error:  # whatever it was, the old version comes back

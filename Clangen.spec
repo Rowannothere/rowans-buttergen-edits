@@ -1,5 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+import os
+import shutil
 from os import getenv
 
 
@@ -27,7 +29,6 @@ a.datas += Tree('./resources', prefix='resources')
 a.datas += Tree('./sprites', prefix='sprites')
 a.datas += [ ('version.ini', './version.ini', 'DATA') ]
 a.datas += [ ('changelog.txt', './changelog.txt', 'DATA') ]
-a.datas += [ ('OpenDataDirectory.bat', './bin/OpenDataDirectory.bat', 'DATA') ]
 a.datas += [ ('.itch.toml', './.itch.toml', 'DATA') ]
 
 exe = EXE(
@@ -58,6 +59,8 @@ coll = COLLECT(
     upx_exclude=[],
     name='Buttergen',
 )
+# next to the exe, where players can find it
+shutil.copy('./bin/Open saves folder.bat', os.path.join(DISTPATH, 'Buttergen'))
 app = BUNDLE(
     coll,
     name='Buttergen.app',

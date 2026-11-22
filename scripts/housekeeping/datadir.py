@@ -20,7 +20,7 @@ def setup_data_dir():
     os.makedirs(get_saved_images_dir(), exist_ok=True)
 
     # Windows requires elevated permissions to create symlinks.
-    # The OpenDataDirectory.bat can be used instead as "shortcut".
+    # The Open saves folder.bat can be used instead as "shortcut".
     if platform.system() != "Windows":
         if os.path.exists("game_data"):
             os.remove("game_data")

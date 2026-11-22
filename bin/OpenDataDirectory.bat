@@ -1,1 +1,0 @@
-start "" "%LocalAppData%\Buttergen\Buttergen"
