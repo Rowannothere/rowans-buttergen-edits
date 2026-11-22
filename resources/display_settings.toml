@@ -144,6 +144,15 @@
         "code clan property" = true
         "code honesty" = true
 
+    # BUTTERGEN: let your cat decide (scripts/let_decide.py)
+    [clan.decide]
+        "decide all" = false
+        "decide path" = false
+        "decide retire" = false
+        "decide deputy" = false
+        "decide names" = false
+        "decide code" = false
+
     [clan.freshkill_tactics]
         low_rank = true
         high_rank = false
@@ -211,6 +220,16 @@
     #   [clan.nests."section_name"."setting_name"]
     #       required_setting_name = required_value
     [clan.nests]
+        [clan.nests.decide."decide path"]
+            "decide all" = false
+        [clan.nests.decide."decide retire"]
+            "decide all" = false
+        [clan.nests.decide."decide deputy"]
+            "decide all" = false
+        [clan.nests.decide."decide names"]
+            "decide all" = false
+        [clan.nests.decide."decide code"]
+            "decide all" = false
         [clan.nests.general.metric_toggle]
             showheight = true
         [clan.nests.general.adult_height_toggle]

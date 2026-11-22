@@ -593,6 +593,10 @@ def _determine_retirement(cat: Cat):
             if not int(random() * chance):
                 # LG: your own cat gets asked, nothing changes unless you accept
                 if game.clan.your_cat and cat.ID == game.clan.your_cat.ID:
+                    from scripts import let_decide
+
+                    if let_decide.said_no_lately(cat):
+                        return
                     if "retire" not in switch_get_value(Switch.windows_dict):
                         switch_append_list_value(Switch.windows_dict, "retire")
                     return

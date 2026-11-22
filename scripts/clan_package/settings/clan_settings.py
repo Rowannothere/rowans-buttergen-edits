@@ -104,6 +104,7 @@ all_settings = [
     _clan_settings["role"],
     _clan_settings["relation"],
     _clan_settings["code"],  # BUTTERGEN: the Clan's own warrior code
+    _clan_settings["decide"],  # BUTTERGEN: let your cat decide
     _clan_settings["freshkill_tactics"],
     _clan_settings["clan_focus"],
 ]

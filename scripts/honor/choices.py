@@ -414,6 +414,19 @@ def on_skip_start():
     _moments().cleanup()
 
 
+def decide_waiting():
+    """let your cat decide: with the setting on, choices never wait for the player"""
+    from scripts import let_decide
+
+    if not game.clan or not let_decide.on(let_decide.CODE):
+        return
+    # a leader can have a few sentences to pick
+    for _ in range(20):
+        if pending() is None:
+            return
+        resolve(DECIDE)
+
+
 def show_badge(screen):
     """adds or removes the badge on the events screen"""
     import pygame

@@ -796,6 +796,16 @@ def _one_moon_impl():
 
         traceback.print_exc()
 
+    # BUTTERGEN: let your cat decide, after everything that asks the player something
+    try:
+        from scripts import let_decide
+
+        let_decide.on_skip()
+    except Exception:  # pylint: disable=broad-except
+        import traceback
+
+        traceback.print_exc()
+
     generate_dialogue_focus()
     checks = [
         len(game.clan.your_cat.apprentice),
@@ -2788,8 +2798,11 @@ def check_gain_mate(checks):
 def check_gain_kits(checks):
     # LG: made fresh, the kept one never got this moon's kits, so the name kits window never came up
     game.clan.your_cat.inheritance = Inheritance(game.clan.your_cat)
+    from scripts import let_decide
     from scripts.screens.NameKitsScreen import kits_to_name
 
+    if let_decide.on(let_decide.NAMES):
+        return
     # no window when there's nobody to name (stillborn kits, or kits living with an outsider)
     blood_kits = game.clan.your_cat.inheritance.get_blood_kits()
     if len(blood_kits) > checks[2] and any(kit.ID in blood_kits for kit in kits_to_name()):

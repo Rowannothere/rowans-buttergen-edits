@@ -307,7 +307,13 @@ def check_and_promote_deputy(clan):
         # don't need a new deputy
         return
 
-    if not get_clan_setting("deputy") and clan == game.clan:
+    from scripts import let_decide
+
+    # BUTTERGEN: the player's leader picks the cat they trust most
+    your_pick = let_decide.picks_deputy(clan)
+    pick = let_decide.most_trusted if your_pick else random.choice
+
+    if not get_clan_setting("deputy") and clan == game.clan and not your_pick:
         # player doesn't want us to pick a dep for them
         game.cur_events_list.insert(0, EventInformation(event_text_adjust(Cat, i18n.t("defaults.warn_no_deputy"), clan=clan), clan=clan.group_ID))
         return
@@ -353,7 +359,7 @@ def check_and_promote_deputy(clan):
     possible_deputies = trusted_first(possible_deputies)
     if possible_deputies:
         # from here we must have appropriate deputy choices
-        main_cat = random.choice(possible_deputies)
+        main_cat = pick(possible_deputies)
     else:
         # If there are no possible deputies, choose someone else, with special text.
         all_warriors = list(
@@ -374,7 +380,7 @@ def check_and_promote_deputy(clan):
         if all_warriors:
             if get_clan_setting("rel_deputy") and clan.leader:
                 all_warriors = _rel_deputy_filter(all_warriors, clan.leader)
-            main_cat = random.choice(trusted_first(all_warriors))
+            main_cat = pick(trusted_first(all_warriors))
         else:
             # If there are no warriors at all, no one is named deputy.
             game.cur_events_list.append(
@@ -385,6 +391,8 @@ def check_and_promote_deputy(clan):
     prev_dep = {"past_deputy": clan.deputy}
     trigger_ceremony(main_cat, CatRank.DEPUTY, prev_dep, show_for_player_cat=True)
     clan.deputy = main_cat
+    if your_pick:
+        let_decide.post_deputy(main_cat)
 
 
 def _adult_becomes_mediator(cat) -> bool:

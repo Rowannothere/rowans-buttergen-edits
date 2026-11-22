@@ -1,3 +1,14 @@
+<strong>Buttergen v0.4-dev.17</strong>
+
+A development build, so keep a copy of your saves folder before playing.
+
+New:
+- Let your cat decide (a player suggestion): a new "your cat" tab in the Clan Settings. Tick the choices you want your cat to make on their own, or tick everything: their path at 6 moons, retiring, choosing a deputy as leader, names, and warrior code choices. They choose by their personality, skills and relationships, and the events say what they picked. All off at first
+- A "Let them decide" button on the path, retiring and deputy windows, for handing off just one choice
+
+Changes:
+- If your cat decides not to retire on their own, they're asked again after 6 moons
+
 <strong>Buttergen v0.4-dev.16</strong>
 
 A development build, so keep a copy of your saves folder before playing.

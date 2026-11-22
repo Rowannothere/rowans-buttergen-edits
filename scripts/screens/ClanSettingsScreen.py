@@ -71,6 +71,7 @@ class ClanSettingsScreen(Screens):
             "relation": self.open_relation_settings,
             "role": self.open_roles_settings,
             "code": self.open_code_settings,
+            "decide": self.open_decide_settings,
             "stats": self.open_clan_stats,
         }
 
@@ -112,6 +113,9 @@ class ClanSettingsScreen(Screens):
                 return
             elif event.ui_element == self.code_settings_button:
                 self.open_code_settings()
+                return
+            elif event.ui_element == self.decide_settings_button:
+                self.open_decide_settings()
                 return
             elif event.ui_element == self.clan_stats_button:
                 self.open_clan_stats()
@@ -189,44 +193,53 @@ class ClanSettingsScreen(Screens):
         self.set_disabled_menu_buttons(["clan_settings"])
 
         self.general_settings_button = UISurfaceImageButton(
-            ui_scale(pygame.Rect((100, 140), (120, 30))),  # BUTTERGEN: 5 tabs at 120 (was 4 at 150)
+            ui_scale(pygame.Rect((100, 140), (100, 30))),  # BUTTERGEN: 6 tabs at 100 (was 4 at 150)
             "screens.clan_settings.general",
-            get_button_dict(ButtonStyles.MENU_LEFT, (120, 30)),
+            get_button_dict(ButtonStyles.MENU_LEFT, (100, 30)),
             object_id="@buttonstyles_menu_left",
             manager=MANAGER,
         )
         self.relation_settings_button = UISurfaceImageButton(
-            ui_scale(pygame.Rect((0, 140), (120, 30))),
+            ui_scale(pygame.Rect((0, 140), (100, 30))),
             "screens.clan_settings.relation",
-            get_button_dict(ButtonStyles.MENU_MIDDLE, (120, 30)),
+            get_button_dict(ButtonStyles.MENU_MIDDLE, (100, 30)),
             object_id="@buttonstyles_menu_middle",
             manager=MANAGER,
             anchors={"left_target": self.general_settings_button},
         )
         self.role_settings_button = UISurfaceImageButton(
-            ui_scale(pygame.Rect((0, 140), (120, 30))),
+            ui_scale(pygame.Rect((0, 140), (100, 30))),
             "screens.clan_settings.role",
-            get_button_dict(ButtonStyles.MENU_MIDDLE, (120, 30)),
+            get_button_dict(ButtonStyles.MENU_MIDDLE, (100, 30)),
             object_id="@buttonstyles_menu_middle",
             manager=MANAGER,
             anchors={"left_target": self.relation_settings_button},
         )
         # BUTTERGEN: the Clan's own warrior code
         self.code_settings_button = UISurfaceImageButton(
-            ui_scale(pygame.Rect((0, 140), (120, 30))),
+            ui_scale(pygame.Rect((0, 140), (100, 30))),
             "screens.clan_settings.code",
-            get_button_dict(ButtonStyles.MENU_MIDDLE, (120, 30)),
+            get_button_dict(ButtonStyles.MENU_MIDDLE, (100, 30)),
             object_id="@buttonstyles_menu_middle",
             manager=MANAGER,
             anchors={"left_target": self.role_settings_button},
         )
-        self.clan_stats_button = UISurfaceImageButton(
-            ui_scale(pygame.Rect((0, 140), (120, 30))),
-            "screens.clan_settings.stats",
-            get_button_dict(ButtonStyles.MENU_RIGHT, (120, 30)),
-            object_id="@buttonstyles_menu_right",
+        # BUTTERGEN: let your cat decide
+        self.decide_settings_button = UISurfaceImageButton(
+            ui_scale(pygame.Rect((0, 140), (100, 30))),
+            "screens.clan_settings.decide",
+            get_button_dict(ButtonStyles.MENU_MIDDLE, (100, 30)),
+            object_id="@buttonstyles_menu_middle",
             manager=MANAGER,
             anchors={"left_target": self.code_settings_button},
+        )
+        self.clan_stats_button = UISurfaceImageButton(
+            ui_scale(pygame.Rect((0, 140), (100, 30))),
+            "screens.clan_settings.stats",
+            get_button_dict(ButtonStyles.MENU_RIGHT, (100, 30)),
+            object_id="@buttonstyles_menu_right",
+            manager=MANAGER,
+            anchors={"left_target": self.decide_settings_button},
         )
 
         self.game_settings_button = UISurfaceImageButton(
@@ -331,6 +344,8 @@ class ClanSettingsScreen(Screens):
         del self.role_settings_button
         self.code_settings_button.kill()
         del self.code_settings_button
+        self.decide_settings_button.kill()
+        del self.decide_settings_button
         self.open_data_directory_button.kill()
         del self.open_data_directory_button
         self.deleted_faded_button.kill()
@@ -371,6 +386,15 @@ class ClanSettingsScreen(Screens):
         self.code_settings_button.disable()
         self.clear_sub_settings_buttons_and_text()
         self.sub_menu = "code"
+
+        self.refresh_checkboxes()
+
+    def open_decide_settings(self):
+        """BUTTERGEN: let your cat decide, one checkbox per kind of choice"""
+        self.enable_all_menu_buttons()
+        self.decide_settings_button.disable()
+        self.clear_sub_settings_buttons_and_text()
+        self.sub_menu = "decide"
 
         self.refresh_checkboxes()
 
@@ -543,6 +567,13 @@ class ClanSettingsScreen(Screens):
             if disabled:
                 self.checkboxes[name].disable()
 
+            # "everything" shows the rest as ticked, without changing what they're set to
+            if self.sub_menu == "decide":
+                if disabled or get_clan_setting(name):
+                    self.checkboxes[name].check()
+                else:
+                    self.checkboxes[name].uncheck()
+
             n += 1
 
     def clear_sub_settings_buttons_and_text(self):
@@ -564,6 +595,7 @@ class ClanSettingsScreen(Screens):
         self.relation_settings_button.enable()
         self.role_settings_button.enable()
         self.code_settings_button.enable()
+        self.decide_settings_button.enable()
         self.clan_stats_button.enable()
 
     def on_use(self):

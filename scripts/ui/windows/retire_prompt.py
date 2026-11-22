@@ -2,6 +2,7 @@ import pygame
 import pygame_gui
 
 from scripts.events_module.ceremony.generate_normal_ceremony import create_ceremony
+from scripts import let_decide
 from scripts.game_structure import game
 from scripts.ui.elements.surface_image_button import UISurfaceImageButton
 from scripts.ui.generate_button import get_button_dict, ButtonStyles
@@ -13,7 +14,7 @@ from scripts.game_structure.game.switches import Switch, switch_set_value
 class RetireWindow(GameWindow):
     def __init__(self, last_screen):
         super().__init__(
-            ui_scale(pygame.Rect((250, 200), (300, 150))),
+            ui_scale(pygame.Rect((250, 200), (300, 190))),
         )
         self.set_blocking(True)
         switch_set_value(Switch.window_open, True)
@@ -40,6 +41,15 @@ class RetireWindow(GameWindow):
             ui_scale(pygame.Rect((160, 95), (80, 30))),
             "reject",
             get_button_dict(ButtonStyles.SQUOVAL, (80, 30)),
+            object_id="@buttonstyles_squoval",
+            container=self,
+        )
+
+        # BUTTERGEN: let your cat decide
+        self.decide_button = UISurfaceImageButton(
+            ui_scale(pygame.Rect((30, 140), (240, 30))),
+            let_decide.button_text(),
+            get_button_dict(ButtonStyles.SQUOVAL, (240, 30)),
             object_id="@buttonstyles_squoval",
             container=self,
         )
@@ -75,6 +85,13 @@ class RetireWindow(GameWindow):
                     switch_set_value(Switch.retire_reject, True)
                     # same as the profile's "prevent retirement", can be turned back off there
                     game.clan.your_cat.no_retire = True
+                elif event.ui_element == self.decide_button:
+                    game.last_screen_forupdate = None
+                    switch_set_value(Switch.window_open, False)
+                    self.kill()
+                    let_decide.decide_retire()
+                    # refreshes the events screen
+                    switch_set_value(Switch.retire, True)
             except:
                 print("error with retire screen")
 

@@ -209,6 +209,8 @@ class Clan:
         self.code_switch = {}
         # mates from other Clans (scripts/honor/heart.py)
         self.code_heart = {}
+        # let your cat decide: cat ID --> the moon they decided not to retire
+        self.decide_retire_no = {}
         self.achievements = []
         self.talks = []
         self.focus = ""
@@ -1144,6 +1146,7 @@ class Clan:
             "code_leader": self.code_leader,
             "code_switch": self.code_switch,
             "code_heart": self.code_heart,
+            "decide_retire_no": self.decide_retire_no,
             "custom_pronouns": self.custom_pronouns,
             "clan_age": self.clan_age,
         }
@@ -1728,6 +1731,7 @@ class Clan:
         game.clan.code_leader = dict(clan_data.get("code_leader") or {})
         game.clan.code_switch = dict(clan_data.get("code_switch") or {})
         game.clan.code_heart = dict(clan_data.get("code_heart") or {})
+        game.clan.decide_retire_no = dict(clan_data.get("decide_retire_no") or {})
 
         if "exile_return" in clan_data:
             game.clan.exile_return = clan_data["exile_return"]

@@ -1,6 +1,7 @@
 import pygame
 import pygame_gui
 
+from scripts import let_decide
 from scripts.game_structure import game
 from scripts.ui.elements.surface_image_button import UISurfaceImageButton
 from scripts.ui.generate_button import get_button_dict, ButtonStyles
@@ -47,6 +48,15 @@ class ChooseDeputyWindow(GameWindow):
             container=self,
         )
 
+        # BUTTERGEN: let your cat decide
+        self.decide_button = UISurfaceImageButton(
+            ui_scale(pygame.Rect((30, 138), (240, 30))),
+            let_decide.button_text(),
+            get_button_dict(ButtonStyles.SQUOVAL, (240, 30)),
+            object_id="@buttonstyles_squoval",
+            container=self,
+        )
+
         self.begin_anew_button.enable()
         self.mediator_button.enable()
 
@@ -61,6 +71,13 @@ class ChooseDeputyWindow(GameWindow):
                 self.pick_path_message.kill()
                 self.mediator_button.kill()
                 self.kill()
+            elif event.ui_element == self.decide_button:
+                game.last_screen_forupdate = None
+                switch_set_value(Switch.window_open, False)
+                self.kill()
+                let_decide.decide_deputy()
+                # refreshes the events screen
+                switch_set_value(Switch.retire, True)
             elif event.ui_element == self.mediator_button:
                 game.last_screen_forupdate = None
                 if game.clan.deputy:

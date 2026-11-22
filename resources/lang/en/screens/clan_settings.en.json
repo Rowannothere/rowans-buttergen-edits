@@ -7,6 +7,8 @@
         "relation": "relations",
         "relation_info": "Change Clan-specific settings regarding cat relationships",
         "code": "warrior code",
+        "decide": "your cat",
+        "decide_info": "Let your cat make their own choices",
         "code_info": "Pick the rules your Clan follows",
         "role": "roles",
         "role_info": "Change Clan-specific settings regarding cat roles",
