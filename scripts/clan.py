@@ -30,6 +30,7 @@ from scripts.cat.save_load import (
     get_faded_ids,
     load_faded_cat_ids,
     prune_dead_relationships,
+    clear_links,
 )
 from scripts.cat_relations.cat_handle_funcs import init_all_relationships
 from scripts.clan_package.clan_names import get_possible_clan_names
@@ -1015,8 +1016,12 @@ class Clan:
 
         # LG: don't leave it behind with the outsiders or in anyone's relationships either
         Cat.outside_cats.pop(ID, None)
+        # BUTTERGEN: or as anyone's mentor, apprentice, mate or family, a new cat can get the same ID
+        faded = ID in get_faded_ids()
         for other in Cat.all_cats_list:
             other.relationships.pop(ID, None)
+            if not faded:
+                clear_links(other, ID)
 
     def __repr__(self):
         if self.save_id is not None:
@@ -1589,8 +1594,12 @@ class Clan:
         # LG: the Moonplace used to make healers for the other Clans without putting them on the roster, so the
         # main menu deleted them again and their mates were left pointing at nobody. Living cats of the other
         # Clans always belong on it
+        # BUTTERGEN: and cats who've lived a moon in the player's Clan, kits added to a new Clan used to be left off
         for other in Cat.all_cats_list:
-            if other.status.is_other_clancat and not other.dead and other.ID not in clan_data["clan_cats"].split(","):
+            lived_here = other.status.alive_in_player_clan and any(
+                entry.get("moons_as") for entry in other.status.group_history)
+            if ((other.status.is_other_clancat or lived_here) and not other.dead
+                    and other.ID not in clan_data["clan_cats"].split(",")):
                 game.clan.add_cat(other)
 
         missing_cats = []
