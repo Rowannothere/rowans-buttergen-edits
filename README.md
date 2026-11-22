@@ -22,7 +22,7 @@ Jump to: [Windows, the easy way](#windows-the-easy-way-no-setup) | [Windows (run
 
 ### Windows: the easy way (no setup)
 
-1. [Download the newest dev build](https://nightly.link/Tropicaluwu/Buttergen/workflows/build/dev/Buttergen_Win64.zip).
+1. [Download the newest dev build](https://github.com/Tropicaluwu/Buttergen/releases/download/dev-latest/Buttergen_Win64.zip).
 2. Find the zip in your Downloads, right-click it and choose **Extract All**. Put the **Buttergen** folder somewhere easy to find, like your Documents (not in Program Files).
 3. Open the **Buttergen** folder and double-click **Buttergen** (the one with the cat icon).
 4. If Windows says **"Windows protected your PC"**, click **More info**, then **Run anyway**. Buttergen isn't signed, so Windows doesn't know it yet.
