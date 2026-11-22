@@ -4,6 +4,8 @@ A development build, so keep a copy of your saves folder before playing.
 
 Changes:
 - Cats ask to switch Clans less often: a Gathering has a new ask about 1 time in 6, not nearly every time
+- A pair found out across borders who stay together aren't a secret anymore, so the choice is "Stay together" instead of "Keep meeting in secret"
+- Brought up to date with Genemod and Clangen from November 22, 2026
 
 Fixes:
 - The warrior naming window calls the cat by their apprentice name (Crowpaw, not Crowfur) until the player picks the new name
@@ -16,6 +18,8 @@ Fixes:
 - Once your cat lives in another Clan, their mate, kits and Clanmates there talk to them like Clanmates, not across the border, and the lines name the right Clan
 - Kits stolen from another Clan's nursery have a stolen kit backstory, not one about choosing to leave
 - Naming your cat's half-Clan kits no longer opens an empty menu when the kits were born in another Clan, or when your cat lives in one. The window doesn't come up when there are no living kits to name
+- The healer den no longer crashes when a Clan has no healers (from Genemod), and clicking the empty healer spot there does nothing
+- In multi clan mode, cats only confess their feelings to cats in the same Clan (from Genemod)
 
 <strong>Buttergen v0.4-dev.14</strong>
 
