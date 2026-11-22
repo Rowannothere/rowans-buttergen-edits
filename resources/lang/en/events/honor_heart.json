@@ -15,10 +15,10 @@
     "judged_there": "c_n hears that o_c_n has punished r_c for taking a mate from another Clan.",
     "out": {
         "prompt": "Everyone knows about m_c and r_c now. What do you do?",
-        "options": ["End it", "Keep meeting in secret", "Ask to join o_c_n"]
+        "options": ["End it", "Stay together", "Ask to join o_c_n"]
     },
     "end": "m_c tells r_c of o_c_n that it has to end. Neither of them looks back.",
-    "keep": "m_c and r_c of o_c_n won't give each other up. They'll just have to be more careful.",
+    "keep": "m_c and r_c of o_c_n won't give each other up, whatever their Clans think of it.",
     "join": "m_c means to ask o_c_n to take {PRONOUN/m_c/object} in at the next Gathering, to be with r_c.",
     "join_in": "r_c of o_c_n means to ask c_n to take {PRONOUN/r_c/object} in, to be with m_c.",
     "meet": "m_c slips away to meet r_c of o_c_n.",

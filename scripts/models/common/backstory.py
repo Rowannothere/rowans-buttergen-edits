@@ -164,6 +164,8 @@ class Backstory(Enum):
     not_stolenkit3 = "-stolenkit3"
     stolenkit4 = "stolenkit4"
     not_stolenkit4 = "-stolenkit4"
+    stolenkit5 = "stolenkit5"
+    not_stolenkit5 = "-stolenkit5"
     healer_backstories = "healer_backstories"
     not_healer_backstories = "-healer_backstories"
     baby_clancat_backstories = "baby_clancat_backstories"

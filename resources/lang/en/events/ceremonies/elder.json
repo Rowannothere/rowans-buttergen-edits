@@ -338,7 +338,7 @@
                         "shameless"
                     ]
                 },
-                "backstory": ["-clanborn", "-clan_founder", "-stolenkit1", "-stolenkit2", "-stolenkit3", "-stolenkit4", "-orphaned2", "-outsider_roots1", "-halfclan1"]
+                "backstory": ["-clanborn", "-clan_founder", "-stolenkit1", "-stolenkit2", "-stolenkit3", "-stolenkit4", "-stolenkit5", "-orphaned2", "-outsider_roots1", "-halfclan1"]
             }
         },
         "strings": [
@@ -364,7 +364,7 @@
                         "nervous"
                     ]
                 },
-                "backstory": ["-clanborn", "-clan_founder", "-stolenkit1", "-stolenkit2", "-stolenkit3", "-stolenkit4", "-orphaned2", "-outsider_roots1", "-halfclan1"]
+                "backstory": ["-clanborn", "-clan_founder", "-stolenkit1", "-stolenkit2", "-stolenkit3", "-stolenkit4", "-stolenkit5", "-orphaned2", "-outsider_roots1", "-halfclan1"]
             }
         },
         "strings": [
