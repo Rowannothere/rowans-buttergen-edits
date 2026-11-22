@@ -10,6 +10,8 @@ REPO = "Tropicaluwu/Buttergen"
 
 # filled in by the check: the newest version ("v1.1.2"), if it's newer than this one
 newer_version = None
+# the Windows exe: the build it would update to
+build = None
 _started = False
 
 
@@ -23,6 +25,11 @@ def update_channel():
 
 def download_page():
     """Where players download the game (the green Code button, then Download ZIP)"""
+    from scripts.housekeeping import exe_update
+
+    if exe_update.can_update():
+        page = f"tag/{exe_update.DEV_TAG}" if update_channel() == "dev" else "latest"
+        return f"https://github.com/{REPO}/releases/{page}"
     if update_channel() == "dev":
         return f"https://github.com/{REPO}/tree/{BRANCHES['dev']}"
     return f"https://github.com/{REPO}"
@@ -34,10 +41,20 @@ def version_tuple(version):
 
 
 def _check():
-    global newer_version
+    global newer_version, build
     try:
         import requests
+        from scripts.housekeeping import exe_update
         from scripts.housekeeping.game_version import get_version_info
+
+        if exe_update.can_update():
+            # only once the new build is ready to download
+            found = exe_update.find_build(update_channel())
+            current = get_version_info().version_number
+            if found and version_tuple(found["version"]) > version_tuple(current):
+                build = found
+                newer_version = found["version"]
+            return
 
         branch = BRANCHES[update_channel()]
         response = requests.get(

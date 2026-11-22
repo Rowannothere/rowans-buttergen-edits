@@ -15,6 +15,7 @@ import logging
 import os
 import platform
 import subprocess
+import sys
 import traceback
 import random
 from html import escape
@@ -40,7 +41,8 @@ from .enums import GameScreen
 from ..game_structure.screen_settings import MANAGER
 from ..game_structure.game.switches import switch_get_value, Switch
 from ..housekeeping.datadir import get_cache_dir
-from ..housekeeping import bg_update
+from ..housekeeping import bg_update, exe_update
+from ..ui.windows.bg_exe_update import BGExeUpdateWindow
 from ..ui.windows.bg_update import BGUpdateWindow
 from ..ui.windows.names_editor import NamesEditorWindow
 from ..housekeeping.update import has_update, UpdateChannel, get_latest_version_number
@@ -112,7 +114,7 @@ class StartScreen(Screens):
                 self.open_data_directory_button.kill()
                 self.error_open = False
             elif element == self.update_button:
-                BGUpdateWindow()
+                self.open_update_window()
             elif element == self.elements["names"] and not self.error_open:
                 # add and take out names, for all saves or for one
                 NamesEditorWindow()
@@ -131,6 +133,13 @@ class StartScreen(Screens):
 
         super().handle_event(event)
 
+    @staticmethod
+    def open_update_window(failed=False):
+        if exe_update.can_update():
+            BGExeUpdateWindow(failed)
+        else:
+            BGUpdateWindow()
+
     def on_use(self):
         super().on_use()
         # a newer Buttergen is out: show the button, and the first time for each new
@@ -148,7 +157,7 @@ class StartScreen(Screens):
                 self.update_button.hide()
                 return
             if seen != bg_update.newer_version and not self.error_open:
-                BGUpdateWindow()
+                self.open_update_window()
                 with open(seen_file, "w", encoding="utf-8") as write_file:
                     write_file.write(bg_update.newer_version)
 
@@ -402,6 +411,11 @@ class StartScreen(Screens):
         )
         self.update_button.hide()
         bg_update.start_check()
+        # the game got this far, so an update that just finished is fine
+        exe_update.start_clean_up()
+        if exe_update.failed_last_time():
+            sys.argv.remove(exe_update.FAILED_ARG)
+            self.open_update_window(failed=True)
 
         try:
             global has_checked_for_update

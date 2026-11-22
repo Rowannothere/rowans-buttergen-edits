@@ -17,6 +17,13 @@ import sys
 import time
 from importlib import reload
 
+# BUTTERGEN: the exe was started to finish an update. It swaps itself in and never loads the game
+if "--finish-update" in sys.argv:
+    from scripts.housekeeping.exe_update import finish_from_args
+
+    finish_from_args()
+    sys.exit()
+
 from scripts.housekeeping.datadir import get_log_dir, setup_data_dir
 from scripts.housekeeping.log_cleanup import prune_logs
 from scripts.housekeeping.stream_duplexer import UnbufferedStreamDuplexer
