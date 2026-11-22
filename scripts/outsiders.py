@@ -50,8 +50,12 @@ def _render(text, main_cat, other_clan=None, random_cat=None):
 
 
 def is_outside(cat) -> bool:
-    """alive and not in the player's Clan: another Clan's cat, or a kittypet, loner or rogue"""
-    return bool(cat) and not cat.dead and not cat.status.alive_in_player_clan
+    """alive and not in the player's Clan or the group the player's cat lives in: another Clan's cat,
+    or a kittypet, loner or rogue"""
+    if not cat or cat.dead or cat.status.alive_in_player_clan:
+        return False
+    you = _you()
+    return not you or you.dead or cat.status.group_ID != you.status.group_ID
 
 
 def clan_of(cat):

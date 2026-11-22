@@ -59,6 +59,8 @@ def pending():
         # offered to a cat who died since (a new life started): it isn't the new cat's to make
         or (c.get("you") and c["you"] != _you().ID)
         or (c["kind"] == WITNESS and not _alive_in_clan(Cat.fetch_cat(c["offender"])))
+        or (c["kind"] == WITNESS and c["act"] == _heart().ACT
+            and _heart().came_out_since(Cat.fetch_cat(c["offender"]), game.clan.code_choice_moon))
         or (c["kind"] == MATE and not _alive_in_clan(Cat.fetch_cat(c["other"])))
         or (c["kind"] == KITS and not [k for k in (Cat.fetch_cat(i) for i in c["kits"]) if k and not k.dead])
         or (c["kind"] in (OMEN, CALL, VOTE) and not _alive_in_clan(Cat.fetch_cat(c["leader"])))

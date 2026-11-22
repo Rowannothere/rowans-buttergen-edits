@@ -87,6 +87,8 @@ def record() -> dict:
         rec = game.clan.code_heart = {}
     rec.setdefault("pairs", [])
     rec.setdefault("asked", {})
+    # cat ID --> the last moon their mate in another Clan came out
+    rec.setdefault("told", {})
     return rec
 
 
@@ -128,6 +130,12 @@ def _cats(pair):
 
 def is_secret(pair) -> bool:
     return bool(pair) and not pair.get("open") and not pair.get("out")
+
+
+def came_out_since(home, moon) -> bool:
+    """a witness's choice is no use once it came out some other way"""
+    told = record()["told"].get(home.ID)
+    return told is not None and moon is not None and told >= moon
 
 
 def keeps_together(cat_a, cat_b) -> bool:
@@ -337,8 +345,7 @@ def answer_out(pair, option):
         if home is _you() or random() < OTHERS_SHOWN:
             _post("join", home, away)
     else:
-        # back to a secret: seen again, judged again
-        pair["out"] = False
+        # one judgment per mate: everyone knows, so being seen again changes nothing
         if home is _you() or random() < OTHERS_SHOWN:
             _post("keep", home, away)
 
@@ -362,6 +369,9 @@ def came_out(cat):
     punished in their own Clan, and the pair decides what happens next"""
     from scripts.honor import choices
 
+    # nobody is keeping it secret anymore
+    game.clan.code_secrets = [s for s in game.clan.code_secrets
+                              if s["offender"] != cat.ID or s["act"] != ACT]
     for pair in list(record()["pairs"]):
         if pair["home"] != cat.ID or pair.get("out") or pair.get("open"):
             continue
@@ -369,6 +379,7 @@ def came_out(cat):
         if not away or away.dead:
             continue
         pair["out"] = True
+        record()["told"][home.ID] = game.clan.age
         other_clan = _clan_of(away)
         if other_clan is not None:
             game.clan.set_relations(game.clan, other_clan, None, -1)
@@ -451,7 +462,7 @@ def on_skip(full_moon: bool):
         _offer_out(pair)
     for pair in list(record()["pairs"]):
         home, _away = _cats(pair)
-        if is_secret(pair):
+        if not pair.get("open"):
             home.temptation[LONGING] = min(100, home.temptation.get(LONGING, 0) + LONGING_GAIN * scale)
         if pair.get("met_moon") != game.clan.age and random() < MEET_CHANCE * scale:
             meet(pair)

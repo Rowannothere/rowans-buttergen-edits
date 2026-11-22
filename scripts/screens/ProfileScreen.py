@@ -479,7 +479,7 @@ class ProfileScreen(Screens):
                 from scripts import outsiders
 
                 other_clan = outsiders.clan_of(self.the_cat) if outsiders.on() else None
-                if other_clan:
+                if other_clan and outsiders.is_outside(self.the_cat):
                     game.clan.set_relations(game.clan, other_clan, None, -1)
                 switch_set_value(Switch.talk_category, "insult")
                 self.change_screen(GameScreen.TALK)
