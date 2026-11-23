@@ -93,5 +93,56 @@
         "tags": [
             "reject"
         ]
+    },
+    "bg_oc_flirt_beach_shell": {
+        "frequency": 2,
+        "cats": {
+            "y_c": {},
+            "t_c": {
+                "group": [
+                    "other_clan"
+                ]
+            }
+        },
+        "biome": [
+            "Beach"
+        ],
+        "relationships": [
+            {
+                "cats_from": [
+                    "t_c"
+                ],
+                "cats_to": [
+                    "y_c"
+                ],
+                "relationship": [
+                    "max_romance_35"
+                ]
+            }
+        ],
+        "intro": [
+            "What is this...?",
+            "[t_c blinks at the colorful shell you've nudged {PRONOUN/t_c/poss} way, balanced on the border between you.]",
+            "Do you make a habit of giving things to cats from other Clans?"
+        ],
+        "intro_choices": {
+            "choice1": {
+                "text": "Maybe!",
+                "next_scene": "maybe"
+            },
+            "choice2": {
+                "text": "Nope, just you.",
+                "next_scene": "just_you"
+            }
+        },
+        "maybe": [
+            "[t_c huffs, rolling {PRONOUN/t_c/poss} eyes, but you can see the pleased gleam in them as {PRONOUN/t_c/subject} {VERB/t_c/snatch/snatches} the shell away to {PRONOUN/t_c/poss} side.]",
+            "Well, you're lucky it was me this time and not my Clanmates."
+        ],
+        "just_you": [
+            "[t_c shuffles {PRONOUN/t_c/poss} paws, clearly flustered. You swear you can see steam rising from {PRONOUN/t_c/poss} ears, and you just barely hold back a purr.]",
+            "[After a moment, {PRONOUN/t_c/subject} {VERB/t_c/swipe/swipes} a paw at the shell as if to smack it away, only to scoop it up and turn away from you, tail tip twitching.]",
+            "...Thanks."
+        ]
     }
 }

@@ -55,5 +55,26 @@
             "[t_c curls {PRONOUN/t_c/poss} lip.]",
             "Typical c_n cat."
         ]
+    },
+    "bg_oc_insult_beach_fishy": {
+        "frequency": 2,
+        "cats": {
+            "y_c": {},
+            "t_c": {
+                "group": [
+                    "other_clan"
+                ]
+            }
+        },
+        "biome": [
+            "Beach"
+        ],
+        "their_biome": [
+            "-beach"
+        ],
+        "intro": [
+            "[t_c crinkles {PRONOUN/t_c/poss} nose at you.]",
+            "I thought I smelled something fishy. You c_n cats have the most intense ocean reek, I swear."
+        ]
     }
 }

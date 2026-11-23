@@ -55,5 +55,36 @@
         "intro": [
             "Did anyone see you leave? Good. Let's keep it that way."
         ]
+    },
+    "bg_oc_close_mate_war": {
+        "frequency": 4,
+        "cats": {
+            "y_c": {},
+            "t_c": {
+                "group": [
+                    "other_clan"
+                ]
+            },
+            "r_c:0": {
+                "group": [
+                    "other_clan",
+                    "their_clan"
+                ],
+                "rank": [
+                    "warrior",
+                    "deputy",
+                    "apprentice"
+                ]
+            }
+        },
+        "at_war": true,
+        "intro": [
+            "It's been so hard trying to figure out how I feel lately.",
+            "I don't want you to get hurt, and I don't want my Clanmates to get hurt either, but the fighting hasn't slowed down. If anything, it's gotten worse! I don't know how to get through this...",
+            "[You nuzzle your cheek against {PRONOUN/t_c/inposs}, and for a moment the air is still and silent between the two of you.]",
+            "I saw you, you know? At the last battle. And I just froze. You were fighting r_c:0, and all I could think about was how sick I felt.",
+            "[t_c sighs, leaning into your touch.]",
+            "What are we going to do?"
+        ]
     }
 }

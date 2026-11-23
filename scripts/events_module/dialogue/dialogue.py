@@ -179,6 +179,11 @@ class Dialogue:
             if "camp" in block:
                 if block["camp"] and game.clan.camp_bg not in block["camp"]:
                     continue
+            # BUTTERGEN: the other cat's Clan: its biome ("-beach" for any but a beach), and a war
+            if "their_biome" in block and not self._their_biome_fits(block["their_biome"]):
+                continue
+            if "at_war" in block and self._at_war() != bool(block["at_war"]):
+                continue
 
             if flirt:
                 tags = block.get("tags", [])
@@ -249,6 +254,25 @@ class Dialogue:
             return None
         victim_cat = Cat.fetch_cat(game.clan.murdered.get("victim"))
         return {victim: victim_cat} if victim_cat else None
+
+    def _their_clan(self):
+        from scripts import outsiders
+
+        return outsiders.clan_of(self.cat) if game.clan.clancount == "multiclan" else None
+
+    def _their_biome_fits(self, wanted) -> bool:
+        clan = self._their_clan()
+        biome = (clan.biome or "").lower() if clan else ""
+        wanted = [str(w).lower() for w in wanted]
+        if any(w.startswith(("-", "not_")) and biome == w.split("-", 1)[-1].replace("not_", "", 1)
+               for w in wanted):
+            return False
+        allowed = [w for w in wanted if not w.startswith(("-", "not_"))]
+        return bool(clan) and (not allowed or biome in allowed)
+
+    def _at_war(self) -> bool:
+        clan = self._their_clan()
+        return bool(clan) and clan.group_ID in game.clan.get_wars(self.you.status.group_ID)
 
     @staticmethod
     def _written_for_mates(block) -> bool:

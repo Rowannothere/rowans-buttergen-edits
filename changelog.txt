@@ -9,6 +9,7 @@ New:
 - Kits with a kittypet, loner or rogue break the code the same way, for every cat and in single Clan mode too (they still only happen with the setting for kits with cats outside the Clan)
 - Secrets about kits are never forgotten. Clanmates can guess, gossip spreads, and when it's out it's judged with the mate as one misdeed, a little harder if the cat lied and milder if they told the truth right away. Clanmates may tease half-Clan kits, and friends may step in
 - Learning the truth: from 12 moons old, cats can find out that they have a parent in another Clan, or that they were stolen as a kit. Your cat can keep it to themselves, confront the cat who hid it, or look for their birth family at the next Gathering. A new setting in the Warrior code tab, "Birth secrets come out rarely", makes it 3 times rarer. Kits taken at 3 moons or older remember
+- New talk lines with other Clans' cats (a player suggestion): a beach Clan's cats get teased about their fishy smell by cats from Clans that aren't on the beach, a shell left at the border for a cat your cat is starting to like, and a mate from another Clan torn up when your two Clans are at war
 
 Changes:
 - If your cat decides not to retire on their own, they're asked again after 6 moons

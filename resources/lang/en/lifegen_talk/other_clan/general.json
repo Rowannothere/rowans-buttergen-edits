@@ -83,5 +83,26 @@
         "intro": [
             "Do you ever wonder what life is like in the other Clans? I guess you're finding out."
         ]
+    },
+    "bg_oc_beach_fishy": {
+        "frequency": 2,
+        "cats": {
+            "y_c": {},
+            "t_c": {
+                "group": [
+                    "other_clan"
+                ]
+            }
+        },
+        "biome": [
+            "Beach"
+        ],
+        "their_biome": [
+            "-beach"
+        ],
+        "intro": [
+            "[t_c crinkles {PRONOUN/t_c/poss} nose at you.]",
+            "I thought I smelled something fishy. You c_n cats have the most intense ocean reek, I swear."
+        ]
     }
 }
