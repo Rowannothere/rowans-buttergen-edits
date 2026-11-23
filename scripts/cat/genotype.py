@@ -9,6 +9,10 @@ import math
 from scripts.game_structure.localization import load_lang_resource
 
 
+# BUTTERGEN: the cat maker's breed presets. While set, new cats roll as this breed, without Buttergen's extras
+PRESET_BREED = None
+
+
 class Genotype:
     def __init__(self, odds, ban_genes=True, spec=None):
         self.odds = odds
@@ -537,6 +541,8 @@ class Genotype:
             self.unders_rufsum += int(self.unders_ruf[i])
 
     def Generator(self, special=None, kittypet=False):
+        if PRESET_BREED:
+            return self.BreedGenerator(special, breed=PRESET_BREED)
         if kittypet and self.odds["kittypet_breed"] > 0 and randint(1, self.odds["kittypet_breed"]) == 1:
             return self.BreedGenerator(special)
         elif self.odds["other_breed"] > 0 and randint(1, self.odds["other_breed"]) == 1:
@@ -739,6 +745,8 @@ class Genotype:
         self.EyeColourFinder()
 
     def AltGenerator(self, special=None):
+        if PRESET_BREED:
+            return self.BreedGenerator(special, breed=PRESET_BREED)
         if self.odds["kittypet_breed"] > 0 and randint(1, self.odds["kittypet_breed"]) == 1:
             return self.BreedGenerator(special)
 
@@ -942,7 +950,27 @@ class Genotype:
 
         self.EyeColourFinder()
 
-    def BreedGenerator(self, special=None):
+    def BreedGenerator(self, special=None, breed=None):
+        if breed:
+            # BUTTERGEN: a breed preset: that breed, and a clean purebred (no Buttergen extras).
+            # Some breeds share a roll (Chartreux/Korat, Cornish/German Rex, Egyptian Mau/Savannah), so roll
+            # again until it's the picked one
+            from copy import deepcopy
+
+            start = deepcopy(self.__dict__)
+            for _ in range(30):
+                self.__dict__.update(deepcopy(start))
+                breed_functions["generator"][breed](self, special)
+                if breed not in breed_functions["checker"] or self.breeds.get(breed):
+                    break
+            self.physical_traits = {}
+            self.special_eyes = {}
+            self.patch_genes = {}
+            self.tint_genes = {}
+            self.GeneSort()
+            self.PolyEval()
+            self.EyeColourFinder()
+            return
         selected_breed = choice(choices([self.odds["rare_breeds"], self.odds["medium_breeds"], self.odds["common_breeds"]], weights=[1, 5, 14], k=1)[0])
 
         if self.ban_genes:

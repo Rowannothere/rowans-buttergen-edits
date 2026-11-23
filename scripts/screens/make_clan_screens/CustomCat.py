@@ -420,7 +420,16 @@ class CustomCatScreen(MakeClanScreenBase):
                 self.pending_scroll = None
             self.pending_scroll_waited = True
 
-    def randomize_custom_cat(self):
+    def pick_breed(self, breed):
+        """BUTTERGEN: a breed preset, a random cat of that breed. Only the looks change"""
+        kept = (self.skill, self.personality, self.personality2, list(self.picked_conditions))
+        self.randomize_custom_cat(breed=breed)
+        self.skill, self.personality, self.personality2, self.picked_conditions = kept
+        self.update_custom_cat_pages()
+        self.update_sprite()
+        self.update_disabled_buttons()
+
+    def randomize_custom_cat(self, breed=None):
         permanent_conditions = ['born without a leg', 'weak leg', 'twisted leg', 'born without a tail', 'paralyzed', 'raspy lungs', 'wasting disease', 'blind', 'one bad eye', 'failing eyesight', 'partial hearing loss', 'deaf', 'constant joint pain', 'seizure prone', 'allergies', 'persistent headaches']
 
         self.custom_cat = self.new_preview_cat()
@@ -523,7 +532,13 @@ class CustomCatScreen(MakeClanScreenBase):
         # the looks come from a new cat made the way the game makes one (its genes, sex, fur,
         # poses...), like picking a cat to start from, so Random cat has the game's odds (the
         # random pelt above gave most cats white)
-        rolled = self.new_preview_cat(moons=12)
+        from scripts.cat import genotype
+
+        genotype.PRESET_BREED = breed
+        try:
+            rolled = self.new_preview_cat(moons=12)
+        finally:
+            genotype.PRESET_BREED = None
         Cat.all_cats.pop(rolled.ID, None)
         if rolled in Cat.all_cats_list:
             Cat.all_cats_list.remove(rolled)
@@ -707,13 +722,23 @@ class CustomCatScreen(MakeClanScreenBase):
             self.elements['right'].enable()
 
         self.elements['random_customize'] = UISurfaceImageButton(
-            ui_scale(pygame.Rect((327, 80), (150, 30))),
+            ui_scale(pygame.Rect((300, 80), (120, 30))),
             Icon.DICE + " Random cat",
-            get_button_dict(ButtonStyles.SQUOVAL, (150, 30)),
+            get_button_dict(ButtonStyles.SQUOVAL, (120, 30)),
             object_id="@buttonstyles_squoval",
             manager=MANAGER,
             starting_height=2,
             sound_id="dice_roll",
+        )
+        # BUTTERGEN: breed presets
+        self.elements['breed_preset'] = UISurfaceImageButton(
+            ui_scale(pygame.Rect((425, 80), (75, 30))),
+            "Breed",
+            get_button_dict(ButtonStyles.SQUOVAL, (75, 30)),
+            object_id="@buttonstyles_squoval",
+            manager=MANAGER,
+            starting_height=2,
+            tool_tip_text="Start from a random cat of a breed you pick",
         )
 
 
@@ -785,6 +810,7 @@ class CustomCatScreen(MakeClanScreenBase):
             self.elements["previous_step"].set_text("Cancel")
             # a random cat would replace the whole cat being edited
             self.elements["random_customize"].hide()
+            self.elements["breed_preset"].hide()
 
         if self.page == 0:
             # PAGE 0
@@ -2988,6 +3014,10 @@ class CustomCatScreen(MakeClanScreenBase):
                     self.page -= 1
                     self.update_custom_cat_pages()
                     self.update_disabled_buttons()
+            elif event.ui_element == self.elements.get('breed_preset'):
+                from scripts.ui.windows.breed_presets import BreedPresetWindow
+
+                BreedPresetWindow(self.pick_breed)
             elif event.ui_element == self.elements['random_customize']:
                 self.randomize_custom_cat()
                 self.update_custom_cat_pages()
@@ -3119,6 +3149,7 @@ class CustomCatScreen(MakeClanScreenBase):
         self.elements["previous_step"].set_text("Cancel")
         # a random cat would replace the whole cat being edited
         self.elements["random_customize"].hide()
+        self.elements["breed_preset"].hide()
         self.update_sprite()
         self.update_disabled_buttons()
         self.editing_start = self.editing_picks()
