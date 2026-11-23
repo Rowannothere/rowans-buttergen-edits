@@ -259,7 +259,7 @@ class Dialogue:
         return {victim: victim_cat} if victim_cat else None
 
     def _feelings_fit(self, block) -> bool:
-        if not any(k in block for k in ("t_c_mood", "t_c_want", "t_c_feels")):
+        if not any(k in block for k in ("t_c_mood", "t_c_want", "t_c_feels", "t_c_family", "t_c_family_feel")):
             return True
         from scripts import feelings
 
@@ -286,6 +286,11 @@ class Dialogue:
                 return False
             if feel == "fell_out_with_y_c" and not friends.fell_out(self.cat, self.you):
                 return False
+        # families (scripts/families.py): what t_c is to the player's cat, and how close they are
+        from scripts import families
+
+        if not families.talk_fits(self.cat, self.you, block):
+            return False
         return True
 
     def _their_clan(self):

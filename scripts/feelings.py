@@ -465,11 +465,17 @@ def fitting_wants(cat) -> list:
                     and _skill_paths(c) - _skill_paths(cat)]
         if teachers:
             out.append(("learn", choice(teachers), 1))
-    from scripts import friends
+    from scripts import families, friends
 
-    fell_out_with = friends.make_up_target(cat)
+    fell_out_with = friends.make_up_target(cat) or families.make_up_target(cat)
     if fell_out_with:
         out.append((friends.MAKE_UP, fell_out_with, 2))
+    away = families.see_target(cat)
+    if away:
+        out.append((families.SEE, away, 1))
+    look_up_to = families.respect_target(cat)
+    if look_up_to:
+        out.append(("respect", look_up_to, 3))
     if rank == CatRank.ELDER or traits & set(CALM):
         out.append(("peace", None, 3 if rank == CatRank.ELDER else 1))
     return out
@@ -511,9 +517,11 @@ def _want_done(cat, want) -> bool:
     if kind == "even":
         return want.get("done", False)
     if kind == "makeup":
-        from scripts import friends
+        from scripts import families, friends
 
-        return bool(target) and not friends.fell_out(cat, target)
+        return bool(target) and not friends.fell_out(cat, target) and not families.is_estranged(cat, target)
+    if kind == "see":
+        return want.get("done", False)
     if kind == "learn":
         return bool(target) and (cat.mentor == target.ID or bool(_skill_paths(target) & _skill_paths(cat)))
     return False
@@ -522,6 +530,10 @@ def _want_done(cat, want) -> bool:
 def _want_gone(cat, want) -> bool:
     """the want doesn't fit anymore (the other cat is gone, a new rank)"""
     target_id = want.get("cat")
+    if want["kind"] == "see":
+        from scripts import families
+
+        return families.see_gone(want)
     if target_id and not _alive_in_clan(Cat.fetch_cat(target_id)):
         return True
     kinds = {k for k, _t, _w in fitting_wants(cat)}
@@ -638,6 +650,11 @@ def _grief_for(cat):
     best = friends.grieving_for(cat)
     if best:
         return best
+    from scripts import families
+
+    away = families.grieving_for(cat)
+    if away:
+        return away
     for cat_id in _record().get("deaths", {}):
         dead = Cat.fetch_cat(cat_id)
         if dead and dead is not cat and _close(cat, dead):
@@ -655,6 +672,11 @@ def _work_out_mood(cat):
     passed = ambition(cat) >= RESENT_AT and age - d.get("passed_over", -99) <= RECENT
     if d["jealous"] or passed or judged:
         return BITTER, None
+    from scripts import families
+
+    # a parent worried about a hurt or sick kit
+    if families.worried_about(cat):
+        return RESTLESS, d.get("worried")
     want = d.get("want")
     # (not from restless temptation: most cats' sits high between misdeeds, so nearly everyone was restless)
     if want and want["kind"] != "peace" and age - want["since"] >= FRUSTRATED_AFTER:
@@ -739,6 +761,9 @@ def profile_lines(cat) -> str:
     from scripts import friends
 
     out += friends.profile_lines(cat)
+    from scripts import families
+
+    out += families.profile_lines(cat)
     return out
 
 
@@ -761,6 +786,9 @@ def on_skip(full_moon: bool):
         from scripts import friends
 
         friends.on_moon()
+        from scripts import families
+
+        families.on_moon()
         _wants_moon()
         _wants_romance()
     _moods()

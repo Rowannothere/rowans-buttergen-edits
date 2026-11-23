@@ -313,7 +313,7 @@
             "m_c wants to prove that r_c1 isn't worthy of multi_cat's respect.",
             "m_c tries to turn multi_cat against r_c1.",
             "m_c doesn't get why r_c1 gets more praise from multi_cat for doing the same thing everyone else does.",
-            "m_c notices that r_c makes multi_cat laugh more than {PRONOUN/m_c/subject} {VERB/m_c/do/does}.",
+            "m_c notices that r_c1 makes multi_cat laugh more than {PRONOUN/m_c/subject} {VERB/m_c/do/does}.",
             "m_c thinks multi_cat talk more highly of r_c1 than {PRONOUN/m_c/object}.",
             "m_c interrupts multi_cat praising r_c1 to change the subject pointedly."
         ],
@@ -383,7 +383,7 @@
             },
             {
                 "cats_from": ["multi_cat"],
-                "cats_to": ["r_c"],
+                "cats_to": ["r_c1"],
                 "mutual": false,
                 "values": ["like"],
                 "amount": 5
@@ -1114,7 +1114,7 @@
         "relationship_changes": [
             {
                 "cats_from": ["m_c"],
-                "cats_to": ["multi_cat", "r_c"],
+                "cats_to": ["multi_cat", "r_c1"],
                 "mutual": true,
                 "values": ["like"],
                 "amount": -10

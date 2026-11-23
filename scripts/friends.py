@@ -121,12 +121,18 @@ def patrol_bonus(cats) -> int:
 
 def pick_for_patrol(pool, k, current) -> list:
     """the game's random picks, leaning toward cats who are friends with the ones already going"""
+    from scripts.families import is_estranged
+
     pool = [c for c in pool if c not in current]
     picked = []
     for _ in range(min(k, len(pool))):
         group = list(current) + picked
         weights = [1 + sum(BEST_PATROL_WEIGHT if is_best(c, g) else PATROL_WEIGHT if is_friend(c, g) else 0
                            for g in group) for c in pool]
+        # estranged family aren't put on a patrol together, unless there's nobody else
+        weights = [0 if any(is_estranged(c, g) for g in group) else w for c, w in zip(pool, weights)]
+        if not any(weights):
+            weights = [1] * len(pool)
         cat = weighted_choice(pool, weights)[0]
         picked.append(cat)
         pool.remove(cat)
@@ -375,9 +381,11 @@ def profile_lines(cat) -> str:
     t = texts()["profile"]
     out = ""
     best = best_friend_of(cat)
+    if best and best.dead:
+        best = None
     if best:
         out += t["best"].replace("%{cat}", str(best.name)) + "\n"
-    others = [f for f in friends_of(cat) if f is not best]
+    others = [f for f in friends_of(cat) if f is not best and not f.dead]
     if others:
         names = [str(f.name) for f in others[:4]]
         line = ", ".join(names) + (t["more"] if len(others) > 4 else "")

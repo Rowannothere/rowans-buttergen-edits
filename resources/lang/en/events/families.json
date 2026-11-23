@@ -1,0 +1,18 @@
+{
+    "proud": "m_c watches r_c's ceremony with {PRONOUN/m_c/poss} chest puffed out. That's {PRONOUN/m_c/poss} kit.",
+    "worried": "m_c won't leave r_c's side in the healer's den.",
+    "rivals": [
+        "m_c and r_c race each other to the fresh-kill pile again. Nobody's sure who won.",
+        "m_c and r_c won't stop arguing over who caught the bigger squirrel."
+    ],
+    "estranged": "m_c and r_c pass each other in camp without a word, like they always do now.",
+    "make_up": "m_c and r_c share tongues for the first time in moons.",
+    "died_away": "m_c hears at the Gathering that r_c has died.",
+    "story": "m_c curls around r_c and tells {PRONOUN/r_c/object} about the time {PRONOUN/m_c/subject} chased a fox off the border single-pawed. It gets bigger every time.",
+    "profile": {
+        "close": "Close to: %{cats}",
+        "distant": "Distant from: %{cats}",
+        "estranged": "Estranged from: %{cats}",
+        "more": " and others"
+    }
+}

@@ -92,6 +92,11 @@ def trigger_interaction(
             type_of_interaction,
             existing_relationship,
         )
+        # BUTTERGEN: a cat who insults or fights a kit loses some of the parent's liking (scripts/families.py)
+        if type_of_change == "negative" and type_of_interaction == RelType.LIKE:
+            from scripts import families
+
+            families.protect(main_cat, other_cat)
         return True
 
 
