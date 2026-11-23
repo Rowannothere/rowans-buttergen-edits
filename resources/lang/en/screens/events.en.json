@@ -15,6 +15,7 @@
         "health": "health",
         "other clans": "other clans",
         "miscellaneous": "miscellaneous",
-        "no_events": "Nothing interesting happened this moon."
+        "no_events": "Nothing interesting happened this moon.",
+        "no_events_week": "Nothing interesting happened this week."
     }
 }

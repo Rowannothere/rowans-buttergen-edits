@@ -1676,7 +1676,11 @@ class EventsScreen(Screens):
                 self.event_buttons[tab].enable()
 
         if not self.all_events:
-            self.all_events.append(EventInformation(i18n.t("screens.events.no_events")))
+            # BUTTERGEN: with weeks on, a skip that wasn't a full moon was only a week
+            from scripts.events_module import weekskip
+
+            key = "no_events" if weekskip.full_moon() else "no_events_week"
+            self.all_events.append(EventInformation(i18n.t("screens.events." + key)))
 
         self.display_events = self.all_events
 
