@@ -277,6 +277,15 @@ class Dialogue:
                 return False
             if feel == "y_c_helped" and feelings.data(self.cat).get("helped_by") != self.you.ID:
                 return False
+            # friendships (scripts/friends.py)
+            from scripts import friends
+
+            if feel == "friend_of_y_c" and not friends.is_friend(self.cat, self.you):
+                return False
+            if feel == "best_friend_of_y_c" and not friends.is_best(self.cat, self.you):
+                return False
+            if feel == "fell_out_with_y_c" and not friends.fell_out(self.cat, self.you):
+                return False
         return True
 
     def _their_clan(self):

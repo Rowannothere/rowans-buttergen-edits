@@ -14,6 +14,7 @@
     "jealous_mentor": "m_c sees {PRONOUN/m_c/poss} mentor praise r_c, and feels something sour in {PRONOUN/m_c/poss} chest.",
     "jealous_sibling": "m_c can't stop thinking about how r_c became a warrior first.",
     "jealous_role": "m_c wanted to be the one r_c is now. {PRONOUN/m_c/subject/CAP} {VERB/m_c/try/tries} not to show it.",
+    "jealous_friend": "m_c hasn't seen much of r_c since {PRONOUN/r_c/subject} got so close to another cat.",
     "jealous_fades": "m_c realizes {PRONOUN/m_c/subject} {VERB/m_c/aren't/isn't} angry at r_c anymore.",
     "breakup": "m_c can't stand it anymore, and ends things with r_c.",
     "done_apprentice": "m_c finally has an apprentice of {PRONOUN/m_c/poss} own, and can't stop purring about it.",
@@ -36,6 +37,7 @@
         "world": "to see the world",
         "even": "to get even with r_c",
         "learn": "to learn from r_c",
+        "makeup": "to make up with r_c",
         "peace": "peace and quiet"
     },
     "profile": {

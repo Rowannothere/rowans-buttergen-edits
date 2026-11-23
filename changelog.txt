@@ -15,6 +15,7 @@ New:
   - Jealousy: of a mate's crush, a mentor's new apprentice, a littermate made warrior first, or a cat who got the role they wanted. A jealous mate may even end things
   - Moods: grieving, bitter, restless, lonely, happy or content, worked out every skip (every week with weeks on). Moods nudge temptations and how cats get along, and your cat has short mood events now and then
   - Two new settings: Ambition and Jealousy (both on)
+- Friendships: cats who like and feel at ease with each other become friends, and the closest become best friends (one at a time). Friends spend time together, are picked together for patrols when the game picks and do a little better on them, keep each other's misdeeds quiet more often, and speak up for mercy at judgments if they're the deputy or a senior warrior. A cat grieves a best friend longer and remembers them on the profile. Friends can drift apart or fall out (and want to make up), and a best friend can get jealous of a new best friend or mate. Your cat's profile shows their friends and best friend
 - New talk lines with other Clans' cats (a player suggestion): a beach Clan's cats get teased about their fishy smell by cats from Clans that aren't on the beach, a shell left at the border for a cat your cat is starting to like, and a mate from another Clan torn up when your two Clans are at war
 - Talk with other Clans' cats has more going on: many lines are little scenes now, some with a choice that changes how the other cat feels about your cat, and a cat with a crush may leave your cat a feather
 - A new Buttergen tab in the Clan Settings holds Buttergen's own settings: weeks, warrior code events, ambition and jealousy
@@ -26,6 +27,7 @@ Changes:
 Fixes:
 - With healers' mates against the code, a healer's kits born in another Clan are no longer handed to a queen in yours
 - A kit added when a new Clan was made could vanish the next time the game was opened, and leave their mentor with an empty apprentice spot that a newborn from any Clan could later fill. Those kits stay now, and loading a save takes wrong apprentices off the list
+- A relationship event no longer shows "r_c" in place of a cat's name ("...already close to r_c"), and another one reads "wants to ask" instead of "wants to asks"
 
 <strong>Buttergen v0.4-dev.16</strong>
 

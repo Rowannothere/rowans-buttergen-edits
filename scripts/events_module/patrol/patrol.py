@@ -1042,6 +1042,11 @@ class Patrol:
                 success_chance += get_config("patrol_generation.trait_cat_modifier")
                 print(f"success chance increase to {success_chance}")
 
+        # BUTTERGEN: friends work well together (scripts/friends.py)
+        from scripts import friends
+
+        success_chance += friends.patrol_bonus(self.patrol_cats)
+
         # LG: dates depend on how your date feels about you
         if switch_get_value(Switch.patrol_category) == "date":
             # BUTTERGEN: the date chance is out of 100, but the roll below is out of 120

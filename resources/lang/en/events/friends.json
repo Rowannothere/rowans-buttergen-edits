@@ -1,0 +1,21 @@
+{
+    "friends": "m_c and r_c have become good friends.",
+    "best": "m_c and r_c are best friends now. Where one goes, the other usually follows.",
+    "drift": "m_c and r_c don't spend much time together anymore.",
+    "fall_out": "m_c and r_c had words this moon, and now they won't share a nest.",
+    "make_up": "m_c and r_c finally talk it out. Things aren't quite the same, but they're friends again.",
+    "together": [
+        "m_c and r_c share a mouse and gossip until the moon is high.",
+        "m_c saves r_c the best spot in the sun.",
+        "r_c teaches m_c a trick for catching fish, and laughs when m_c falls in."
+    ],
+    "together_warriors": [
+        "m_c and r_c stay up whispering in the warriors' den until someone throws moss at them."
+    ],
+    "profile": {
+        "best": "Best friend: %{cat}",
+        "friends": "Friends: %{cats}",
+        "more": " and others",
+        "remembers": "Remembers: %{cat}"
+    }
+}

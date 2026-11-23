@@ -1,4 +1,6 @@
 from random import choice, sample
+
+from scripts import friends  # BUTTERGEN: random picks lean toward friends
 from typing import Dict, Optional
 
 import i18n
@@ -333,10 +335,10 @@ class PatrolScreen(Screens):
                     ]
                     if len(able_no_med) == 0:
                         able_no_med = self.able_cats
-                    self.selected_cat = choice(able_no_med)
+                    self.selected_cat = friends.pick_for_patrol(able_no_med, 1, self.current_patrol)[0]
                 else:
                     if self.able_cats:
-                        self.selected_cat = choice(self.able_cats)
+                        self.selected_cat = friends.pick_for_patrol(self.able_cats, 1, self.current_patrol)[0]
                     else:
                         print(
                             "WARNING: attempted to select random cat for patrol from empty list of able cats"
@@ -357,9 +359,9 @@ class PatrolScreen(Screens):
                     ]
                     if len(able_no_med) < 3:
                         able_no_med = self.able_cats
-                    self.current_patrol += sample(able_no_med, k=3)
+                    self.current_patrol += friends.pick_for_patrol(able_no_med, 3, self.current_patrol)
                 else:
-                    self.current_patrol += sample(self.able_cats, k=3)
+                    self.current_patrol += friends.pick_for_patrol(self.able_cats, 3, self.current_patrol)
             self.update_cat_images_buttons()
             self.update_button()
         elif event.ui_element == self.elements["add_six"]:
@@ -374,9 +376,9 @@ class PatrolScreen(Screens):
                     ]
                     if len(able_no_med) < 6:
                         able_no_med = self.able_cats
-                    self.current_patrol += sample(able_no_med, k=6)
+                    self.current_patrol += friends.pick_for_patrol(able_no_med, 6, self.current_patrol)
                 else:
-                    self.current_patrol += sample(self.able_cats, k=6)
+                    self.current_patrol += friends.pick_for_patrol(self.able_cats, 6, self.current_patrol)
             self.update_cat_images_buttons()
             self.update_button()
         elif event.ui_element == self.elements["remove_all"]:

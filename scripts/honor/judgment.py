@@ -126,10 +126,16 @@ def points_for(cat, judge, key, extra=0, level=None):
     points += -1 if like > 30 else 1 if like < -30 else 0
     deputy_push = 0
     deputy = game.clan.deputy
-    if judge is not deputy and _alive_in_clan(deputy) and deputy is not cat and random() < 0.5:
+    # friendships: a friend who's the deputy always speaks up, a senior warrior friend asks for mercy
+    from scripts import friends
+
+    deputy_friend = friends.is_friend(deputy, cat)
+    if judge is not deputy and _alive_in_clan(deputy) and deputy is not cat and (deputy_friend or random() < 0.5):
         deputy_like = _like(deputy, cat)
-        deputy_push = -1 if deputy_like > 20 else 1 if deputy_like < -20 else 0
+        deputy_push = -1 if deputy_like > 20 or deputy_friend else 1 if deputy_like < -20 else 0
     clan_push = _clan_push(cat)
+    if friends.senior_friend(cat):
+        clan_push = max(-1, clan_push - 1)
     rep = cat.reputation
     points += deputy_push + clan_push + (-1 if rep >= 10 else 1 if rep <= -10 else 0)
     if healer_floor:

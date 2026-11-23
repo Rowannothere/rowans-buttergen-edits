@@ -133,11 +133,15 @@ def _render(text, main_cat, other=None):
 
 def _post(key, main_cat, other=None, force=False):
     """about the player's cat it always shows, about other cats now and then"""
+    text = texts()[key]
+    return _post_text(choice(text) if isinstance(text, list) else text, main_cat, other, force)
+
+
+def _post_text(text, main_cat, other=None, force=False):
     you = _you()
     if not force and you not in (main_cat, other) and random() >= 1 / 3:
         return None
-    text = texts()[key]
-    text = _render(choice(text) if isinstance(text, list) else text, main_cat, other)
+    text = _render(text, main_cat, other)
     event = EventInformation(text, ["relation"], [c.ID for c in (main_cat, other) if c])
     if you in (main_cat, other):
         game.cur_events_list.insert(0, event)
@@ -276,7 +280,8 @@ def _maybe_jealous(cat, other, why, extra=None):
         return
     d["jealous"].append({"cat": other.ID, "why": why, "until": game.clan.age + randint(*JEALOUS_MOONS),
                          "extra": extra})
-    _post("jealous_" + why, cat, other)
+    # a best friend's new closest cat: the line names the friend
+    _post("jealous_" + why, cat, Cat.fetch_cat(extra) if why == "friend" else other)
 
 
 def _jealousy_over(cat, j) -> bool:
@@ -460,6 +465,11 @@ def fitting_wants(cat) -> list:
                     and _skill_paths(c) - _skill_paths(cat)]
         if teachers:
             out.append(("learn", choice(teachers), 1))
+    from scripts import friends
+
+    fell_out_with = friends.make_up_target(cat)
+    if fell_out_with:
+        out.append((friends.MAKE_UP, fell_out_with, 2))
     if rank == CatRank.ELDER or traits & set(CALM):
         out.append(("peace", None, 3 if rank == CatRank.ELDER else 1))
     return out
@@ -500,6 +510,10 @@ def _want_done(cat, want) -> bool:
         return want.get("done", False)
     if kind == "even":
         return want.get("done", False)
+    if kind == "makeup":
+        from scripts import friends
+
+        return bool(target) and not friends.fell_out(cat, target)
     if kind == "learn":
         return bool(target) and (cat.mentor == target.ID or bool(_skill_paths(target) & _skill_paths(cat)))
     return False
@@ -619,6 +633,11 @@ def _close(cat, other) -> bool:
 
 
 def _grief_for(cat):
+    from scripts import friends
+
+    best = friends.grieving_for(cat)
+    if best:
+        return best
     for cat_id in _record().get("deaths", {}):
         dead = Cat.fetch_cat(cat_id)
         if dead and dead is not cat and _close(cat, dead):
@@ -640,7 +659,9 @@ def _work_out_mood(cat):
     # (not from restless temptation: most cats' sits high between misdeeds, so nearly everyone was restless)
     if want and want["kind"] != "peace" and age - want["since"] >= FRUSTRATED_AFTER:
         return RESTLESS, None
-    if not cat.mate and not any(_stat(c, cat, "like") > LONELY_AT for c in _clanmates(exclude=cat)):
+    from scripts import friends
+
+    if not cat.mate and not friends.friends_of(cat) and not any(_stat(c, cat, "like") > LONELY_AT for c in _clanmates(exclude=cat)):
         return LONELY, None
     if age - d.get("happy", -99) <= RECENT:
         return HAPPY, None
@@ -715,6 +736,9 @@ def profile_lines(cat) -> str:
     if (on(AMBITION_SETTING) and deputy and deputy is not cat and _alive_in_clan(deputy)
             and ambition(cat) >= RESENT_AT and cat.status.rank != CatRank.LEADER):
         out += t["resents"].replace("%{cat}", str(deputy.name)) + "\n"
+    from scripts import friends
+
+    out += friends.profile_lines(cat)
     return out
 
 
@@ -734,6 +758,9 @@ def on_skip(full_moon: bool):
         else:
             for cat in _clanmates():
                 data(cat)["jealous"] = []
+        from scripts import friends
+
+        friends.on_moon()
         _wants_moon()
         _wants_romance()
     _moods()

@@ -178,6 +178,9 @@ def decide(witness, offender, key) -> str:
         "keep": 0.25 + max(0, like) / 100,
         "hold": 0.05 + (1 - law) * 0.25 + max(0, -witness.honor) / 200 + max(0, -like) / 200,
     }
+    from scripts import friends
+
+    friends.cover_scores(witness, offender, scores)
     what = _pick(scores)
     if what == "report" and random() >= core.card("report_factor"):
         # step 8c: Fading Code, a witness who would report keeps quiet or holds it instead
@@ -304,6 +307,10 @@ def report(offender, witness, key, other_clan, group, naming=True, level=None):
         if group == "report":
             core.change_honor(witness, REPORT_HONOR)
             core.change_reputation(witness, REPORT_REPUTATION)
+            # a friend who reports a friend: they fall out
+            from scripts import friends
+
+            friends.reported(offender, witness)
     _post(group, offender, witness, key, other_clan)
     if naming:
         name_others(offender)
