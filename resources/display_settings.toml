@@ -81,12 +81,6 @@
         thought_tooltips = true
         backgrounds = true
         freshkill = true
-        weekskip = false
-        "rare code events" = false
-        "frequent code events" = false
-        # BUTTERGEN: relationships with more going on (scripts/feelings.py)
-        ambition = true
-        jealousy = true
         "all accessories" = false
         "modded names" = true
         "new prefixes" = true
@@ -132,6 +126,14 @@
         "first cousin mates" = false
         no_litters = false
     
+    # BUTTERGEN: Buttergen's own settings tab
+    [clan.buttergen]
+        weekskip = false
+        "rare code events" = false
+        "frequent code events" = false
+        ambition = true
+        jealousy = true
+
     # BUTTERGEN: the Clan's own warrior code (scripts/honor/code.py), one checkbox per rule
     [clan.code]
         "code defend" = true
@@ -254,9 +256,9 @@
         [clan.nests.general."outsider names"]
             "modded names" = true
         # BUTTERGEN: the two code event settings rule each other out, neither means normal
-        [clan.nests.general."rare code events"]
+        [clan.nests.buttergen."rare code events"]
             "frequent code events" = false
-        [clan.nests.general."frequent code events"]
+        [clan.nests.buttergen."frequent code events"]
             "rare code events" = false
         [clan.nests.relation."same sex adoption"]
             "same sex birth" = false

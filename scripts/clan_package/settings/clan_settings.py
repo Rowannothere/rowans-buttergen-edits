@@ -101,6 +101,7 @@ with open(
 
 all_settings = [
     _clan_settings["general"],
+    _clan_settings["buttergen"],  # BUTTERGEN: Buttergen's own tab
     _clan_settings["role"],
     _clan_settings["relation"],
     _clan_settings["code"],  # BUTTERGEN: the Clan's own warrior code

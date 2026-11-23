@@ -6,6 +6,8 @@
         "general_info": "Change the general Clan-specific settings",
         "relation": "relations",
         "relation_info": "Change Clan-specific settings regarding cat relationships",
+        "buttergen": "Buttergen",
+        "buttergen_info": "Weeks, warrior code events, ambition and jealousy",
         "code": "warrior code",
         "decide": "your cat",
         "decide_info": "Let your cat make their own choices",
