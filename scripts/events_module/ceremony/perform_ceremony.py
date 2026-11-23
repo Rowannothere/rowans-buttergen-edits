@@ -281,8 +281,11 @@ def _rel_deputy_filter(cat_list, leader):
     if not has_rel:
         return cat_list
 
+    # BUTTERGEN: ambitious cats win a close call (scripts/feelings.py)
+    from scripts import feelings
+
     has_rel.sort( reverse=True,
-        key=lambda c: leader.relationships[c.ID].respect * 3 + leader.relationships[c.ID].trust * 2 + leader.relationships[c.ID].like + leader.relationships[c.ID].comfort)
+        key=lambda c: feelings.deputy_weight(c, leader.relationships[c.ID].respect * 3 + leader.relationships[c.ID].trust * 2 + leader.relationships[c.ID].like + leader.relationships[c.ID].comfort))
 
     if values[has_rel[0].ID] < 0:
         return cat_list

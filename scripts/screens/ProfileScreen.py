@@ -660,6 +660,10 @@ class ProfileScreen(Screens):
                 self.change_screen(GameScreen.GIFT)
             elif event.ui_element == self.your_faith_button:
                 self.toggle_faith_tab()
+            elif event.ui_element == getattr(self, "change_want_button", None):
+                from scripts.ui.windows.change_want import ChangeWantWindow
+
+                ChangeWantWindow(self.the_cat, on_done=self.update_disabled_buttons_and_text)
         # Dangerous Tab
         elif self.open_tab == "dangerous":
             if event.ui_element == self.kill_cat_button:
@@ -1791,6 +1795,10 @@ class ProfileScreen(Screens):
         from scripts.honor.core import profile_lines
 
         output += profile_lines(the_cat)
+        # BUTTERGEN: mood, wants, jealousy (scripts/feelings.py)
+        from scripts import feelings
+
+        output += feelings.profile_lines(the_cat)
         # BUTTERGEN: where the player's cat met a cat from outside the Clan
         from scripts import outsiders
 
@@ -3422,6 +3430,7 @@ class ProfileScreen(Screens):
             self.request_apprentice_button = None
             self.gift_accessory_button = None
             self.your_faith_button = None
+            self.change_want_button = None
             self.update_disabled_buttons_and_text()
 
     def toggle_roles_tab(self):
@@ -3743,6 +3752,7 @@ class ProfileScreen(Screens):
                 self.request_apprentice_button,
                 self.gift_accessory_button,
                 self.your_faith_button,
+                getattr(self, "change_want_button", None),
             ):
                 if old_button:
                     old_button.kill()
@@ -3821,8 +3831,8 @@ class ProfileScreen(Screens):
             self.your_faith_button = UISurfaceImageButton(
                 ui_scale(pygame.Rect((402, 472), (172, 36))),
                 "faith",
-                get_button_dict(ButtonStyles.LADDER_TOP, (172, 36)),
-                object_id="@buttonstyles_ladder_top",
+                get_button_dict(ButtonStyles.LADDER_MIDDLE, (172, 36)),
+                object_id="@buttonstyles_ladder_middle",
                 starting_height=2,
                 manager=MANAGER,
                 anchors={"bottom_target": self.gift_accessory_button},
@@ -3835,6 +3845,25 @@ class ProfileScreen(Screens):
                 self.your_faith_button.enable()
             else:
                 self.your_faith_button.disable()
+
+            # BUTTERGEN: pick what your cat wants most (scripts/feelings.py)
+            from scripts import feelings
+
+            want_texts = feelings.texts()["change_want"]
+            can_change = feelings.can_change_want(self.the_cat)
+            self.change_want_button = UIReasonButton(
+                ui_scale(pygame.Rect((402, 436), (172, 36))),
+                want_texts["button"],
+                get_button_dict(ButtonStyles.LADDER_TOP, (172, 36)),
+                object_id="@buttonstyles_ladder_top",
+                starting_height=2,
+                tool_tip_text=want_texts["tooltip"] if can_change or not feelings.want_of(self.the_cat)
+                else want_texts["tooltip_wait"],
+                manager=MANAGER,
+                anchors={"bottom_target": self.your_faith_button},
+            )
+            if not can_change:
+                self.change_want_button.disable()
 
             if switch_get_value(Switch.request_apprentice):
                 self.request_apprentice_button.disable()
@@ -4194,6 +4223,8 @@ class ProfileScreen(Screens):
                 self.gift_accessory_button.kill()
             if self.your_faith_button:
                 self.your_faith_button.kill()
+            if getattr(self, "change_want_button", None):
+                self.change_want_button.kill()
 
         elif self.open_tab == "conditions":
             self.left_conditions_arrow.kill()

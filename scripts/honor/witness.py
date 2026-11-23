@@ -326,6 +326,9 @@ def came_out(cat, key, other_clan, level=None, by=None):
     from scripts.honor import halfclan
 
     halfclan.came_out(cat, key, other_clan)
+    from scripts import feelings
+
+    feelings.came_out(cat)
 
 
 def name_others(caught):

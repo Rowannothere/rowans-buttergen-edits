@@ -203,6 +203,10 @@ def after_outcome(patrol) -> list:
 
     if not is_exploring(patrol):
         return []
+    # wanting to see the world
+    from scripts import feelings
+
+    feelings.explored(patrol.patrol_cats)
     t = texts()
     you = _you()
     clan = patrol.explore["clan"]

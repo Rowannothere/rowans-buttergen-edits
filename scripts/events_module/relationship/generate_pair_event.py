@@ -132,6 +132,13 @@ def _get_type_of_change(
     ):
         bool_ballot.append(False)
 
+    # BUTTERGEN: a happy cat leans friendly, a bitter one prickly (scripts/feelings.py)
+    from scripts import feelings
+
+    lean = feelings.lean(main_cat)
+    if lean is not None:
+        bool_ballot += [lean] * 2
+
     # further influence the partition based on the relationship
     for value in (
         relationship.like,

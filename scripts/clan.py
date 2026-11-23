@@ -212,6 +212,8 @@ class Clan:
         self.code_heart = {}
         # kits with a parent outside the Clan, and cats looking for their birth family (scripts/honor/halfclan.py)
         self.code_kits = {}
+        # what changed since the last skip, and recent deaths (scripts/feelings.py)
+        self.feelings = {}
         # let your cat decide: cat ID --> the moon they decided not to retire
         self.decide_retire_no = {}
         self.achievements = []
@@ -1154,6 +1156,7 @@ class Clan:
             "code_switch": self.code_switch,
             "code_heart": self.code_heart,
             "code_kits": self.code_kits,
+            "feelings": self.feelings,
             "decide_retire_no": self.decide_retire_no,
             "custom_pronouns": self.custom_pronouns,
             "clan_age": self.clan_age,
@@ -1744,6 +1747,7 @@ class Clan:
         game.clan.code_switch = dict(clan_data.get("code_switch") or {})
         game.clan.code_heart = dict(clan_data.get("code_heart") or {})
         game.clan.code_kits = dict(clan_data.get("code_kits") or {})
+        game.clan.feelings = dict(clan_data.get("feelings") or {})
         game.clan.decide_retire_no = dict(clan_data.get("decide_retire_no") or {})
 
         if "exile_return" in clan_data:

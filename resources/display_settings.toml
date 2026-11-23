@@ -84,6 +84,9 @@
         weekskip = false
         "rare code events" = false
         "frequent code events" = false
+        # BUTTERGEN: relationships with more going on (scripts/feelings.py)
+        ambition = true
+        jealousy = true
         "all accessories" = false
         "modded names" = true
         "new prefixes" = true

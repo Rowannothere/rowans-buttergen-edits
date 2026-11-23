@@ -184,6 +184,9 @@ class Dialogue:
                 continue
             if "at_war" in block and self._at_war() != bool(block["at_war"]):
                 continue
+            # BUTTERGEN: the cat's mood, want and feelings toward the player's cat (scripts/feelings.py)
+            if not self._feelings_fit(block):
+                continue
 
             if flirt:
                 tags = block.get("tags", [])
@@ -254,6 +257,27 @@ class Dialogue:
             return None
         victim_cat = Cat.fetch_cat(game.clan.murdered.get("victim"))
         return {victim: victim_cat} if victim_cat else None
+
+    def _feelings_fit(self, block) -> bool:
+        if not any(k in block for k in ("t_c_mood", "t_c_want", "t_c_feels")):
+            return True
+        from scripts import feelings
+
+        if "t_c_mood" in block and feelings.mood(self.cat) not in block["t_c_mood"]:
+            return False
+        want = feelings.want_of(self.cat)
+        if "t_c_want" in block and (not want or want["kind"] not in block["t_c_want"]):
+            return False
+        for feel in block.get("t_c_feels", []):
+            if feel == "jealous_of_y_c" and not feelings.is_jealous_of(self.cat, self.you):
+                return False
+            if feel == "resents_y_c" and not (
+                self.you is game.clan.deputy and feelings.ambition(self.cat) >= feelings.RESENT_AT
+            ):
+                return False
+            if feel == "y_c_helped" and feelings.data(self.cat).get("helped_by") != self.you.ID:
+                return False
+        return True
 
     def _their_clan(self):
         from scripts import outsiders

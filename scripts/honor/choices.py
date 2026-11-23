@@ -68,6 +68,7 @@ def pending():
         or (c["kind"] in _moment_kinds() and _moments().pending_gone(c))
         or (c["kind"] in _heart_kinds() and _heart().pending_gone(c))
         or (c["kind"] in _half_kinds() and _half().pending_gone(c))
+        or (c["kind"] in _feel().KINDS and _feel().pending_gone(c))
         or (c["kind"] == WITNESS and c["act"] in _half().ACTS
             and not _half().has_secret(Cat.fetch_cat(c["offender"]), c["act"]))
     )
@@ -114,6 +115,12 @@ def _half():
 
 def _half_kinds():
     return _half().KINDS
+
+
+def _feel():
+    from scripts import feelings
+
+    return feelings
 
 
 def _offer(entry):
@@ -205,6 +212,8 @@ def window_text():
         prompt, options = _heart().window_text(c)
     elif c["kind"] in _half_kinds():
         prompt, options = _half().window_text(c)
+    elif c["kind"] in _feel().KINDS:
+        prompt, options = _feel().window_text(c)
     elif c["kind"] in SWITCH_KINDS:
         from scripts.honor import switching
 
@@ -308,6 +317,8 @@ def _resolve(option):
         return _heart().resolve_choice(c, option)
     if c["kind"] in _half_kinds():
         return _half().resolve_choice(c, option)
+    if c["kind"] in _feel().KINDS:
+        return _feel().resolve_choice(c, option)
     if c["kind"] in SWITCH_KINDS:
         from scripts.honor import switching
 

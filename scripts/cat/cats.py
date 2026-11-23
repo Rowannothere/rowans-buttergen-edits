@@ -265,6 +265,8 @@ class Cat:
         self.code_exile = None
         # healer mates the Clan does and doesn't know about (scripts/honor/healer.py)
         self.code_healer = None
+        # ambition, jealousy, wants and mood (scripts/feelings.py)
+        self.feelings = {}
         # BUTTERGEN: picked the first time it's needed (scripts/cat/favorite_prey.py)
         self.favorite_prey = None
         self.disliked_prey = None
@@ -1985,6 +1987,10 @@ class Cat:
             trusted = [c for c in potential_mentors if not lost_trust(c)]
             if trusted_priority or trusted:
                 priority_mentors, potential_mentors = trusted_priority, trusted
+            # BUTTERGEN: of the fair picks, cats who want an apprentice come first (scripts/feelings.py)
+            from scripts import feelings
+
+            priority_mentors = feelings.mentor_first(priority_mentors)
             # First try for a cat who currently has no apprentices and is working
             if (
                 switch_get_value(Switch.request_apprentice)
@@ -3193,6 +3199,7 @@ class Cat:
                 "code_sentence": self.code_sentence,
                 "code_exile": self.code_exile,
                 "code_healer": self.code_healer,
+                "feelings": self.feelings,
                 "backstory": self.backstory or None,
                 "moons": self.moons,
                 "trait": self.personality.trait,
