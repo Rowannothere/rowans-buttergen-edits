@@ -39,7 +39,43 @@
             }
         },
         "intro": [
-            "Some nights I wish we were in the same Clan. Then I remember I'd probably drive you mad."
+            "Some nights I wish we were in the same Clan.",
+            "[t_c rests {PRONOUN/t_c/poss} chin on your shoulder.]",
+            "Then I remember I'd probably drive you mad. I snore. Loudly. Ask anyone in o_c_n."
+        ],
+        "intro_choices": {
+            "choice1": {
+                "text": "I'd get used to it.",
+                "next_scene": "used"
+            },
+            "choice2": {
+                "text": "Maybe it's better this way.",
+                "next_scene": "better"
+            }
+        },
+        "used": [
+            "[t_c purrs so hard you can feel it.]"
+        ],
+        "used_scene_effects": {
+            "relationships": [
+                {
+                    "cats_from": [
+                        "t_c"
+                    ],
+                    "cats_to": [
+                        "y_c"
+                    ],
+                    "values": [
+                        "romance"
+                    ],
+                    "amount": 2,
+                    "mutual": false
+                }
+            ]
+        },
+        "better": [
+            "Maybe.",
+            "[{PRONOUN/t_c/subject/CAP} {VERB/t_c/don't/doesn't} lift {PRONOUN/t_c/poss} head, though.]"
         ]
     },
     "bg_oc_close_mate_4": {
@@ -53,8 +89,44 @@
             }
         },
         "intro": [
-            "Did anyone see you leave? Good. Let's keep it that way."
-        ]
+            "Did anyone see you leave?"
+        ],
+        "intro_choices": {
+            "choice1": {
+                "text": "No one.",
+                "next_scene": "no_one"
+            },
+            "choice2": {
+                "text": "I think my deputy saw.",
+                "next_scene": "deputy"
+            }
+        },
+        "no_one": [
+            "Good.",
+            "[t_c presses {PRONOUN/t_c/poss} forehead to yours.]",
+            "Let's keep it that way."
+        ],
+        "deputy": [
+            "[t_c goes very still.]",
+            "Then we can't meet here again. Not for a while."
+        ],
+        "deputy_scene_effects": {
+            "relationships": [
+                {
+                    "cats_from": [
+                        "t_c"
+                    ],
+                    "cats_to": [
+                        "y_c"
+                    ],
+                    "values": [
+                        "comfort"
+                    ],
+                    "amount": -2,
+                    "mutual": false
+                }
+            ]
+        }
     },
     "bg_oc_close_mate_war": {
         "frequency": 4,

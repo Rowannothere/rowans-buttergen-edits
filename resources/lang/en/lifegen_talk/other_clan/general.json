@@ -10,8 +10,43 @@
             }
         },
         "intro": [
-            "You're from c_n, aren't you? I think I saw you at the last Gathering."
-        ]
+            "[t_c squints at you, then {PRONOUN/t_c/poss} ears perk up.]",
+            "You're from c_n, aren't you? You were at the last Gathering. You sat right by the Great Rock and sneezed during the leaders' speeches."
+        ],
+        "intro_choices": {
+            "choice1": {
+                "text": "That wasn't me.",
+                "next_scene": "not_me"
+            },
+            "choice2": {
+                "text": "The pollen was awful!",
+                "next_scene": "pollen"
+            }
+        },
+        "not_me": [
+            "It was definitely you. I'd know that sneeze anywhere."
+        ],
+        "pollen": [
+            "[t_c snorts.]",
+            "It really was. Half of o_c_n was sneezing on the way home."
+        ],
+        "pollen_scene_effects": {
+            "relationships": [
+                {
+                    "cats_from": [
+                        "t_c"
+                    ],
+                    "cats_to": [
+                        "y_c"
+                    ],
+                    "values": [
+                        "like"
+                    ],
+                    "amount": 2,
+                    "mutual": false
+                }
+            ]
+        }
     },
     "bg_oc_general_2": {
         "frequency": 2,
@@ -39,8 +74,45 @@
             }
         },
         "intro": [
-            "How's the prey running on your side of the border? Ours has been thin."
-        ]
+            "How's the prey running on your side of the border?",
+            "[t_c's eyes slide to the territory behind you, then back.]",
+            "Ours has been thin. Not that I'm asking for anything. I'm just making conversation."
+        ],
+        "intro_choices": {
+            "choice1": {
+                "text": "We're doing fine.",
+                "next_scene": "fine"
+            },
+            "choice2": {
+                "text": "It's been hard for us too.",
+                "next_scene": "hard"
+            }
+        },
+        "fine": [
+            "Good for you.",
+            "[It doesn't sound like {PRONOUN/t_c/subject} {VERB/t_c/mean/means} it.]"
+        ],
+        "hard": [
+            "[Some of the stiffness leaves {PRONOUN/t_c/poss} shoulders.]",
+            "Leaf-bare doesn't care which Clan you're from, does it?"
+        ],
+        "hard_scene_effects": {
+            "relationships": [
+                {
+                    "cats_from": [
+                        "t_c"
+                    ],
+                    "cats_to": [
+                        "y_c"
+                    ],
+                    "values": [
+                        "like"
+                    ],
+                    "amount": 2,
+                    "mutual": false
+                }
+            ]
+        }
     },
     "bg_oc_general_4": {
         "frequency": 2,
@@ -67,7 +139,25 @@
             }
         },
         "intro": [
-            "Every Clan thinks their warriors are the best. Ours actually are, though."
+            "Every Clan thinks their warriors are the best.",
+            "[t_c puffs out {PRONOUN/t_c/poss} chest.]",
+            "Ours actually are, though."
+        ],
+        "intro_choices": {
+            "choice1": {
+                "text": "Prove it.",
+                "next_scene": "prove"
+            },
+            "choice2": {
+                "text": "Sure they are.",
+                "next_scene": "sure"
+            }
+        },
+        "prove": [
+            "Next Gathering. Bring your fastest runner. We'll see who's laughing then."
+        ],
+        "sure": [
+            "[t_c narrows {PRONOUN/t_c/poss} eyes, but {PRONOUN/t_c/poss} whiskers twitch like {PRONOUN/t_c/subject} {VERB/t_c/are/is} trying not to smile.]"
         ]
     },
     "bg_oc_general_6": {
@@ -103,6 +193,30 @@
         "intro": [
             "[t_c crinkles {PRONOUN/t_c/poss} nose at you.]",
             "I thought I smelled something fishy. You c_n cats have the most intense ocean reek, I swear."
+        ]
+    },
+    "bg_oc_beach_sand": {
+        "frequency": 2,
+        "cats": {
+            "y_c": {},
+            "t_c": {
+                "group": [
+                    "other_clan"
+                ]
+            }
+        },
+        "biome": [
+            "forest",
+            "mountainous",
+            "plains",
+            "wetlands"
+        ],
+        "their_biome": [
+            "beach"
+        ],
+        "intro": [
+            "[t_c flicks sand off {PRONOUN/t_c/poss} paws.]",
+            "You've never had to dig a fish out of a tide pool, have you? It shows."
         ]
     }
 }

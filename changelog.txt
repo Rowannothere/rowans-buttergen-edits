@@ -14,8 +14,10 @@ New:
   - Ambition: ambitious cats resent the deputy, and the most ambitious ask the leader for the deputy's place (your choice if your cat is the leader)
   - Jealousy: of a mate's crush, a mentor's new apprentice, a littermate made warrior first, or a cat who got the role they wanted. A jealous mate may even end things
   - Moods: grieving, bitter, restless, lonely, happy or content, worked out every skip (every week with weeks on). Moods nudge temptations and how cats get along, and your cat has short mood events now and then
-  - Two new settings in the general tab: Ambition and Jealousy (both on)
+  - Two new settings: Ambition and Jealousy (both on)
 - New talk lines with other Clans' cats (a player suggestion): a beach Clan's cats get teased about their fishy smell by cats from Clans that aren't on the beach, a shell left at the border for a cat your cat is starting to like, and a mate from another Clan torn up when your two Clans are at war
+- Talk with other Clans' cats has more going on: many lines are little scenes now, some with a choice that changes how the other cat feels about your cat, and a cat with a crush may leave your cat a feather
+- A new Buttergen tab in the Clan Settings holds Buttergen's own settings: weeks, warrior code events, ambition and jealousy
 
 Changes:
 - If your cat decides not to retire on their own, they're asked again after 6 moons
