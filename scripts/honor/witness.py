@@ -224,17 +224,32 @@ def _you_saw_too(offender, witness, key, other_clan, level):
     return False
 
 
+def _already_know(offender, key, other_clan) -> set:
+    """a mate in another Clan is one long secret: cats who know about it don't find out again"""
+    from scripts.honor import heart
+
+    if key != heart.ACT:
+        return set()
+    name = other_clan.name if other_clan else None
+    return {i for s in game.clan.code_secrets
+            if s["offender"] == offender.ID and s["act"] == key and s["clan"] == name
+            for i in s["knowers"]}
+
+
 def after_break(offender, key, other_clan, level=None):
     """called after a cat breaks the code. level overrides the act's own (a half-done act is minor)"""
     where = WHERE.get(key)
     if where is None or not code.counts(key):
         return
+    knowers = _already_know(offender, key, other_clan)
     # step 5: your cat may notice, whoever else does
-    noticed = where != "public" and _you_saw_too(offender, None, key, other_clan, level)
+    you = _you()
+    noticed = (where != "public" and not (you and you.ID in knowers)
+               and _you_saw_too(offender, None, key, other_clan, level))
     if random() >= SEE_CHANCE[where]:
         return
     witness = pick_witness(offender, key)
-    if witness is None or (noticed and witness is _you()):
+    if witness is None or witness.ID in knowers or (noticed and witness is _you()):
         return
     if where == "public":
         report(offender, witness, key, other_clan, "report", level=level)

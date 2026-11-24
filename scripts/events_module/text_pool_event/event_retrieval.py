@@ -4,7 +4,7 @@ from typing import Union, Optional
 
 from scripts.cat.cats import Cat
 from scripts.clan import OtherClan
-from scripts.clan_package.get_clan_cats import get_living_clan_cat_count
+from scripts.clan_package.get_clan_cats import get_living_clan_cat_count, has_living_clan_cats
 from scripts.events_module.event_filters import find_new_frequency, get_frequency
 from scripts.events_module.patrol.patrol_event import PatrolEvent
 from scripts.events_module.text_pool_event.check_general_constraints import (
@@ -18,7 +18,7 @@ from scripts.game_structure import game
 loaded_events = {}
 
 def select_valid_other_clan(clan):
-    options = [c for c in game.clan.all_other_clans+[game.clan] if clan and c.group_ID != clan.group_ID and (game.clan.clancount == "singleclan" or get_living_clan_cat_count(Cat, c.group_ID, include_newborns=False))]
+    options = [c for c in game.clan.all_other_clans+[game.clan] if clan and c.group_ID != clan.group_ID and (game.clan.clancount == "singleclan" or has_living_clan_cats(Cat, c.group_ID, include_newborns=False))]
     return choice(options) if options else None
 
 def get_valid_event(

@@ -42,7 +42,8 @@ def after_patrol(patrol, outcome, outcome_cats, success: bool):
     for cat in list(patrol.patrol_cats) + _cats_in(outcome_cats):
         if cat is you or cat in others or cat.dead:
             continue
-        if cat.status.alive_in_player_clan or outsiders.has_met(cat):
+        if (cat.status.alive_in_player_clan or cat.status.group_ID == you.status.group_ID
+                or outsiders.has_met(cat)):
             others.append(cat)
     stats = SUCCESS if success else FAILURE
     text = load_lang_resource("events/patrol_bonds.json")["good" if success else "bad"]

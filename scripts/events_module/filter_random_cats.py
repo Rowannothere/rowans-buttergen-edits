@@ -50,8 +50,15 @@ def choose_random_cats(
         for abbrev in cats_block:
             abbrevs.append(abbrev)
             # checks if there are any valid cats available
+            # BUTTERGEN: y_c and t_c can only ever be your_cat and the_cat, so only they are checked
+            # (not every cat in the save, for each event)
+            if abbrev in ("y_c", "t_c"):
+                fixed = your_cat if abbrev == "y_c" else the_cat
+                candidates = [fixed] if fixed is not None else []
+            else:
+                candidates = possible_cats
             possible_cats_dict[abbrev] = _validate_cat(
-                abbrev, cats_block, possible_cats, your_cat, the_cat
+                abbrev, cats_block, candidates, your_cat, the_cat
             )
             if fixed_cats and abbrev in fixed_cats:
                 possible_cats_dict[abbrev] = [

@@ -15,6 +15,8 @@ RANKS = (CatRank.WARRIOR, CatRank.MEDICINE_CAT)
 # the ask chance per Gathering is the pull score times this, at most ASK_CAP
 ASK_PER_POINT = 0.008
 ASK_CAP = 0.25
+# a Gathering only has a new ask at all this often, so they don't come every moon
+ASK_GATHERING = 1 / 6
 ACCEPT_BASE, ACCEPT_LOW, ACCEPT_HIGH = 50, 5, 90
 TASK_BASE, TASK_SKILL = 40, 40
 EFFORT = {"all": 15, "enough": -15}
@@ -67,9 +69,18 @@ def clan_of_group(group_ID):
     return next((c for c in game.clan.all_other_clans if c.group_ID == group_ID), None)
 
 
+# filled only while the Gathering's asks are scored, so the same lists aren't rebuilt per cat
+_cats_in_cache = None
+
+
 def cats_in(group_ID) -> list:
-    return [c for c in Cat.all_cats_list
+    if _cats_in_cache is not None and group_ID in _cats_in_cache:
+        return _cats_in_cache[group_ID]
+    cats = [c for c in Cat.all_cats_list
             if not c.dead and c.status.group_ID == group_ID and not c.status.is_lost()]
+    if _cats_in_cache is not None:
+        _cats_in_cache[group_ID] = cats
+    return cats
 
 
 def leader_of(group_ID):
@@ -454,17 +465,27 @@ def on_skip(full_moon: bool):
     # a cat with kits still in the nursery (born or adopted) stays with them
     from scripts.honor.temptation import _nursery_kits
 
+    if random() >= ASK_GATHERING:
+        return
     candidates = [c for c in Cat.all_cats_list if c is not you and eligible(c) and not busy(c)
                   and not _nursery_kits(c, own=True)]
     # at most one new ask a Gathering, so a Clan with many ties abroad doesn't flood the events
-    for cat in sorted(candidates, key=lambda c: random()):
-        options = [t for t in targets(cat) if not wait_for(cat, t)]
-        if not options:
-            continue
-        scored = max(((pull(cat, t), t) for t in options), key=lambda x: x[0])
-        if scored[0] > 0 and random() < min(ASK_CAP, scored[0] * ASK_PER_POINT):
-            ask(cat, scored[1])
-            break
+    global _cats_in_cache
+    chosen = None
+    _cats_in_cache = {}
+    try:
+        for cat in sorted(candidates, key=lambda c: random()):
+            options = [t for t in targets(cat) if not wait_for(cat, t)]
+            if not options:
+                continue
+            scored = max(((pull(cat, t), t) for t in options), key=lambda x: x[0])
+            if scored[0] > 0 and random() < min(ASK_CAP, scored[0] * ASK_PER_POINT):
+                chosen = (cat, scored[1])
+                break
+    finally:
+        _cats_in_cache = None
+    if chosen:
+        ask(*chosen)
 
 
 # your cat's choices (scripts/honor/choices.py hands these over)

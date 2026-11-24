@@ -3917,7 +3917,6 @@
             "Misses the canned food {PRONOUN/m_c/subject} used to eat",
             "Is trying to remember the taste of the food {PRONOUN/m_c/poss} Twolegs used to give {PRONOUN/m_c/object}",
             "Is ignoring gossip about {PRONOUN/m_c/poss} kittypet past",
-            "Ignored a kittypet calling {PRONOUN/m_c/poss} old kittypet name",
             "Works twice as hard to prove {PRONOUN/m_c/poss} worth to the Clanborn cats",
             "Wishes others would stop thinking that {PRONOUN/m_c/subject}{verb/m_c/'re/'s} soft because of {PRONOUN/m_c/poss} kittypet past",
             "Wistfully thinks of {PRONOUN/m_c/poss} old soft kittypet nest while trying to nap",
@@ -3947,6 +3946,22 @@
                 "group": [
                     "-afterlife"
                 ]
+            }
+        }
+    },
+    {
+        "event_id": "buttergen_former_kittypet_clan_name",
+        "strings": [
+            "Ignored a kittypet calling {PRONOUN/m_c/poss} old kittypet name"
+        ],
+        "involved_cats": {
+            "m_c": {
+                "backstory": [
+                    "kittypet_backstories"
+                ],
+                "name": {
+                    "has_suffix": true
+                }
             }
         }
     },

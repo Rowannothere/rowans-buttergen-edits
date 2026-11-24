@@ -823,6 +823,10 @@
             "aidedsearcher",
             "questcompleter",
             "savedone"
+            "stolenkit1",
+            "stolenkit2",
+            "stolenkit3",
+            "stolenkit5"
         ],
         "healer_backstories": [
             "medicine_cat", "wandering_healer1", "wandering_healer2"

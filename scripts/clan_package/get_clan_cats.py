@@ -95,6 +95,17 @@ def get_living_clan_cat_count(Cat, clan=CatGroup.PLAYER_CLAN_ID, include_newborn
     return count
 
 
+def has_living_clan_cats(Cat, clan=CatGroup.PLAYER_CLAN_ID, include_newborns=True) -> bool:
+    """BUTTERGEN: get_living_clan_cat_count(...) > 0, but stops at the first cat found"""
+    for the_cat in Cat.all_cats.values():
+        if the_cat.status.group_ID != clan:
+            continue
+        if not include_newborns and the_cat.age == CatAge.NEWBORN:
+            continue
+        return True
+    return False
+
+
 def get_cats_same_age(Cat, cat_to_match, age_range=10):
     """
     Look for all cats in the Clan and returns a list of cats which are in the same age range as the given cat.

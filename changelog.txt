@@ -1,3 +1,35 @@
+<strong>Buttergen v0.4-dev.16</strong>
+
+A development build, so keep a copy of your saves folder before playing.
+
+New:
+- Buttergen as a Windows app (Buttergen.exe), with nothing to install. The README has the download link, and how to bring your Clans along from run.bat. run.bat still works like before
+- The Windows app updates itself: click Update Available! on the start screen, then update now. The game downloads the update and restarts, and if anything goes wrong the old version comes back. Your Clans are kept in their own folder, so updates never touch them
+- Open saves folder, next to the app, opens the folder your Clans are in
+
+<strong>Buttergen v0.4-dev.15</strong>
+
+A development build, so keep a copy of your saves folder before playing.
+
+Changes:
+- Cats ask to switch Clans less often: a Gathering has a new ask about 1 time in 6, not nearly every time
+- A pair found out across borders who stay together aren't a secret anymore, so the choice is "Stay together" instead of "Keep meeting in secret"
+- Brought up to date with Genemod and Clangen from November 22, 2026
+
+Fixes:
+- The warrior naming window calls the cat by their apprentice name (Crowpaw, not Crowfur) until the player picks the new name
+- Former kittypets who kept their kittypet name no longer think about ignoring a kittypet calling their old name
+- The add button for saved pronoun sets works again (clicking it did nothing)
+- If your leader dies before picking a sentence, your new cat no longer hands it out (a kit could scold a warrior). The Clan's new leader judges it at the next full moon, and other choices left waiting are dropped too
+- Fixed a crash when a patrol or event gave a kit to a parent who had been through Trap-Neuter-Return (like the noise patrol, gen_hunt_noise_solo2)
+- Patrol results say "water in his lungs" instead of showing the pronoun code
+- A mate in another Clan is only judged once: after it comes out, it can't be reported again, and your cat isn't asked again about a secret they already know
+- Once your cat lives in another Clan, their mate, kits and Clanmates there talk to them like Clanmates, not across the border, and the lines name the right Clan
+- Kits stolen from another Clan's nursery have a stolen kit backstory, not one about choosing to leave
+- Naming your cat's half-Clan kits no longer opens an empty menu when the kits were born in another Clan, or when your cat lives in one. The window doesn't come up when there are no living kits to name
+- The healer den no longer crashes when a Clan has no healers (from Genemod), and clicking the empty healer spot there does nothing
+- In multi clan mode, cats only confess their feelings to cats in the same Clan (from Genemod)
+
 <strong>Buttergen v0.4-dev.14</strong>
 
 A development build, so keep a copy of your saves folder before playing.

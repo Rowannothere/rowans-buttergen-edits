@@ -41,10 +41,12 @@ class Dialogue:
 
         special_date = get_special_date()
 
-        # BUTTERGEN: a cat from another Clan gets lines about being from another Clan
+        # BUTTERGEN: a cat from another Clan gets lines about being from another Clan (not if the
+        # player's cat lives there too)
         from scripts import outsiders
 
-        if outsiders.on() and outsiders.clan_of(self.cat) is not None and not self.cat.dead:
+        if (outsiders.on() and outsiders.clan_of(self.cat) is not None and not self.cat.dead
+                and self.cat.status.group_ID != self.you.status.group_ID):
             category = switch_get_value(Switch.talk_category)
             close = outsiders.closeness(self.cat)
             # a mate, family or an old Clanmate isn't a stranger
