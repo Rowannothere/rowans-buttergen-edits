@@ -138,6 +138,8 @@ def offer_temptation(key, other, other_clan):
 
 
 def offer_witness(offender, key, other_clan, level=None):
+    if not _alive_in_clan(offender):
+        return
     _offer({"kind": WITNESS, "act": key, "offender": offender.ID,
             "clan": other_clan.name if other_clan else None, "level": level})
 

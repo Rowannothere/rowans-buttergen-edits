@@ -806,6 +806,17 @@ def _one_moon_impl():
 
         traceback.print_exc()
 
+    # BUTTERGEN: a choice offered this skip about a cat who died later in the same skip is gone: so is its line
+    try:
+        from scripts.honor import choices
+
+        if choices.pending() is None:
+            game.cur_events_list[:] = [e for e in game.cur_events_list if not getattr(e, "honor_choice", False)]
+    except Exception:  # pylint: disable=broad-except
+        import traceback
+
+        traceback.print_exc()
+
     generate_dialogue_focus()
     checks = [
         len(game.clan.your_cat.apprentice),
