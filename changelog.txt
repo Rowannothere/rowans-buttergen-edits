@@ -23,6 +23,7 @@ New:
 - A new Buttergen tab in the Clan Settings holds Buttergen's own settings: weeks, warrior code events, ambition and jealousy
 
 Changes:
+- Brought up to date with Genemod from November 24, 2026: the leader's den can send aid (some of the Clan's prey and herbs) to another Clan, and works in multi clan mode too. A Clan's temperament now follows the cats it has, and the mediation screen is fixed
 - If your cat decides not to retire on their own, they're asked again after 6 moons
 - Kits born outside and brought home by a Clanmate come with a choice or a story of their own, not only "refused to talk about their origin"
 

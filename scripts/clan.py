@@ -135,6 +135,11 @@ class Clan:
         if starting_members is None:
             starting_members = []
 
+        self.received_aid = False
+        self.leader_den_events = {
+            "clan_event": {},
+            "outsider_event": {}
+        }
         self.group_ID = CatGroup.PLAYER_CLAN_ID
         self.save_id = save_id
         self.name = display_name if display_name else save_id
@@ -1124,6 +1129,7 @@ class Clan:
             "used_group_IDs": game.used_group_IDs,
             "last_focus_change": self.last_focus_change,
             "clans_in_focus": self.clans_in_focus,
+            "leader_den_events": self.leader_den_events,
             "instructor": self.instructor.ID,
             "demon": self.demon.ID,
             "reputation": self.reputation,
@@ -1420,6 +1426,8 @@ class Clan:
         game.clan.reputation = clan_data["reputation"]
 
         game.clan.clancount = clan_data.get("clancount_mode", "singleclan")
+        if "leader_den_events" in clan_data:
+            game.clan.leader_den_events = clan_data["leader_den_events"]
         game.clan.age = clan_data["clanage"]
         game.clan.weeks = clan_data.get("weeks", 0)
         game.clan.starting_season = (
@@ -1514,6 +1522,7 @@ class Clan:
                     medicine_cat=other_clan.get("medicine_cat"),
                     med_cat_predecessors=other_clan.get("med_cat_predecessors", 0),
                     ID=ID,
+                    leader_den_events=other_clan.get("leader_den_events")
                 )
                 if "relations" in other_clan:
                     game.clan.relations[CatGroup.PLAYER_CLAN_ID][ID] = int(other_clan["relations"])
@@ -1521,13 +1530,13 @@ class Clan:
                     if not clan_data["relations"].get(CatGroup.PLAYER_CLAN_ID):
                         game.clan.relations[CatGroup.PLAYER_CLAN_ID][ID] = clan_data["relations"]["player_clan"]["other_clan"+str(len(game.clan.all_other_clans))]
         else:
-            ID = game.get_free_group_ID(CatGroup.OTHER_CLAN)
             if "other_clan_chosen_symbol" not in clan_data:
                 for name, relation, temper in zip(
                     clan_data["other_clans_names"].split(","),
                     clan_data["other_clans_relations"].split(","),
                     clan_data["other_clan_temperament"].split(","),
                 ):
+                    ID = game.get_free_group_ID(CatGroup.OTHER_CLAN)
                     OtherClan(name, temperament=temper, ID=ID)
                     game.clan.relations[CatGroup.PLAYER_CLAN_ID][ID] = int(relation)
             else:
@@ -1537,6 +1546,7 @@ class Clan:
                     clan_data["other_clan_temperament"].split(","),
                     clan_data["other_clan_chosen_symbol"].split(","),
                 ):
+                    ID = game.get_free_group_ID(CatGroup.OTHER_CLAN)
                     OtherClan(name, temperament=temper, chosen_symbol=symbol, ID=ID)
                     game.clan.relations[CatGroup.PLAYER_CLAN_ID][ID] = int(relation)
         if game.clan.clancount == "multiclan":
@@ -2375,7 +2385,7 @@ class OtherClan:
     """
 
     interaction_dict = {
-        "ally": ["offend", "praise"],
+        "ally": ["offend", "praise", "aid"],
         "neutral": ["provoke", "befriend"],
         "hostile": ["antagonize", "appease", "declare"],
     }
@@ -2409,8 +2419,15 @@ class OtherClan:
         deputy_predecessors=0, 
         medicine_cat=None, 
         med_cat_predecessors=0, 
-        ID: str = 0
+        ID: str = 0,
+        leader_den_events = None
     ):
+        self.received_aid = False
+        self.leader_den_events = leader_den_events if leader_den_events else {
+            "clan_event": {},
+            "outsider_event": {}
+        }
+
         self.group_ID = ID
         if not self.group_ID:
             self.group_ID = game.get_free_group_ID(CatGroup.OTHER_CLAN)
@@ -2461,15 +2478,6 @@ class OtherClan:
                 choice([x for x in self.first_temper_list if x not in used_tempers]),
                 choice([x for x in self.second_temper_list if x not in used_tempers]),
             )
-        if reputation is None:
-            if self.temperament[0] in ["gracious", "amiable"]:
-                self.reputation = choice([randint(71, 100), randint(71, 100), randint(71, 100), randint(50, 70)])
-            elif self.temperament[0] in ["wary", "proud"]:
-                self.reputation = choice([randint(1, 30), randint(1, 30), randint(1, 30), randint(31, 50)])
-            else:
-                self.reputation = choice([randint(1, 30), randint(31, 70), randint(31, 70), randint(71, 100)])
-        else:
-            self.reputation = reputation
 
         self.chosen_symbol = (
             None  # have to establish None first so that clan_symbol_sprite works
@@ -2490,6 +2498,16 @@ class OtherClan:
         self.med_cat_predecessors = med_cat_predecessors
         self.med_cat_list = []
         self.med_cat_number = len(self.med_cat_list)
+        
+        if reputation is None:
+            if self.temperament[0] in ["gracious", "amiable"]:
+                self.reputation = choice([randint(71, 100), randint(71, 100), randint(71, 100), randint(50, 70)])
+            elif self.temperament[0] in ["wary", "proud"]:
+                self.reputation = choice([randint(1, 30), randint(1, 30), randint(1, 30), randint(31, 50)])
+            else:
+                self.reputation = choice([randint(1, 30), randint(31, 70), randint(31, 70), randint(71, 100)])
+        else:
+            self.reputation = reputation
 
         if self.leader and not self.instructor:
             instructor_rank = choice((
@@ -2631,6 +2649,7 @@ class OtherClan:
             "deputy_predecessors": self.deputy_predecessors,
             "medicine_cat": self.medicine_cat.ID if self.medicine_cat else None,
             "med_cat_predecessors": self.med_cat_predecessors,
+            "leader_den_events": self.leader_den_events,
         }
 
     def new_leader(self, leader):
@@ -2696,6 +2715,111 @@ class OtherClan:
             self._reputation = 100
         elif self._reputation < 0:
             self._reputation = 0
+
+    @property
+    def temperament(self) -> tuple[str, str]:
+        """Temperament is determined whenever it's accessed. This makes sure it's always accurate to the
+        current cats in the Clan. However, determining Clan temperament is slow!
+        Clan temperament should be used as sparsely as possible, since
+        it's pretty resource-intensive to determine it."""
+
+        if game.clan.clancount == "singleclan":
+            return self._temperament
+
+        leader = (
+            Cat.fetch_cat(self.leader)
+            if isinstance(Cat.fetch_cat(self.leader), Cat)
+            else None
+        )
+        deputy = (
+            Cat.fetch_cat(self.deputy)
+            if isinstance(Cat.fetch_cat(self.deputy), Cat)
+            else None
+        )
+        medicine_cats = find_alive_cats_with_rank(Cat, [CatRank.MEDICINE_CAT], clan=self.group_ID)
+
+        all_other_cats = [
+            i
+            for i in Cat.all_cats_list
+            if i.status.rank
+            not in (CatRank.LEADER, CatRank.DEPUTY, CatRank.MEDICINE_CAT)
+            and i.status.group_ID == self.group_ID
+        ]
+
+        sociability_list = []
+        aggression_list = []
+        lawfulness_list = []
+        stability_list = []
+
+        # 3x influence
+        if leader:
+            sociability_list += [leader.personality.sociability] * 3
+            aggression_list += [leader.personality.aggression] * 3
+            lawfulness_list += [leader.personality.lawfulness] * 3
+            stability_list += [leader.personality.stability] * 3
+
+        # 2x influence
+        if deputy:
+            sociability_list += [deputy.personality.sociability] * 2
+            aggression_list += [deputy.personality.aggression] * 2
+            lawfulness_list += [deputy.personality.lawfulness] * 2
+            stability_list += [deputy.personality.stability] * 2
+
+        # collective influence
+        if medicine_cats:
+            sociability_list.append(
+                statistics.median(
+                    [i.personality.sociability for i in medicine_cats])
+            )
+            aggression_list.append(
+                statistics.median(
+                    [i.personality.aggression for i in medicine_cats])
+            )
+            lawfulness_list.append(
+                statistics.median(
+                    [i.personality.lawfulness for i in medicine_cats])
+            )
+            stability_list.append(
+                statistics.median(
+                    [i.personality.stability for i in medicine_cats])
+            )
+
+        # collective influence
+        if all_other_cats:
+            sociability_list.append(
+                statistics.median(
+                    [i.personality.sociability for i in all_other_cats])
+            )
+            aggression_list.append(
+                statistics.median(
+                    [i.personality.aggression for i in all_other_cats])
+            )
+            lawfulness_list.append(
+                statistics.median(
+                    [i.personality.lawfulness for i in all_other_cats])
+            )
+            stability_list.append(
+                statistics.median(
+                    [i.personality.stability for i in all_other_cats])
+            )
+
+        if not leader and not deputy and not medicine_cats and not all_other_cats:
+            print("returned default temper: stoic, observant")
+            return "stoic", "observant"
+
+        # mean of [leader, leader, leader, deputy, deputy, medicine_cats, all_other_cats]
+        clan_sociability = round(statistics.mean(sociability_list))
+        clan_aggression = round(statistics.mean(aggression_list))
+        clan_lawfulness = round(statistics.mean(lawfulness_list))
+        clan_stability = round(statistics.mean(stability_list))
+
+        return get_temper_alignment(
+            clan_sociability, clan_aggression, clan_lawfulness, clan_stability
+        )
+
+    @temperament.setter
+    def temperament(self, val):
+        self._temperament = val
 
 class Afterlife:
     """
