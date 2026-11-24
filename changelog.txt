@@ -1,3 +1,10 @@
+<strong>Buttergen v0.4-dev.18</strong>
+
+A development build, so keep a copy of your saves folder before playing.
+
+Fixes:
+- A cat your cat has met from another Clan, or from outside the Clans, now shows your cat on their relationships screen, and shows on your cat's, even when outside and neutral relationships are hidden (a player report)
+
 <strong>Buttergen v0.4-dev.17</strong>
 
 A development build, so keep a copy of your saves folder before playing.

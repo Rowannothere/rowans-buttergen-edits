@@ -394,6 +394,19 @@ class RelationshipScreen(Screens):
         if len(seen) != len(uniq):
             print("duplicates: " + seen)
 
+        # BUTTERGEN: the player's cat and a cat they've met (outsiders.py) always show in each other's lists,
+        # even with outside and neutral relations hidden
+        from scripts import outsiders
+
+        you = game.clan.your_cat if game.clan else None
+
+        def met_pair(rel) -> bool:
+            if not you:
+                return False
+            if rel.cat_to is you:
+                return outsiders.has_met(self.main_cat)
+            return self.main_cat is you and outsiders.has_met(rel.cat_to)
+
         # FILTER TOGGLES
         if not get_clan_setting("show_dead_relation"):
             self.filtered_cats = list(
@@ -403,7 +416,7 @@ class RelationshipScreen(Screens):
             self.filtered_cats = [
                 r
                 for r in self.filtered_cats
-                if not all([t.is_neutral for t in r.get_reltype_tiers()])
+                if not all([t.is_neutral for t in r.get_reltype_tiers()]) or met_pair(r)
             ]
         if get_clan_setting("show_family_only"):
             self.filtered_cats = [
@@ -426,7 +439,7 @@ class RelationshipScreen(Screens):
         # ---
         if not get_clan_setting("show_outside_relation"):
             self.filtered_cats = list(
-                filter(lambda rel: (rel.cat_to.status.get_last_living_group() and rel.cat_to.status.get_last_living_group() in self.main_cat.status.all_groups) or (self.main_cat.status.get_last_living_group() and self.main_cat.status.get_last_living_group() in rel.cat_to.status.all_groups) or self.main_cat.status.group_ID == rel.cat_to.status.group_ID, self.filtered_cats)
+                filter(lambda rel: (rel.cat_to.status.get_last_living_group() and rel.cat_to.status.get_last_living_group() in self.main_cat.status.all_groups) or (self.main_cat.status.get_last_living_group() and self.main_cat.status.get_last_living_group() in rel.cat_to.status.all_groups) or self.main_cat.status.group_ID == rel.cat_to.status.group_ID or met_pair(rel), self.filtered_cats)
             )
         if not get_clan_setting("show_positive"):
             self.filtered_cats = [
