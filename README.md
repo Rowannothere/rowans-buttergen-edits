@@ -2,7 +2,7 @@
 
 A Warrior Cats game where you play as your own cat, every cat has real, inheritable genes so kits look like their parents, and cats come in a huge variety of looks. This is just the beginning, and plenty more features are on the way: see [Planned features](#planned-features) below.
 
-Updated November 22, 2026.
+Updated November 25, 2026.
 
 **This is the dev branch:** the newest features, before they're ready for a stable version. To download it, check that the branch button above the files says **dev**, then use the green **Code** button. For the stable version, go to the [main page](https://github.com/Tropicaluwu/Buttergen).
 
@@ -238,9 +238,6 @@ See [changelog.txt](changelog.txt) for what's new.
 
 Buttergen is just getting started. These are on the way, roughly in this order (plans can change):
 
-- **Other Clans:** half-Clan kits, and finding out where a cat was really born
-- **The leader names new warriors:** as the leader, pick each new warrior's name at their ceremony, or roll a random one
-- **Relationships with more going on:** ambition, jealousy, wants and feelings that change how cats act toward each other, like an ambitious cat resenting the deputy
 - **Play as your cat mode:** an optional mode where what you can do depends on your cat's rank, so only a leader picks mentors or exiles cats, and patrols go out without you unless you lead them
 - **Affairs:** a reworked affairs system
 - **Code and Borders:** more patrols where your choice counts for honor, and murder of other Clans' cats, with angry neighbors and even war

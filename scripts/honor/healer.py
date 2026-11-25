@@ -154,6 +154,9 @@ def found_out(cat, kits=False):
                               if not (s["offender"] == cat.ID and s["act"] in HEALER_ACTS)]
     core.change_reputation(cat, -randint(*REPUTATION_LOSS["serious"]))
     judgment.queue(cat, KITS_ACT if kits else MATE_ACT)
+    from scripts.honor import halfclan
+
+    halfclan.came_out(cat, KITS_ACT)
     who = "you" if cat is _you() else "others"
     _post(choice(texts()["out_kits" if kits else "out_mate"][who]), [cat, mate] if mate else [cat], top=True)
 
@@ -223,7 +226,13 @@ def after_birth(bearer, other_parents, kits):
     """called after a birth. A healer's kits break the code, and the one who gave birth decides"""
     if not on() or not kits:
         return
-    healers = [c for c in [bearer] + list(other_parents or []) if isinstance(c, Cat) and is_healer(c)]
+    # only births in the player's Clan, and only its own healers
+    home = game.clan.group_ID
+    lives_in = lambda c: c.status.get_last_living_group() if c.dead else c.status.group_ID
+    if lives_in(bearer) != home:
+        return
+    healers = [c for c in [bearer] + list(other_parents or [])
+               if isinstance(c, Cat) and is_healer(c) and lives_in(c) == home]
     if not healers:
         return
     for healer in healers:

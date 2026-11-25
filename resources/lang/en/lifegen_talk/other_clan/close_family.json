@@ -10,8 +10,60 @@
             }
         },
         "intro": [
-            "You're looking well. Is c_n treating you right?"
-        ]
+            "[t_c looks you over the way only family does, checking every scratch.]",
+            "You're looking well. Is c_n treating you right? Are they feeding you enough? You look thin."
+        ],
+        "intro_choices": {
+            "choice1": {
+                "text": "I'm fine, really.",
+                "next_scene": "fine"
+            },
+            "choice2": {
+                "text": "Prey's been scarce.",
+                "next_scene": "scarce"
+            }
+        },
+        "fine": [
+            "Hmph. You always say that."
+        ],
+        "fine_scene_effects": {
+            "relationships": [
+                {
+                    "cats_from": [
+                        "t_c"
+                    ],
+                    "cats_to": [
+                        "y_c"
+                    ],
+                    "values": [
+                        "comfort"
+                    ],
+                    "amount": 2,
+                    "mutual": false
+                }
+            ]
+        },
+        "scarce": [
+            "[t_c's whiskers droop.]",
+            "I wish I could bring you something. You know I can't."
+        ],
+        "scarce_scene_effects": {
+            "relationships": [
+                {
+                    "cats_from": [
+                        "t_c"
+                    ],
+                    "cats_to": [
+                        "y_c"
+                    ],
+                    "values": [
+                        "comfort"
+                    ],
+                    "amount": 3,
+                    "mutual": false
+                }
+            ]
+        }
     },
     "bg_oc_close_family_2": {
         "frequency": 2,

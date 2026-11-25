@@ -1,0 +1,18 @@
+{
+    "path": {
+        "warrior": "m_c has made up {PRONOUN/m_c/poss} mind. {PRONOUN/m_c/subject/CAP} {VERB/m_c/want/wants} to be a warrior.",
+        "healer": "m_c has made up {PRONOUN/m_c/poss} mind. {PRONOUN/m_c/subject/CAP} {VERB/m_c/ask/asks} to learn the ways of a healer.",
+        "mediator": "m_c has made up {PRONOUN/m_c/poss} mind. {PRONOUN/m_c/subject/CAP} {VERB/m_c/ask/asks} to train as a mediator.",
+        "queen": "m_c has made up {PRONOUN/m_c/poss} mind. {PRONOUN/m_c/subject/CAP} {VERB/m_c/ask/asks} to help care for the Clan's kits.",
+        "reasons": {
+            "no_apprentice": "c_n has no healer apprentice, and m_c means to change that.",
+            "skill": "It's what {PRONOUN/m_c/subject}{VERB/m_c/'ve/'s} always been good at.",
+            "personality": "Anyone who knows m_c could have guessed."
+        }
+    },
+    "retire": {
+        "yes": "m_c is asked if {PRONOUN/m_c/subject}'d like to retire, and {VERB/m_c/agree/agrees} it's time.",
+        "no": "m_c is asked if {PRONOUN/m_c/subject}'d like to retire, but {PRONOUN/m_c/subject} {VERB/m_c/aren't/isn't} ready to rest yet."
+    },
+    "deputy": "m_c knows who {PRONOUN/m_c/subject} {VERB/m_c/trust/trusts} to stand beside {PRONOUN/m_c/object}: r_c."
+}

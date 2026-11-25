@@ -160,7 +160,7 @@ def handle_temporary_conditions(cat: Cat):
 
         condition_extra_info = TEMPORARY_CONDITIONS[condition.name]
 
-        state = update_temporary_condition_state(condition)
+        state = update_temporary_condition_state(condition, clan=cat.status.fetch_clan_object())
 
         # PROGRESSION - this can happen during various states, so we check it first
         for progression, info in condition.progression.items():
@@ -593,15 +593,19 @@ def _determine_retirement(cat: Cat):
             if not int(random() * chance):
                 # LG: your own cat gets asked, nothing changes unless you accept
                 if game.clan.your_cat and cat.ID == game.clan.your_cat.ID:
+                    from scripts import let_decide
+
+                    if let_decide.said_no_lately(cat):
+                        return
                     if "retire" not in switch_get_value(Switch.windows_dict):
                         switch_append_list_value(Switch.windows_dict, "retire")
                     return
 
                 old_name = str(cat.name)
-                cat.retire_cat()
+                random_honour = cat.retire_cat()
 
                 create_ceremony(
-                    main_cat=cat, old_name=old_name, involved_cats={"m_c": cat}
+                    main_cat=cat, old_name=old_name, involved_cats={"m_c": cat}, random_honor=random_honour
                 )
 
 

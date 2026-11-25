@@ -25,7 +25,9 @@
             }
         },
         "intro": [
-            "If my Clan knew I was talking to you like this, they'd never let me hear the end of it."
+            "If my Clan knew I was talking to you like this, they'd never let me hear the end of it.",
+            "[t_c's ears flatten, then slowly come back up.]",
+            "My littermate would tell the whole camp before sunhigh. Twice."
         ]
     },
     "bg_oc_flirt_3": {
@@ -39,8 +41,62 @@
             }
         },
         "intro": [
-            "Meet me by the border at moonhigh? Only if you want to."
-        ]
+            "[t_c scuffs at the ground with one paw.]",
+            "There's a hollow by the stream, right where our borders meet. Nobody patrols it at moonhigh.",
+            "[{PRONOUN/t_c/subject/CAP} {VERB/t_c/don't/doesn't} quite look at you.]",
+            "...Just so you know."
+        ],
+        "intro_choices": {
+            "choice1": {
+                "text": "I'll be there.",
+                "next_scene": "there"
+            },
+            "choice2": {
+                "text": "That's against the code.",
+                "next_scene": "code"
+            }
+        },
+        "there": [
+            "[t_c's tail curls up before {PRONOUN/t_c/subject} can stop it.]"
+        ],
+        "there_scene_effects": {
+            "relationships": [
+                {
+                    "cats_from": [
+                        "t_c"
+                    ],
+                    "cats_to": [
+                        "y_c"
+                    ],
+                    "values": [
+                        "romance"
+                    ],
+                    "amount": 3,
+                    "mutual": false
+                }
+            ]
+        },
+        "code": [
+            "I know.",
+            "[{PRONOUN/t_c/subject/CAP} {VERB/t_c/sound/sounds} disappointed, but not surprised.]"
+        ],
+        "code_scene_effects": {
+            "relationships": [
+                {
+                    "cats_from": [
+                        "t_c"
+                    ],
+                    "cats_to": [
+                        "y_c"
+                    ],
+                    "values": [
+                        "romance"
+                    ],
+                    "amount": -2,
+                    "mutual": false
+                }
+            ]
+        }
     },
     "bg_oc_flirt_reject_1": {
         "frequency": 2,
@@ -53,7 +109,9 @@
             }
         },
         "intro": [
-            "You know we're from different Clans, right? This can't go anywhere."
+            "[t_c's eyes soften for a heartbeat, then go hard again.]",
+            "You know we're from different Clans, right? This can't go anywhere. It can't.",
+            "[{PRONOUN/t_c/subject/CAP} {VERB/t_c/turn/turns} and {VERB/t_c/pad/pads} away before you can answer.]"
         ],
         "tags": [
             "reject"
@@ -93,5 +151,155 @@
         "tags": [
             "reject"
         ]
+    },
+    "bg_oc_flirt_beach_shell": {
+        "frequency": 2,
+        "cats": {
+            "y_c": {},
+            "t_c": {
+                "group": [
+                    "other_clan"
+                ]
+            }
+        },
+        "biome": [
+            "Beach"
+        ],
+        "relationships": [
+            {
+                "cats_from": [
+                    "t_c"
+                ],
+                "cats_to": [
+                    "y_c"
+                ],
+                "relationship": [
+                    "max_romance_35"
+                ]
+            }
+        ],
+        "intro": [
+            "What is this...?",
+            "[t_c blinks at the colorful shell you've nudged {PRONOUN/t_c/poss} way, balanced on the border between you.]",
+            "Do you make a habit of giving things to cats from other Clans?"
+        ],
+        "intro_choices": {
+            "choice1": {
+                "text": "Maybe!",
+                "next_scene": "maybe"
+            },
+            "choice2": {
+                "text": "Nope, just you.",
+                "next_scene": "just_you"
+            }
+        },
+        "maybe": [
+            "[t_c huffs, rolling {PRONOUN/t_c/poss} eyes, but you can see the pleased gleam in them as {PRONOUN/t_c/subject} {VERB/t_c/snatch/snatches} the shell away to {PRONOUN/t_c/poss} side.]",
+            "Well, you're lucky it was me this time and not my Clanmates."
+        ],
+        "just_you": [
+            "[t_c shuffles {PRONOUN/t_c/poss} paws, clearly flustered. You swear you can see steam rising from {PRONOUN/t_c/poss} ears, and you just barely hold back a purr.]",
+            "[After a moment, {PRONOUN/t_c/subject} {VERB/t_c/swipe/swipes} a paw at the shell as if to smack it away, only to scoop it up and turn away from you, tail tip twitching.]",
+            "...Thanks."
+        ]
+    },
+    "bg_oc_flirt_feather": {
+        "frequency": 2,
+        "cats": {
+            "y_c": {},
+            "t_c": {
+                "group": [
+                    "other_clan"
+                ]
+            }
+        },
+        "relationships": [
+            {
+                "cats_from": [
+                    "t_c"
+                ],
+                "cats_to": [
+                    "y_c"
+                ],
+                "relationship": [
+                    "max_romance_35"
+                ]
+            }
+        ],
+        "intro": [
+            "[t_c drops something at your paws: a feather, striped brown and cream.]",
+            "Found it by the border. Thought you might like it. Don't make it weird."
+        ],
+        "intro_choices": {
+            "choice1": {
+                "text": "Thank you.",
+                "next_scene": "thanks"
+            },
+            "choice2": {
+                "text": "Is this a courting gift?",
+                "next_scene": "courting"
+            }
+        },
+        "thanks": [
+            "...You're welcome.",
+            "[You have gained an accessory!]"
+        ],
+        "thanks_scene_effects": {
+            "relationships": [
+                {
+                    "cats_from": [
+                        "t_c"
+                    ],
+                    "cats_to": [
+                        "y_c"
+                    ],
+                    "values": [
+                        "romance"
+                    ],
+                    "amount": 2,
+                    "mutual": false
+                }
+            ],
+            "inventory": {
+                "cats_to": [
+                    "y_c"
+                ],
+                "accessory": [
+                    "SPARROW FEATHERS"
+                ],
+                "addition": "all"
+            }
+        },
+        "courting": [
+            "What? No! It's a feather.",
+            "[{PRONOUN/t_c/poss/CAP} ears go pink.]",
+            "[You have gained an accessory!]"
+        ],
+        "courting_scene_effects": {
+            "relationships": [
+                {
+                    "cats_from": [
+                        "t_c"
+                    ],
+                    "cats_to": [
+                        "y_c"
+                    ],
+                    "values": [
+                        "romance"
+                    ],
+                    "amount": 3,
+                    "mutual": false
+                }
+            ],
+            "inventory": {
+                "cats_to": [
+                    "y_c"
+                ],
+                "accessory": [
+                    "SPARROW FEATHERS"
+                ],
+                "addition": "all"
+            }
+        }
     }
 }

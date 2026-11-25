@@ -29,6 +29,8 @@
         "healer_kits": ["broke a healer's vow and had kits", "broke a healer's vow and had kits"],
         "healer_adopt": ["broke a healer's vow and took in kits to raise", "broke a healer's vow and took in kits to raise"],
         "heart_mate": ["took a mate from another Clan", "took a mate from another Clan"],
+        "heart_kits": ["had kits with a cat from another Clan", "had kits with a cat from another Clan"],
+        "outside_kits": ["had kits with a cat from outside the Clans", "had kits with a cat from outside the Clans"],
         "favorite_off": ["let a favorite off without a sentence", "let a favorite off without a sentence"],
         "spite": ["punished a Clanmate harder than they deserved", "punished a Clanmate harder than they deserved"],
         "ignore_sign": ["ignored a sign from StarClan", "ignored a sign from StarClan"],

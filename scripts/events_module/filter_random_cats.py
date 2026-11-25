@@ -103,7 +103,7 @@ def _validate_cat(abbrev, cat_block, possible_cats, your_cat, the_cat):
         if not __filter_rank(cat_block[abbrev], cat):
             continue
 
-        if not __filter_group(cat_block[abbrev], cat, your_cat):
+        if not __filter_group(cat_block[abbrev], cat, your_cat, the_cat):
             continue
         if not __filter_standing(cat_block[abbrev], cat, your_cat):
             continue
@@ -181,8 +181,13 @@ def __filter_dead(abbrev_block, cat):
     return True
 
 
-def __filter_group(abbrev_block, cat, your_cat):
+def __filter_group(abbrev_block, cat, your_cat, the_cat=None):
     if "group" in abbrev_block:
+        # BUTTERGEN: "their_clan" is a cat from the same Clan as the cat the player talks to
+        if "their_clan" in abbrev_block["group"] and (
+            the_cat is None or cat.status.group_ID != the_cat.status.group_ID
+        ):
+            return False
         if (
             (cat.status.group and cat.status.group not in abbrev_block["group"])
             or (not cat.status.group and "none" not in abbrev_block["group"])

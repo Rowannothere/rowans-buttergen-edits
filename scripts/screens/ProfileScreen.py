@@ -510,6 +510,7 @@ class ProfileScreen(Screens):
             elif event.ui_element == self.profile_elements.get("warriors_den"):
                 self.change_screen(GameScreen.WARRIOR_DEN)
             elif event.ui_element == self.profile_elements.get("leader_den"):
+                game.selected_clan = self.the_cat.status.fetch_clan_object(game.clan)
                 self.change_screen(GameScreen.LEADER_DEN)
             elif event.ui_element == self.profile_elements["favourite_button"]:
                 self.the_cat.favourite += 1
@@ -645,6 +646,10 @@ class ProfileScreen(Screens):
                     self.request_apprentice_button.disable()
             elif event.ui_element == self.gift_accessory_button:
                 self.change_screen(GameScreen.GIFT)
+            elif event.ui_element == getattr(self, "change_want_button", None):
+                from scripts.ui.windows.change_want import ChangeWantWindow
+
+                ChangeWantWindow(self.the_cat, on_done=self.update_disabled_buttons_and_text)
         # Dangerous Tab
         elif self.open_tab == "dangerous":
             if event.ui_element == self.kill_cat_button:
@@ -1467,13 +1472,6 @@ class ProfileScreen(Screens):
                 parents=adjust_list_text([str(cat.name) for cat in all_parents]),
             )
 
-        # BUTTERGEN: favorite and disliked prey (scripts/cat/favorite_prey.py)
-        if not the_cat.dead:
-            from scripts.cat import favorite_prey
-
-            output += "\n" + i18n.t("general.favorite_prey", prey=favorite_prey.favorite(the_cat))
-            output += "\n" + i18n.t("general.disliked_prey", prey=favorite_prey.disliked(the_cat))
-
         # MATE
         if len(the_cat.mate) > 0:
             output += "\n"
@@ -1580,6 +1578,7 @@ class ProfileScreen(Screens):
                 in [game.clan.instructor, game.clan.demon]
                 + [clan.instructor for clan in game.clan.all_other_clans if clan.instructor]
                 or the_cat.status.is_outsider
+                or not cat_clan
             ):
                 text = i18n.t(
                     "general.past_no_group",
@@ -1744,6 +1743,17 @@ class ProfileScreen(Screens):
             output += " (" + str(the_cat.experience) + ")"
         # NEWLINE ----------
         output += "\n"
+
+        # BUTTERGEN: mood, wants, jealousy (scripts/feelings.py)
+        from scripts import feelings
+
+        output += feelings.profile_lines(the_cat)
+        # BUTTERGEN: where the player's cat met a cat from outside the Clan
+        from scripts import outsiders
+
+        met = outsiders.met_note(the_cat)
+        if met:
+            output += met + "\n"
 
         # NUTRITION INFO (if the game is in the correct mode)
         if (
@@ -1924,7 +1934,7 @@ class ProfileScreen(Screens):
             self.open_tab = "history"
             self.history_tab_checkbox = UICheckbox(
                 position=(52, 514),
-                check=Switch.show_history_moons,
+                check=switch_get_value(Switch.show_history_moons),
                 tool_tip_text="screens.profile.show_moons_tooltip",
                 manager=MANAGER,
             )
@@ -3326,6 +3336,7 @@ class ProfileScreen(Screens):
             self.have_kits_button = None
             self.request_apprentice_button = None
             self.gift_accessory_button = None
+            self.change_want_button = None
             self.update_disabled_buttons_and_text()
 
     def toggle_roles_tab(self):
@@ -3646,6 +3657,7 @@ class ProfileScreen(Screens):
                 self.have_kits_button,
                 self.request_apprentice_button,
                 self.gift_accessory_button,
+                getattr(self, "change_want_button", None),
             ):
                 if old_button:
                     old_button.kill()
@@ -3720,6 +3732,25 @@ class ProfileScreen(Screens):
                 self.gift_accessory_button.enable()
             else:
                 self.gift_accessory_button.disable()
+
+            # BUTTERGEN: pick what your cat wants most (scripts/feelings.py)
+            from scripts import feelings
+
+            want_texts = feelings.texts()["change_want"]
+            can_change = feelings.can_change_want(self.the_cat)
+            self.change_want_button = UIReasonButton(
+                ui_scale(pygame.Rect((402, 436), (172, 36))),
+                want_texts["button"],
+                get_button_dict(ButtonStyles.LADDER_TOP, (172, 36)),
+                object_id="@buttonstyles_ladder_top",
+                starting_height=2,
+                tool_tip_text=want_texts["tooltip"] if can_change or not feelings.want_of(self.the_cat)
+                else want_texts["tooltip_wait"],
+                manager=MANAGER,
+                anchors={"bottom_target": self.your_faith_button},
+            )
+            if not can_change:
+                self.change_want_button.disable()
 
             if switch_get_value(Switch.request_apprentice):
                 self.request_apprentice_button.disable()
@@ -4067,6 +4098,9 @@ class ProfileScreen(Screens):
                 self.request_apprentice_button.kill()
             if self.gift_accessory_button:
                 self.gift_accessory_button.kill()
+            if getattr(self, "change_want_button", None):
+                self.change_want_button.kill()
+
         elif self.open_tab == "conditions":
             self.left_conditions_arrow.kill()
             self.right_conditions_arrow.kill()

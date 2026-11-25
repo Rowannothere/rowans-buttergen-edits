@@ -148,8 +148,12 @@ def _other_clan(c):
 
 
 def offer_why(cat, key, heard=False, other_clan=None):
+    from scripts import let_decide
     from scripts.honor import choices
 
+    if let_decide.on(let_decide.CODE):
+        # a guess for the player
+        return
     real = _real_reason(cat, key)
     others = [c for c in CAUSES if c != real]
     answers = [real] + sample(others, 2) + [FUN]
@@ -465,10 +469,11 @@ def _choice_cats(entry) -> list:
 
 def announce():
     """an event line for the waiting choice, with a button that opens the window (part 3)"""
+    from scripts import let_decide
     from scripts.honor import choices
 
     shown = choices.window_text()
-    if not shown:
+    if not shown or let_decide.on(let_decide.CODE):
         return
     event = EventInformation(shown[0], ["misc"], _choice_cats(choices.pending()))
     event.honor_choice = True

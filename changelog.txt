@@ -1,3 +1,54 @@
+<strong>Buttergen v0.4-dev.18</strong>
+
+A development build, so keep a copy of your saves folder before playing.
+
+Changes:
+- A cat who asks the leader for the deputy's place now has to be trusted clearly more than the deputy, so the leader doesn't swap deputies over a small difference (a player report)
+- With the Pride and Joy card, cats who aren't the leader's kits can still ask to be deputy, but only get a yes once in a while, with its own event for the leader breaking tradition (a player suggestion)
+
+Fixes:
+- Talking to a cat with only a few lines that fit (like the leader when your cat is a kit) no longer gives the "Meow! This is a bug" line once those lines were all heard recently (a player report)
+- Dead cats made by an event who never lived in a Clan show "past warrior" in their profile instead of "past None warrior" (a player report)
+- A StarClan cat coaxed into the Dark Forest on a Dark Forest patrol gets their own backstory, instead of one saying they snuck into StarClan and were exiled (a player report)
+- A cat your cat has met from another Clan, or from outside the Clans, now shows your cat on their relationships screen, and shows on your cat's, even when outside and neutral relationships are hidden (a player report)
+
+<strong>Buttergen v0.4-dev.17</strong>
+
+A development build, so keep a copy of your saves folder before playing.
+
+New:
+- Let your cat decide (a player suggestion): a new "your cat" tab in the Clan Settings. Tick the choices you want your cat to make on their own, or tick everything: their path at 6 moons, retiring, choosing a deputy as leader, names, and warrior code choices. They choose by their personality, skills and relationships, and the events say what they picked. All off at first
+- A "Let them decide" button on the path, retiring and deputy windows, for handing off just one choice
+- Half-Clan kits (multi clan mode): mates in different Clans can have kits now, half as often as other mates. They're born in the Clan of whoever carries them, and your cat chooses: raise them in secret, take them to their other parent, or tell the truth. If the kits are born over there, your cat can let them stay, or try to bring them home. Other cats decide by personality
+- Kits with a kittypet, loner or rogue break the code the same way, for every cat and in single Clan mode too (they still only happen with the setting for kits with cats outside the Clan)
+- Secrets about kits are never forgotten. Clanmates can guess, gossip spreads, and when it's out it's judged with the mate as one misdeed, a little harder if the cat lied and milder if they told the truth right away. Clanmates may tease half-Clan kits, and friends may step in
+- Learning the truth: from 12 moons old, cats can find out that they have a parent in another Clan, or that they were stolen as a kit. Your cat can keep it to themselves, confront the cat who hid it, or look for their birth family at the next Gathering. A new setting in the Warrior code tab, "Birth secrets come out rarely", makes it 3 times rarer. Kits taken at 3 moons or older remember
+- Relationships with more going on:
+  - Wants: every cat from 6 moons up wants something (an apprentice, a mate, kits, a friend, someone's respect, to see the world, to get even...). It shows on the profile of your cat and of cats your cat knows well, and your cat can change theirs every 6 moons from the "your tab" buttons. A want that comes true makes a cat happy, one that waits 12 moons makes them restless
+  - Ambition: ambitious cats resent the deputy, and the most ambitious ask the leader for the deputy's place (your choice if your cat is the leader)
+  - Jealousy: of a mate's crush, a mentor's new apprentice, a littermate made warrior first, or a cat who got the role they wanted. A jealous mate may even end things
+  - Moods: grieving, bitter, restless, lonely, happy or content, worked out every skip (every week with weeks on). Moods nudge temptations and how cats get along, and your cat has short mood events now and then
+  - Two new settings: Ambition and Jealousy (both on)
+- Friendships: cats who like and feel at ease with each other become friends, and the closest become best friends (one at a time). Friends spend time together, are picked together for patrols when the game picks and do a little better on them, keep each other's misdeeds quiet more often, and speak up for mercy at judgments if they're the deputy or a senior warrior. A cat grieves a best friend longer and remembers them on the profile. Friends can drift apart or fall out (and want to make up), and a best friend can get jealous of a new best friend or mate. Your cat's profile shows their friends and best friend
+- Families: parents, kits and littermates can be close, ordinary or distant. Close parents are proud at their kit's ceremonies, sit with a hurt or sick kit in the healer's den, and like a cat less for picking on their kit. Littermate apprentices grow closer, unless one is ambitious or competitive, then they may become rivals. A distant parent and grown kit drift apart, and ones who dislike each other become estranged (no patrols together when the game picks), until one of them wants to make up. In multi clan mode, cats are glad to see close family at Gatherings, may want to see them again, and hear there when one dies. Elders tell stories to their grandkits. Your cat's profile shows who in their family they're close to, distant from or estranged from
+- Breed presets in the cat maker (a player suggestion): a new Breed button next to Random cat lists Genemod's 72 breeds (common, uncommon and rare). Picking one makes a random purebred cat of that breed, and picking it again rolls another. Only the looks change, and the cat's kits inherit the breed
+- New talk lines with other Clans' cats (a player suggestion): a beach Clan's cats get teased about their fishy smell by cats from Clans that aren't on the beach, a shell left at the border for a cat your cat is starting to like, and a mate from another Clan torn up when your two Clans are at war
+- Talk with other Clans' cats has more going on: many lines are little scenes now, some with a choice that changes how the other cat feels about your cat, and a cat with a crush may leave your cat a feather
+- A new Buttergen tab in the Clan Settings holds Buttergen's own settings: weeks, warrior code events, ambition and jealousy
+
+Changes:
+- Brought up to date with Genemod from November 24, 2026: the leader's den can send aid (some of the Clan's prey and herbs) to another Clan, and works in multi clan mode too. A Clan's temperament now follows the cats it has, and the mediation screen is fixed
+- If your cat decides not to retire on their own, they're asked again after 6 moons
+- Kits born outside and brought home by a Clanmate come with a choice or a story of their own, not only "refused to talk about their origin"
+
+Fixes:
+- With healers' mates against the code, a healer's kits born in another Clan are no longer handed to a queen in yours
+- A kit added when a new Clan was made could vanish the next time the game was opened, and leave their mentor with an empty apprentice spot that a newborn from any Clan could later fill. Those kits stay now, and loading a save takes wrong apprentices off the list
+- Two relationship events between three cats no longer show "r_c" in place of a cat's name, two others now change the relationship they were meant to, and one reads "wants to ask" instead of "wants to asks"
+- Talk lines that name a parent or sibling ("...is my parent") no longer show "error2" for cats with it/its pronouns or pronouns made by the player (a player report)
+- A warrior code choice about a cat who died later in the same skip no longer comes up (a player report)
+- With weeks on, a quiet week says "Nothing interesting happened this week" instead of "this moon"
+
 <strong>Buttergen v0.4-dev.16</strong>
 
 A development build, so keep a copy of your saves folder before playing.

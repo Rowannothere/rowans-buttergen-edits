@@ -368,7 +368,10 @@ def on_skip(full_moon: bool):
     if not game.clan:
         return
     from scripts.honor import witness
+    # Other Clans step 3: a choice about a litter that had to wait comes first
+    from scripts.honor import halfclan
 
+    halfclan.offer_waiting()
     # step 7: secret healer mates can come out
     if full_moon:
         from scripts.honor import healer
@@ -388,6 +391,12 @@ def on_skip(full_moon: bool):
     from scripts.honor import heart
 
     heart.on_skip(full_moon)
+    # Other Clans step 3: half-Clan kits, and learning the truth
+    halfclan.on_skip(full_moon)
+    # ambition, jealousy, wants and moods, before temptation builds so a mood counts this skip
+    from scripts import feelings
+
+    feelings.on_skip(full_moon)
     scale = 1 / weekskip.WEEKS_IN_MOON if weekskip.on() else 1.0
     cats = [c for c in clanmates() if can_act(c)]
     for cat in cats:

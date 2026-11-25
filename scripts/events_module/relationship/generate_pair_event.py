@@ -92,6 +92,11 @@ def trigger_interaction(
             type_of_interaction,
             existing_relationship,
         )
+        # BUTTERGEN: a cat who insults or fights a kit loses some of the parent's liking (scripts/families.py)
+        if type_of_change == "negative" and type_of_interaction == RelType.LIKE:
+            from scripts import families
+
+            families.protect(main_cat, other_cat)
         return True
 
 
@@ -131,6 +136,13 @@ def _get_type_of_change(
         and other_cat.status.is_leader
     ):
         bool_ballot.append(False)
+
+    # BUTTERGEN: a happy cat leans friendly, a bitter one prickly (scripts/feelings.py)
+    from scripts import feelings
+
+    lean = feelings.lean(main_cat)
+    if lean is not None:
+        bool_ballot += [lean] * 2
 
     # further influence the partition based on the relationship
     for value in (

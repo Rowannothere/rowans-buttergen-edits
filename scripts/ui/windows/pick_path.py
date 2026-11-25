@@ -2,6 +2,7 @@ import pygame
 import pygame_gui
 from random import choice
 
+from scripts import let_decide
 from scripts.game_structure import game
 from scripts.ui.elements.surface_image_button import UISurfaceImageButton
 from scripts.ui.elements.image_button import UIImageButton
@@ -17,7 +18,7 @@ from scripts.cat.enums import CatRank
 class PickPath(GameWindow):
     def __init__(self, last_screen):
         super().__init__(
-            ui_scale(pygame.Rect((220, 175), (400, 250))),
+            ui_scale(pygame.Rect((220, 175), (400, 280))),
         )
         self.set_blocking(True)
         switch_set_value(Switch.window_open, True)
@@ -66,6 +67,14 @@ class PickPath(GameWindow):
             object_id="@buttonstyles_icon",
             container=self,
             tool_tip_text="Random",
+        )
+        # BUTTERGEN: let your cat decide
+        self.decide_button = UISurfaceImageButton(
+            ui_scale(pygame.Rect((80, 235), (240, 30))),
+            let_decide.button_text(),
+            get_button_dict(ButtonStyles.SQUOVAL, (240, 30)),
+            object_id="@buttonstyles_squoval",
+            container=self,
         )
 
         self.not_yet_button.enable()
@@ -128,6 +137,10 @@ class PickPath(GameWindow):
                                 CatRank.QUEEN,
                             ]
                         )
+
+                elif event.ui_element == self.decide_button:
+                    switch_set_value(Switch.window_open, False)
+                    status = let_decide.choose_path()
 
                 if status:
                     game.clan.your_cat.rank_change(status)

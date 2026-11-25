@@ -1,0 +1,67 @@
+{
+    "resent": [
+        "m_c watches r_c hand out the dawn patrols, and thinks {PRONOUN/m_c/subject} could do it better.",
+        "m_c mutters that r_c only became deputy because the leader likes {PRONOUN/r_c/object}."
+    ],
+    "ask": "m_c asks the leader to make {PRONOUN/m_c/object} deputy instead of r_c.",
+    "ask_no": "The leader turns m_c down. m_c doesn't argue, but {PRONOUN/m_c/poss} tail lashes as {PRONOUN/m_c/subject} {VERB/m_c/leave/leaves}.",
+    "ask_yes_not_kin": "The leader breaks with tradition and names m_c deputy in place of r_c, though the Clan murmurs about kinship.",
+    "ask_no_not_kin": "The leader reminds m_c that only the leader's own kin may be deputy. m_c says nothing, but {PRONOUN/m_c/poss} claws dig into the earth.",
+    "ask_window": {
+        "prompt": "m_c asks you to make {PRONOUN/m_c/object} deputy instead of r_c. What do you say?",
+        "yes": "Make m_c deputy",
+        "no": "Keep r_c as deputy"
+    },
+    "jealous_mate": "m_c doesn't like how often {PRONOUN/m_c/poss} mate pads out to hunt with r_c.",
+    "jealous_mentor": "m_c sees {PRONOUN/m_c/poss} mentor praise r_c, and feels something sour in {PRONOUN/m_c/poss} chest.",
+    "jealous_sibling": "m_c can't stop thinking about how r_c became a warrior first.",
+    "jealous_role": "m_c wanted to be the one r_c is now. {PRONOUN/m_c/subject/CAP} {VERB/m_c/try/tries} not to show it.",
+    "jealous_friend": "m_c hasn't seen much of r_c since {PRONOUN/r_c/subject} got so close to another cat.",
+    "jealous_fades": "m_c realizes {PRONOUN/m_c/subject} {VERB/m_c/aren't/isn't} angry at r_c anymore.",
+    "breakup": "m_c can't stand it anymore, and ends things with r_c.",
+    "done_apprentice": "m_c finally has an apprentice of {PRONOUN/m_c/poss} own, and can't stop purring about it.",
+    "done_friend": "m_c and r_c are friends now, just like m_c hoped.",
+    "done_respect": "r_c tells m_c {PRONOUN/m_c/subject} did well. m_c will remember it for moons.",
+    "frustrated_apprentice": "m_c watches another cat take a new apprentice, and wonders when {PRONOUN/m_c/poss} turn will come.",
+    "mood_grieving": "m_c keeps looking toward r_c's old nest.",
+    "mood_bitter": "m_c snaps at a Clanmate over nothing, and pads away before anyone can answer.",
+    "mood_restless": "m_c can't keep still, and paces the edge of camp until moonhigh.",
+    "mood_lonely": "m_c eats alone again, watching the others share tongues.",
+    "mood_happy": "m_c bounces through camp, too cheerful to be annoyed by anything today.",
+    "want_names": {
+        "apprentice": "an apprentice",
+        "deputy": "to be deputy",
+        "leader": "to be leader",
+        "mate": "a mate",
+        "kits": "kits",
+        "friend": "to be friends with r_c",
+        "respect": "to earn r_c's respect",
+        "world": "to see the world",
+        "even": "to get even with r_c",
+        "learn": "to learn from r_c",
+        "makeup": "to make up with r_c",
+        "see": "to see r_c again",
+        "peace": "peace and quiet"
+    },
+    "profile": {
+        "mood": "Mood: %{mood}",
+        "moods": {
+            "grieving": "grieving",
+            "bitter": "bitter",
+            "restless": "restless",
+            "lonely": "lonely",
+            "happy": "happy",
+            "content": "content"
+        },
+        "want": "Wants: %{want}",
+        "jealous": "Jealous of: %{cats}",
+        "resents": "Resents: %{cat}"
+    },
+    "change_want": {
+        "button": "change want",
+        "tooltip": "Pick something else for your cat to work toward. Once every 6 moons.",
+        "tooltip_wait": "Your cat changed what they want not long ago.",
+        "prompt": "What does m_c want most right now?",
+        "cancel": "Never mind"
+    }
+}

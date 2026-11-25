@@ -67,6 +67,10 @@ def pending():
         or (c["kind"] in SWITCH_KINDS and not _alive(Cat.fetch_cat(c["cat"])))
         or (c["kind"] in _moment_kinds() and _moments().pending_gone(c))
         or (c["kind"] in _heart_kinds() and _heart().pending_gone(c))
+        or (c["kind"] in _half_kinds() and _half().pending_gone(c))
+        or (c["kind"] in _feel().KINDS and _feel().pending_gone(c))
+        or (c["kind"] == WITNESS and c["act"] in _half().ACTS
+            and not _half().has_secret(Cat.fetch_cat(c["offender"]), c["act"]))
     )
     if gone:
         game.clan.code_choice = None
@@ -103,6 +107,22 @@ def _heart_kinds():
     return _heart().KINDS
 
 
+def _half():
+    from scripts.honor import halfclan
+
+    return halfclan
+
+
+def _half_kinds():
+    return _half().KINDS
+
+
+def _feel():
+    from scripts import feelings
+
+    return feelings
+
+
 def _offer(entry):
     you = _you()
     entry["you"] = you.ID if you else None
@@ -118,6 +138,8 @@ def offer_temptation(key, other, other_clan):
 
 
 def offer_witness(offender, key, other_clan, level=None):
+    if not _alive_in_clan(offender):
+        return
     _offer({"kind": WITNESS, "act": key, "offender": offender.ID,
             "clan": other_clan.name if other_clan else None, "level": level})
 
@@ -190,6 +212,10 @@ def window_text():
         return prompt, options
     if c["kind"] in _heart_kinds():
         prompt, options = _heart().window_text(c)
+    elif c["kind"] in _half_kinds():
+        prompt, options = _half().window_text(c)
+    elif c["kind"] in _feel().KINDS:
+        prompt, options = _feel().window_text(c)
     elif c["kind"] in SWITCH_KINDS:
         from scripts.honor import switching
 
@@ -291,6 +317,10 @@ def _resolve(option):
         return _moments().resolve(c, option)
     if c["kind"] in _heart_kinds():
         return _heart().resolve_choice(c, option)
+    if c["kind"] in _half_kinds():
+        return _half().resolve_choice(c, option)
+    if c["kind"] in _feel().KINDS:
+        return _feel().resolve_choice(c, option)
     if c["kind"] in SWITCH_KINDS:
         from scripts.honor import switching
 
@@ -412,6 +442,19 @@ def on_skip_start():
     # sentences your leader didn't pick get the usual one
     _moments().settle()
     _moments().cleanup()
+
+
+def decide_waiting():
+    """let your cat decide: with the setting on, choices never wait for the player"""
+    from scripts import let_decide
+
+    if not game.clan or not let_decide.on(let_decide.CODE):
+        return
+    # a leader can have a few sentences to pick
+    for _ in range(20):
+        if pending() is None:
+            return
+        resolve(DECIDE)
 
 
 def show_badge(screen):

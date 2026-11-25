@@ -277,6 +277,8 @@ class Cat:
         self.code_exile = None
         # healer mates the Clan does and doesn't know about (scripts/honor/healer.py)
         self.code_healer = None
+        # ambition, jealousy, wants and mood (scripts/feelings.py)
+        self.feelings = {}
         # BUTTERGEN: picked the first time it's needed (scripts/cat/favorite_prey.py)
         self.favorite_prey = None
         self.disliked_prey = None
@@ -1846,21 +1848,27 @@ class Cat:
         """This is only for cats that retire due to health condition"""
 
         # There are some special tasks we need to do for apprentice
-        # Note that although you can unretire cats, they will be a full warrior/med_cat/mediator
-
+        # Note that although you can un-retire cats, they will be a full warrior/med_cat/mediator
+        random_honor = None
         if self.moons > 6 and self.status.rank.is_any_apprentice_rank():
-            if get_clan_setting('modded names') and get_clan_setting('dynamic prefixes'):
-                self.name.change_prefix(self.moons, self.status.fetch_clan_object().biome, 'apprentice-warrior')
-            if get_clan_setting('modded names') and get_clan_setting('new suffixes') and not self.name.specsuffix_hidden:
-                self.name.give_suffix(self.skills, self.personality, self.status.fetch_clan_object().biome, None)
             _ment = Cat.fetch_cat(self.mentor) if self.mentor else None
             self.rank_change(
                 CatRank.WARRIOR
             )  # Temp switch them to warrior, so the following step will work
             self.rank_change_traits_skill(_ment)
+            
+            traits = load_lang_resource("events/ceremonies/ceremony_traits.json")
+            try:
+                random_honor = choice(traits[self.personality.trait])
+            except KeyError:
+                random_honor = i18n.t("defaults.ceremony_honor")
+            if get_clan_setting('modded names') and get_clan_setting('dynamic prefixes'):
+                self.name.change_prefix(self.moons, self.status.fetch_clan_object().biome, 'apprentice-warrior')
+            if get_clan_setting('modded names') and get_clan_setting('new suffixes') and not self.name.specsuffix_hidden:
+                self.name.give_suffix(self.skills, self.personality, self.status.fetch_clan_object().biome, random_honor)
 
         self.rank_change(CatRank.ELDER)
-        return
+        return random_honor
 
     def remove_condition(self, name: str):
         """
@@ -2028,6 +2036,10 @@ class Cat:
             trusted = [c for c in potential_mentors if not lost_trust(c)]
             if trusted_priority or trusted:
                 priority_mentors, potential_mentors = trusted_priority, trusted
+            # BUTTERGEN: of the fair picks, cats who want an apprentice come first (scripts/feelings.py)
+            from scripts import feelings
+
+            priority_mentors = feelings.mentor_first(priority_mentors)
             # First try for a cat who currently has no apprentices and is working
             if (
                 switch_get_value(Switch.request_apprentice)
@@ -3231,6 +3243,7 @@ class Cat:
                 "code_sentence": self.code_sentence,
                 "code_exile": self.code_exile,
                 "code_healer": self.code_healer,
+                "feelings": self.feelings,
                 "backstory": self.backstory or None,
                 "moons": self.moons,
                 "trait": self.personality.trait,

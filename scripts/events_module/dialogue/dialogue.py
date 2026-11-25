@@ -179,6 +179,14 @@ class Dialogue:
             if "camp" in block:
                 if block["camp"] and game.clan.camp_bg not in block["camp"]:
                     continue
+            # BUTTERGEN: the other cat's Clan: its biome ("-beach" for any but a beach), and a war
+            if "their_biome" in block and not self._their_biome_fits(block["their_biome"]):
+                continue
+            if "at_war" in block and self._at_war() != bool(block["at_war"]):
+                continue
+            # BUTTERGEN: the cat's mood, want and feelings toward the player's cat (scripts/feelings.py)
+            if not self._feelings_fit(block):
+                continue
 
             if flirt:
                 tags = block.get("tags", [])
@@ -249,6 +257,60 @@ class Dialogue:
             return None
         victim_cat = Cat.fetch_cat(game.clan.murdered.get("victim"))
         return {victim: victim_cat} if victim_cat else None
+
+    def _feelings_fit(self, block) -> bool:
+        if not any(k in block for k in ("t_c_mood", "t_c_want", "t_c_feels", "t_c_family", "t_c_family_feel")):
+            return True
+        from scripts import feelings
+
+        if "t_c_mood" in block and feelings.mood(self.cat) not in block["t_c_mood"]:
+            return False
+        want = feelings.want_of(self.cat)
+        if "t_c_want" in block and (not want or want["kind"] not in block["t_c_want"]):
+            return False
+        for feel in block.get("t_c_feels", []):
+            if feel == "jealous_of_y_c" and not feelings.is_jealous_of(self.cat, self.you):
+                return False
+            if feel == "resents_y_c" and not (
+                self.you is game.clan.deputy and feelings.ambition(self.cat) >= feelings.RESENT_AT
+            ):
+                return False
+            if feel == "y_c_helped" and feelings.data(self.cat).get("helped_by") != self.you.ID:
+                return False
+            # friendships (scripts/friends.py)
+            from scripts import friends
+
+            if feel == "friend_of_y_c" and not friends.is_friend(self.cat, self.you):
+                return False
+            if feel == "best_friend_of_y_c" and not friends.is_best(self.cat, self.you):
+                return False
+            if feel == "fell_out_with_y_c" and not friends.fell_out(self.cat, self.you):
+                return False
+        # families (scripts/families.py): what t_c is to the player's cat, and how close they are
+        from scripts import families
+
+        if not families.talk_fits(self.cat, self.you, block):
+            return False
+        return True
+
+    def _their_clan(self):
+        from scripts import outsiders
+
+        return outsiders.clan_of(self.cat) if game.clan.clancount == "multiclan" else None
+
+    def _their_biome_fits(self, wanted) -> bool:
+        clan = self._their_clan()
+        biome = (clan.biome or "").lower() if clan else ""
+        wanted = [str(w).lower() for w in wanted]
+        if any(w.startswith(("-", "not_")) and biome == w.split("-", 1)[-1].replace("not_", "", 1)
+               for w in wanted):
+            return False
+        allowed = [w for w in wanted if not w.startswith(("-", "not_"))]
+        return bool(clan) and (not allowed or biome in allowed)
+
+    def _at_war(self) -> bool:
+        clan = self._their_clan()
+        return bool(clan) and clan.group_ID in game.clan.get_wars(self.you.status.group_ID)
 
     @staticmethod
     def _written_for_mates(block) -> bool:
@@ -343,12 +405,18 @@ class Dialogue:
                     + " Set debug_dialogue_override_filtering to true to override filtering."
                 )
             # weighted shuffle
-            ordered_keys = sorted(
-                possible_dialogue_keys,
-                key=lambda k: random.random()
-                ** (1 / max(self.dialogue_weights.get(k, 1), 1)),
-                reverse=True,
-            )
+            def shuffled(keys):
+                return sorted(
+                    keys,
+                    key=lambda k: random.random()
+                    ** (1 / max(self.dialogue_weights.get(k, 1), 1)),
+                    reverse=True,
+                )
+
+            # BUTTERGEN: recently heard lines are tried last, not dropped, so a cat with only a few
+            # lines that fit doesn't fall back to the bug line
+            heard = [k for k in possible_dialogue if k not in possible_dialogue_keys]
+            ordered_keys = shuffled(possible_dialogue_keys) + shuffled(heard)
             # check possible dialogue for valid cat constraints
             for key in ordered_keys:
                 dialogue_block = possible_dialogue[key]

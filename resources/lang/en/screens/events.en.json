@@ -18,6 +18,7 @@
         "miscellaneous": "miscellaneous",
         "no_events": "Nothing interesting happened this moon.",
         "view_map_tile": "View this area on the map.",
-        "event_location": "Location: %{tile}"
+        "event_location": "Location: %{tile}",
+        "no_events_week": "Nothing interesting happened this week."
     }
 }

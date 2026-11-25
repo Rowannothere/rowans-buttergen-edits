@@ -24,8 +24,60 @@
             }
         },
         "intro": [
-            "You seem all right, for a c_n cat."
-        ]
+            "[t_c looks you over, from your ears to your tail tip.]",
+            "You seem all right. For a c_n cat."
+        ],
+        "intro_choices": {
+            "choice1": {
+                "text": "Is that a compliment?",
+                "next_scene": "compliment"
+            },
+            "choice2": {
+                "text": "Right back at you.",
+                "next_scene": "too"
+            }
+        },
+        "compliment": [
+            "Don't let it go to your head."
+        ],
+        "compliment_scene_effects": {
+            "relationships": [
+                {
+                    "cats_from": [
+                        "t_c"
+                    ],
+                    "cats_to": [
+                        "y_c"
+                    ],
+                    "values": [
+                        "like"
+                    ],
+                    "amount": 1,
+                    "mutual": false
+                }
+            ]
+        },
+        "too": [
+            "[t_c huffs out a laugh.]",
+            "Fair enough."
+        ],
+        "too_scene_effects": {
+            "relationships": [
+                {
+                    "cats_from": [
+                        "t_c"
+                    ],
+                    "cats_to": [
+                        "y_c"
+                    ],
+                    "values": [
+                        "like"
+                    ],
+                    "amount": 2,
+                    "mutual": false
+                }
+            ]
+        }
     },
     "bg_oc_neutral_3": {
         "frequency": 2,

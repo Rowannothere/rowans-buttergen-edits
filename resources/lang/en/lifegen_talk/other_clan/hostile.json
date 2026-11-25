@@ -10,9 +10,43 @@
             }
         },
         "intro": [
-            "[t_c's fur bristles.]",
-            "Talk fast. I don't want my Clanmates seeing me with a c_n cat."
-        ]
+            "[t_c's fur bristles, and {PRONOUN/t_c/subject} {VERB/t_c/glance/glances} over {PRONOUN/t_c/poss} shoulder toward the trees.]",
+            "Talk fast. If my Clanmates see me with a c_n cat, I'll be on elder duty until leaf-fall."
+        ],
+        "intro_choices": {
+            "choice1": {
+                "text": "Then I'll be quick.",
+                "next_scene": "quick"
+            },
+            "choice2": {
+                "text": "Afraid of your own Clanmates?",
+                "next_scene": "afraid"
+            }
+        },
+        "quick": [
+            "...Fine. But I'm not promising to listen."
+        ],
+        "afraid": [
+            "[t_c's lip curls.]",
+            "Afraid of what they'd think of me for talking to you."
+        ],
+        "afraid_scene_effects": {
+            "relationships": [
+                {
+                    "cats_from": [
+                        "t_c"
+                    ],
+                    "cats_to": [
+                        "y_c"
+                    ],
+                    "values": [
+                        "like"
+                    ],
+                    "amount": -2,
+                    "mutual": false
+                }
+            ]
+        }
     },
     "bg_oc_hostile_2": {
         "frequency": 2,

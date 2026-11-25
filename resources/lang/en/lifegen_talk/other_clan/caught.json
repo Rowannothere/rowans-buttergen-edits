@@ -67,7 +67,46 @@
             }
         },
         "intro": [
-            "Lost? Funny, the scent markers are pretty hard to miss."
-        ]
+            "Lost?",
+            "[t_c tilts {PRONOUN/t_c/poss} head toward the scent markers, an easy fox-length behind you.]",
+            "Funny. They're pretty hard to miss."
+        ],
+        "intro_choices": {
+            "choice1": {
+                "text": "I was chasing a squirrel.",
+                "next_scene": "squirrel"
+            },
+            "choice2": {
+                "text": "I wanted to see you.",
+                "next_scene": "see_you"
+            }
+        },
+        "squirrel": [
+            "And where's the squirrel now?",
+            "[You both look at the empty undergrowth.]",
+            "Go home."
+        ],
+        "see_you": [
+            "[t_c blinks, caught off guard.]",
+            "That's... not how this works.",
+            "[But {PRONOUN/t_c/subject} {VERB/t_c/don't/doesn't} call for {PRONOUN/t_c/poss} patrol.]"
+        ],
+        "see_you_scene_effects": {
+            "relationships": [
+                {
+                    "cats_from": [
+                        "t_c"
+                    ],
+                    "cats_to": [
+                        "y_c"
+                    ],
+                    "values": [
+                        "romance"
+                    ],
+                    "amount": 2,
+                    "mutual": false
+                }
+            ]
+        }
     }
 }

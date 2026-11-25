@@ -143,11 +143,6 @@ def keeps_together(cat_a, cat_b) -> bool:
     return pair_of(cat_a, cat_b) is not None
 
 
-def no_kits(cat_a, cat_b) -> bool:
-    """kits for these pairs come with step 3"""
-    return pair_of(cat_a, cat_b) is not None
-
-
 def mate_note(cat, mate) -> str:
     """the profile's "(ClanName, secret)" after a mate in another Clan, or "" """
     pair = pair_of(cat, mate)
@@ -195,9 +190,18 @@ def _affair_roll(home, away, other_clan):
             caught -= 5
     if random() * 100 >= caught or not mates:
         return
-    from scripts.cat.conditions.gain_conditions import gain_temporary_condition
     from scripts.honor import witness
 
+    affair_known(home, other_clan, mates)
+    witness.report(home, mates[0], ACT, other_clan, "report")
+
+
+def affair_known(home, other_clan, mates):
+    """their mates in the Clan find out, and they all leave or all stay"""
+    from scripts.cat.conditions.gain_conditions import gain_temporary_condition
+    from scripts.game_structure import constants
+
+    gen = constants.CONFIG["lifegen"]["gen"]
     low, high = gen["affair_relationship_change_lb"], gen["affair_relationship_change_ub"]
     leaves = random() < 0.5
     for mate in mates:
@@ -207,7 +211,6 @@ def _affair_roll(home, away, other_clan):
             gain_temporary_condition(mate, "heartbroken")
             mate.unset_mate(home)
         _post("affair_leave" if leaves else "affair_stay", home, mate, top=True, other_clan=other_clan)
-    witness.report(home, mates[0], ACT, other_clan, "report")
 
 
 def _end(pair, key="end"):
@@ -514,7 +517,8 @@ def register_litter_mates(cat, outside_parent):
     if not on() or not _alive_in_clan(cat) or _clan_of(outside_parent) is None or pair_of(cat, outside_parent):
         return
     record()["pairs"].append({"home": cat.ID, "away": outside_parent.ID, "since": game.clan.age,
-                              "open": not code.counts(ACT), "out": False, "met_moon": None})
+                              "open": not code.counts(ACT), "out": False, "met_moon": None,
+                              "from_litter": True})
 
 
 # the player's choices (scripts/honor/choices.py hands these over)

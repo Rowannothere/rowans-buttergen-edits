@@ -81,9 +81,6 @@
         thought_tooltips = true
         backgrounds = true
         freshkill = true
-        weekskip = false
-        "rare code events" = false
-        "frequent code events" = false
         "all accessories" = false
         "modded names" = true
         "new prefixes" = true
@@ -129,6 +126,14 @@
         "first cousin mates" = false
         no_litters = false
     
+    # BUTTERGEN: Buttergen's own settings tab
+    [clan.buttergen]
+        weekskip = false
+        "rare code events" = false
+        "frequent code events" = false
+        ambition = true
+        jealousy = true
+
     # BUTTERGEN: the Clan's own warrior code (scripts/honor/code.py), one checkbox per rule
     [clan.code]
         "code defend" = true
@@ -143,6 +148,17 @@
         "code stay in camp" = true
         "code clan property" = true
         "code honesty" = true
+        # not a rule: how often cats learn where they were born (scripts/honor/halfclan.py)
+        "birth secrets rare" = false
+
+    # BUTTERGEN: let your cat decide (scripts/let_decide.py)
+    [clan.decide]
+        "decide all" = false
+        "decide path" = false
+        "decide retire" = false
+        "decide deputy" = false
+        "decide names" = false
+        "decide code" = false
 
     [clan.freshkill_tactics]
         low_rank = true
@@ -211,6 +227,16 @@
     #   [clan.nests."section_name"."setting_name"]
     #       required_setting_name = required_value
     [clan.nests]
+        [clan.nests.decide."decide path"]
+            "decide all" = false
+        [clan.nests.decide."decide retire"]
+            "decide all" = false
+        [clan.nests.decide."decide deputy"]
+            "decide all" = false
+        [clan.nests.decide."decide names"]
+            "decide all" = false
+        [clan.nests.decide."decide code"]
+            "decide all" = false
         [clan.nests.general.metric_toggle]
             showheight = true
         [clan.nests.general.adult_height_toggle]
@@ -230,9 +256,9 @@
         [clan.nests.general."outsider names"]
             "modded names" = true
         # BUTTERGEN: the two code event settings rule each other out, neither means normal
-        [clan.nests.general."rare code events"]
+        [clan.nests.buttergen."rare code events"]
             "frequent code events" = false
-        [clan.nests.general."frequent code events"]
+        [clan.nests.buttergen."frequent code events"]
             "rare code events" = false
         [clan.nests.relation."same sex adoption"]
             "same sex birth" = false

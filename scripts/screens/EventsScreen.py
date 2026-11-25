@@ -57,6 +57,7 @@ from scripts.cat.enums import CatRank
 import random
 
 from scripts.ui.windows.death_window import DeathScreen
+from scripts import let_decide
 from scripts.ui.windows.pick_path import PickPath
 from scripts.ui.windows.choose_deputy import ChooseDeputyWindow
 
@@ -254,11 +255,16 @@ class EventsScreen(Screens):
                     and game.clan.your_cat.status.alive_in_player_clan
                     and game.clan.your_cat.status.rank == CatRank.KITTEN
                 ):
-                    PickPath("events screen")
+                    if let_decide.on(let_decide.PATH):
+                        game.clan.your_cat.rank_change(let_decide.choose_path())
+                        self.start_timeskip()
+                    else:
+                        PickPath("events screen")
                 elif (
                     game.clan.leader
                     and game.clan.leader.ID == game.clan.your_cat.ID
                     and not game.clan.your_cat.status.is_shunned()
+                    and not let_decide.on(let_decide.DEPUTY)
                     and (
                         not game.clan.deputy
                         or (
@@ -849,6 +855,8 @@ class EventsScreen(Screens):
 
         self.make_event_scrolling_container()
         self.open_involved_cat_button = None
+        # BUTTERGEN: let your cat decide, for choices that came up outside a skip
+        honor_choices.decide_waiting()
         self.update_display_events_lists()
         self.update_events_display()
         # BUTTERGEN: "Your cat has a choice" (honor system step 5)
@@ -1737,7 +1745,11 @@ class EventsScreen(Screens):
                 self.event_buttons[tab].enable()
 
         if not self.all_events:
-            self.all_events.append(EventInformation(i18n.t("screens.events.no_events")))
+            # BUTTERGEN: with weeks on, a skip that wasn't a full moon was only a week
+            from scripts.events_module import weekskip
+
+            key = "no_events" if weekskip.full_moon() else "no_events_week"
+            self.all_events.append(EventInformation(i18n.t("screens.events." + key)))
 
         self.display_events = self.all_events
 

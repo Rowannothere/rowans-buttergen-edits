@@ -47,6 +47,10 @@ def maybe_queue(cat, new_rank, was_apprentice, old_mentor, old_name=None):
     if (not you or you is cat or you.dead or not you.status.alive_in_player_clan
             or not cat.status.alive_in_player_clan or not was_apprentice):
         return
+    from scripts import let_decide
+
+    if let_decide.on(let_decide.NAMES):
+        return
     leader_names = new_rank in (CatRank.WARRIOR, CatRank.MEDIATOR) and you.status.rank == CatRank.LEADER
     healer_names = (new_rank == CatRank.MEDICINE_CAT and old_mentor is you
                     and you.status.rank == CatRank.MEDICINE_CAT)

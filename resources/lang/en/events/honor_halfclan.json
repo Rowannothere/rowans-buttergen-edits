@@ -1,0 +1,63 @@
+{
+    "birth": "m_c gave birth to a {insert}.",
+    "here": {
+        "prompt": "Your kits are born, and their other parent is r_c of o_c_n. What do you do?",
+        "prompt_outsider": "Your kits are born, and their other parent is r_c, a cat from outside the Clans. What do you do?",
+        "options": {
+            "keep": "Raise them and keep the secret",
+            "take": "Take them to their other parent",
+            "tell": "Tell the leader the truth"
+        },
+        "tell_leader": "Tell the Clan the truth"
+    },
+    "there": {
+        "prompt": "r_c of o_c_n has had your kits. What do you do?",
+        "prompt_outsider": "r_c has had your kits, far from c_n's camp. What do you do?",
+        "options": {
+            "leave": "Let r_c raise them",
+            "bring": "Bring them home, say you found them",
+            "tell": "Bring them home and tell the truth"
+        },
+        "tell_leader": "Bring them home and tell the truth"
+    },
+    "mate": "m_c curls around {PRONOUN/m_c/poss} kits as r_c purrs beside {PRONOUN/m_c/object}. Only m_c knows the truth.",
+    "silent": "m_c won't say who the other parent of {PRONOUN/m_c/poss} kits is, and after a while, c_n stops asking.",
+    "found": "m_c pads into camp with a litter of kits, and says {PRONOUN/m_c/subject} found them alone in the undergrowth.",
+    "taken": "In the dark before dawn, m_c carries {PRONOUN/m_c/poss} kits to the border, where r_c of o_c_n is waiting.",
+    "taken_outsider": "In the dark before dawn, m_c carries {PRONOUN/m_c/poss} kits out of the territory, where r_c is waiting.",
+    "told": "m_c stands before the whole Clan and tells the truth: the kits' other parent is r_c of o_c_n.",
+    "told_outsider": "m_c stands before the whole Clan and tells the truth: the kits' other parent is r_c, a cat from outside the Clans.",
+    "stay": "Word reaches m_c that r_c of o_c_n has had kits. {PRONOUN/m_c/subject/CAP} {VERB/m_c/wonder/wonders} if any of them look like {PRONOUN/m_c/object}.",
+    "stay_outsider": "Word reaches m_c that r_c has had kits. {PRONOUN/m_c/subject/CAP} {VERB/m_c/wonder/wonders} if any of them look like {PRONOUN/m_c/object}.",
+    "refused": "r_c won't give the kits up, and m_c goes home alone.",
+    "out": "It's out: the kits m_c raised as {PRONOUN/m_c/poss} own have a parent in o_c_n.",
+    "out_outsider": "It's out: the kits m_c raised as {PRONOUN/m_c/poss} own have a parent outside the Clans.",
+    "news": "News of m_c and r_c reaches o_c_n. Their warriors glare across the border.",
+    "judged_there": "c_n hears that o_c_n has punished r_c for having kits with a cat from another Clan.",
+    "tease": [
+        "r_c mutters that m_c smells of o_c_n. m_c pretends not to hear.",
+        "r_c asks m_c which Clan {PRONOUN/m_c/subject}'d fight for."
+    ],
+    "tease_kittypet": "r_c says that m_c will run back to the Twolegs one day.",
+    "tease_wild": "r_c says that m_c doesn't have a drop of warrior blood.",
+    "steps_in": "r_c mutters that m_c smells of o_c_n, and another Clanmate tells {PRONOUN/r_c/object} to hush. m_c is as much a c_n cat as any of them.",
+    "learn_parent": "r_c can't keep it from m_c any longer. {PRONOUN/r_c/subject/CAP} {VERB/r_c/tell/tells} {PRONOUN/m_c/object} the truth: m_c has a parent in o_c_n.",
+    "learn_parent_outsider": "r_c can't keep it from m_c any longer. {PRONOUN/r_c/subject/CAP} {VERB/r_c/tell/tells} {PRONOUN/m_c/object} the truth: m_c has a parent outside the Clans.",
+    "learn_overheard": "m_c overhears two elders talking, and learns that {PRONOUN/m_c/subject} {VERB/m_c/have/has} a parent in o_c_n.",
+    "learn_overheard_outsider": "m_c overhears two elders talking, and learns that {PRONOUN/m_c/subject} {VERB/m_c/have/has} a parent outside the Clans.",
+    "learn_stolen": "m_c finds out that {PRONOUN/m_c/subject} {VERB/m_c/were/was} born in o_c_n, and carried off as a kit.",
+    "learn_deathbed": "With {PRONOUN/r_c/poss} last breaths, r_c tells m_c where {PRONOUN/m_c/subject} really {VERB/m_c/come/comes} from.",
+    "truth": {
+        "prompt": "You know where you really come from now. What do you do?",
+        "options": {
+            "quiet": "Keep it to yourself",
+            "confront": "Confront r_c",
+            "find": "Find your birth family"
+        },
+        "let_it_be": "Let it be"
+    },
+    "quiet": "m_c says nothing. It's {PRONOUN/m_c/poss} secret now, too.",
+    "confront": "m_c asks r_c for the truth, and this time, r_c doesn't look away.",
+    "find": "At the Gathering, m_c searches the crowd of o_c_n cats for a face like {PRONOUN/m_c/poss} own.",
+    "too_late": "m_c is too late. The cat {PRONOUN/m_c/subject} came to find walks with StarClan."
+}

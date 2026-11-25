@@ -72,12 +72,6 @@ def handle_having_kits(cat: Cat, clan):
     # Check if they can have kits.
     if not check_if_can_have_kits(cat):
         return
-    # BUTTERGEN: a cat whose only mates are in other Clans has no kits until Other Clans step 3
-    from scripts.honor import heart
-
-    if cat.mate and all(heart.no_kits(cat, Cat.fetch_cat(m)) for m in cat.mate):
-        return
-
     # DETERMINE THE SECOND PARENT
     # check if there is a cat in the clan for the second parent
     second_parent, is_affair = get_second_parent(cat, clan)
@@ -94,6 +88,10 @@ def handle_having_kits(cat: Cat, clan):
     from scripts.honor import healer as honor_healer
 
     chance = honor_healer.kit_chance(chance, cat, second_parent)
+    # BUTTERGEN: mates in different Clans have kits half as often (Other Clans step 3)
+    from scripts.honor import halfclan
+
+    chance = halfclan.kit_chance(chance, cat, second_parent)
     # BUTTERGEN: "Try for kits" makes a pair of mates 3 times likelier for a few moons
     from scripts.events_module.pregnancy import try_for_kits
 
@@ -156,7 +154,11 @@ def handle_having_kits(cat: Cat, clan):
         if cat.status.group_ID != clan.group_ID:
             clan = cat.status.fetch_clan_object(game.clan)
         
-        text, involved_cats = _create_pregnancy_announcement(cat, "announcement", clan, choice(second_parent), force_minor=True)
+        # BUTTERGEN: a secret mate isn't named
+        known_parents = halfclan.public_mates(cat, second_parent)
+        if not known_parents:
+            return
+        text, involved_cats = _create_pregnancy_announcement(cat, "announcement", clan, choice(known_parents), force_minor=True)
         
         game.cur_events_list.append(
             EventInformation(

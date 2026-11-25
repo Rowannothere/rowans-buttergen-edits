@@ -24,7 +24,9 @@
             }
         },
         "intro": [
-            "My leader speaks well of c_n. That's rare, believe me."
+            "My leader speaks well of c_n. That's rare, believe me.",
+            "[t_c lowers {PRONOUN/t_c/poss} voice.]",
+            "Last time, {PRONOUN/t_c/subject} called another Clan's deputy a mouse-brain in front of half the Gathering."
         ]
     },
     "bg_oc_ally_3": {
