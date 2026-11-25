@@ -2,7 +2,14 @@
 
 A development build, so keep a copy of your saves folder before playing.
 
+Changes:
+- A cat who asks the leader for the deputy's place now has to be trusted clearly more than the deputy, so the leader doesn't swap deputies over a small difference (a player report)
+- With the Pride and Joy card, cats who aren't the leader's kits can still ask to be deputy, but only get a yes once in a while, with its own event for the leader breaking tradition (a player suggestion)
+
 Fixes:
+- Talking to a cat with only a few lines that fit (like the leader when your cat is a kit) no longer gives the "Meow! This is a bug" line once those lines were all heard recently (a player report)
+- Dead cats made by an event who never lived in a Clan show "past warrior" in their profile instead of "past None warrior" (a player report)
+- A StarClan cat coaxed into the Dark Forest on a Dark Forest patrol gets their own backstory, instead of one saying they snuck into StarClan and were exiled (a player report)
 - A cat your cat has met from another Clan, or from outside the Clans, now shows your cat on their relationships screen, and shows on your cat's, even when outside and neutral relationships are hidden (a player report)
 
 <strong>Buttergen v0.4-dev.17</strong>

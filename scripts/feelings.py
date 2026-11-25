@@ -27,6 +27,10 @@ GOT_APPRENTICE, GOT_DEPUTY, DRIFT = -15, -30, -2
 RESENT_AT, ASK_AT, ASK_EVERY = 50, 75, 12
 RESENT_DROP = (1, 3)
 TURNED_DOWN_GRUDGE = 10
+# the leader only gives the deputy's place away to a cat trusted this much more than the deputy
+ASK_MARGIN = 30
+# with Pride and Joy in play, a cat who isn't the leader's kit gets a yes this often (after the trust check)
+NOT_KIN_YES = 0.2
 TIE_BREAK = 1.1
 
 # jealousy
@@ -222,10 +226,22 @@ def _asks():
         return
 
 
+def _not_kin(cat) -> bool:
+    """Pride and Joy is in play, and cat isn't one of the leader's kits"""
+    from scripts.config import get_config
+
+    leader = game.clan.leader
+    return bool(get_config("roles.only_leader_kits_deputy")) and bool(leader) and cat.ID not in leader.get_children()
+
+
 def _leader_says(leader, cat, deputy) -> str:
     from scripts import let_decide
 
-    return YES if let_decide.trust_in(leader, cat) > let_decide.trust_in(leader, deputy) else NO
+    if let_decide.trust_in(leader, cat) < let_decide.trust_in(leader, deputy) + ASK_MARGIN:
+        return NO
+    if _not_kin(cat) and random() >= NOT_KIN_YES:
+        return NO
+    return YES
 
 
 def answer_ask(cat, deputy, option):
@@ -233,14 +249,17 @@ def answer_ask(cat, deputy, option):
     from scripts.events_module.ceremony.perform_ceremony import trigger_ceremony
 
     clan = game.clan
+    not_kin = _not_kin(cat)
     if option == YES and _can_be_deputy(cat) and _alive_in_clan(deputy) and clan.deputy is deputy:
+        if not_kin:
+            _post("ask_yes_not_kin", cat, deputy, force=True)
         deputy.rank_change(R.WARRIOR)
         trigger_ceremony(cat, R.DEPUTY, {"past_deputy": deputy}, show_for_player_cat=True)
         clan.deputy = cat
         return
     d = data(cat)
     d["turned_down"] = d.get("turned_down", 0) + 1
-    _post("ask_no", cat, deputy, force=True)
+    _post("ask_no_not_kin" if not_kin else "ask_no", cat, deputy, force=True)
     if d["turned_down"] >= 2:
         from scripts.honor.acts import GRUDGE
 
