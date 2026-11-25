@@ -81,6 +81,8 @@ class Switch(StrEnum):
     # the group the MC is attempting to switch to
     change_group = auto()
 
+    last_used_POI = auto()
+
 
 _switches: Dict[str, Union[str, int, bool, list, dict, None]] = {
     "cat": "",
@@ -124,6 +126,7 @@ _switches: Dict[str, Union[str, int, bool, list, dict, None]] = {
     "patrolled": [],
     "window_open": False,
     "patrol_category": "clangen",
+    "last_used_POI": "",
     "next_possible_disaster": "",
     "have_kits": False,
     "request_apprentice": False,
